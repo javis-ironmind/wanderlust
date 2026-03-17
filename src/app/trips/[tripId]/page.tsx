@@ -5,6 +5,7 @@ import { useTrip, useTripActions } from '@/lib/store';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import AddActivityForm from '@/components/AddActivityForm';
 
 // Loading skeleton component
 function DaySkeleton() {
@@ -43,11 +44,12 @@ export default function TripDetailPage() {
   const params = useParams();
   const tripId = params.tripId as string;
   
-  const { trips, currentTripId } = useTrip();
+  const { trips } = useTrip();
   const { setCurrentTrip, addDay } = useTripActions();
   
   const [isLoading, setIsLoading] = useState(true);
   const [selectedDayId, setSelectedDayId] = useState<string | null>(null);
+  const [isActivityModalOpen, setIsActivityModalOpen] = useState(false);
   
   // Set current trip on mount
   useEffect(() => {
@@ -211,7 +213,10 @@ export default function TripDetailPage() {
                     </h3>
                     <p className="text-sm text-gray-500">{formatDate(selectedDay.date)}</p>
                   </div>
-                  <button className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm">
+                  <button 
+                    onClick={() => setIsActivityModalOpen(true)}
+                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm"
+                  >
                     + Add Activity
                   </button>
                 </div>
@@ -351,6 +356,17 @@ export default function TripDetailPage() {
           </div>
         </div>
       </div>
+      
+      {/* Add Activity Modal */}
+      {selectedDay && (
+        <AddActivityForm
+          isOpen={isActivityModalOpen}
+          onClose={() => setIsActivityModalOpen(false)}
+          tripId={trip.id}
+          dayId={selectedDay.id}
+          existingActivityCount={selectedDay.activities.length}
+        />
+      )}
     </div>
   );
 }
