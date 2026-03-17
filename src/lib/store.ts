@@ -24,6 +24,7 @@ interface TripActions {
   updateActivity: (tripId: string, dayId: string, activityId: string, updates: Partial<Activity>) => void;
   deleteActivity: (tripId: string, dayId: string, activityId: string) => void;
   reorderActivities: (tripId: string, dayId: string, activityIds: string[]) => void;
+  moveActivityToDay: (tripId: string, sourceDayId: string, destDayId: string, activityId: string, destIndex?: number) => void;
   
   // Flight actions
   addFlight: (tripId: string, flight: Flight) => void;
@@ -173,6 +174,57 @@ export const useTripStore = create<TripStore>((set) => ({
     })
   })),
   
+  moveActivityToDay: (tripId, sourceDayId, destDayId, activityId, destIndex) => set((state) => {
+    // If moving to same day, just reorder
+    if (sourceDayId === destDayId) {
+      return state;
+    }
+    
+    return {
+      trips: state.trips.map((trip) => {
+        if (trip.id !== tripId) return trip;
+        
+        let movedActivity: Activity | null = null;
+        
+        // Find and remove activity from source day
+        const updatedDays = trip.days.map((day) => {
+          if (day.id === sourceDayId) {
+            const activityIndex = day.activities.findIndex((a) => a.id === activityId);
+            if (activityIndex !== -1) {
+              movedActivity = { ...day.activities[activityIndex] };
+              const newActivities = [...day.activities];
+              newActivities.splice(activityIndex, 1);
+              return { ...day, activities: newActivities };
+            }
+          }
+          return day;
+        });
+        
+        if (!movedActivity) return trip;
+        
+        // Add activity to destination day
+        return {
+          ...trip,
+          days: updatedDays.map((day) => {
+            if (day.id === destDayId) {
+              const insertIndex = destIndex !== undefined 
+                ? Math.min(destIndex, day.activities.length)
+                : day.activities.length;
+              const newActivities = [...day.activities];
+              newActivities.splice(insertIndex, 0, movedActivity!);
+              // Reindex orders
+              return {
+                ...day,
+                activities: newActivities.map((a, i) => ({ ...a, order: i }))
+              };
+            }
+            return day;
+          })
+        };
+      })
+    };
+  }),
+  
   // Flight actions
   addFlight: (tripId, flight) => set((state) => ({
     trips: state.trips.map((trip) =>
@@ -254,6 +306,7 @@ export const useTripActions = () => useTripStore((state) => ({
   updateActivity: state.updateActivity,
   deleteActivity: state.deleteActivity,
   reorderActivities: state.reorderActivities,
+  moveActivityToDay: state.moveActivityToDay,
   addFlight: state.addFlight,
   updateFlight: state.updateFlight,
   deleteFlight: state.deleteFlight,
