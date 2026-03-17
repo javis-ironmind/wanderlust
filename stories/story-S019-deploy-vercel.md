@@ -12,7 +12,7 @@ Kelvin can use the app from anywhere
 ## Acceptance Criteria
 - [ ] AC1 - GitHub repository created or code pushed
 - [ ] AC2 - Vercel project connected to repository
-- [ ] AC3 - Environment variables configured (Mapbox token)
+- [ ] AC3 - Environment variables configured (Leaflet token)
 - [ ] AC4 - Production build succeeds
 - [ ] AC5 - Deployment completes without errors
 - [ ] AC6 - Custom domain or vercel.app URL works

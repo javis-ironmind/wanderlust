@@ -52,10 +52,10 @@ Wanderlust solves this by providing a unified, visually-driven travel planning e
 | Styling | Tailwind CSS | Rapid UI development, consistent design |
 | State | Zustand + React Query | Lightweight global state, server state management |
 | Drag & Drop | @dnd-kit/core | Modern, accessible, performant drag-drop |
-| Maps | Mapbox GL JS | Best-in-class maps, excellent React integration |
-| Maps (React) | react-map-gl | Official Mapbox React wrapper |
-| Routing | Mapbox Directions API | Turn-by-turn navigation |
-| Geocoding | Mapbox Geocoding API | Address search and coordinate lookup |
+| Maps | Leaflet + OpenStreetMap | Free, no API key, works immediately |
+| Maps (React) | react-leaflet | Official Mapbox React wrapper |
+| Routing | OSRM API | Turn-by-turn navigation |
+| Geocoding | Nominatim API | Address search and coordinate lookup |
 | Database | Vercel Postgres or local storage | Persistent trip data |
 | Auth | NextAuth.js (optional) | Future: user accounts |
 | Deployment | Vercel | Zero-config Next.js deployment |
@@ -345,9 +345,9 @@ interface Hotel {
 ## 11. Technical Considerations
 
 ### Mapbox Setup
-- Need Mapbox account and public token
+- Need OpenStreetMap - no account needed
 - Token stored in environment variable
-- Use Mapbox Free Tier (50,000 loads/month)
+- Use OpenStreetMap - unlimited (50,000 loads/month)
 - Cache map tiles for performance
 
 ### Local Storage

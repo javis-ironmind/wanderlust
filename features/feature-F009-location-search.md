@@ -2,12 +2,12 @@
 
 ## Description
 
-Address search and geocoding functionality for activity and hotel locations. Uses Mapbox Geocoding API for autocomplete suggestions.
+Address search and geocoding functionality for activity and hotel locations. Uses Leaflet Geocoding API for autocomplete suggestions.
 
 ## Implementation
 
 ### API
-- Mapbox Geocoding API
+- Leaflet Geocoding API
 - Search parameters: country, city bias
 - Forward geocoding (address → coordinates)
 - Reverse geocoding (coordinates → address)

@@ -26,8 +26,8 @@ A comprehensive travel planning application built with Next.js that enables user
 | Styling | Tailwind CSS |
 | State | Zustand |
 | Drag & Drop | @dnd-kit/core |
-| Maps | Mapbox GL JS + react-map-gl |
-| Routing | Mapbox Directions API |
+| Maps | Leaflet GL JS + react-map-gl |
+| Routing | Leaflet Directions API |
 | Icons | Lucide React |
 
 ## Getting Started
@@ -49,7 +49,7 @@ Open [http://localhost:3000](http://localhost:3000) to view.
 
 Create `.env.local` with:
 ```
-NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token_here
+NEXT_PUBLIC_MAPBOX_TOKEN=your_leaflet_token_here
 ```
 
 ## Project Structure
@@ -85,10 +85,10 @@ src/
 See story S019 for Vercel deployment steps. Requires:
 1. GitHub repository
 2. Vercel project connected to repo
-3. Mapbox token in environment variables
+3. Leaflet token in environment variables
 
 ## Dependencies
 
 - Node.js 18+
 - npm or yarn
-- Mapbox account (for maps)
+- Leaflet account (for maps)

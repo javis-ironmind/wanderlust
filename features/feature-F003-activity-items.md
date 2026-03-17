@@ -35,7 +35,7 @@ Add, edit, and manage individual activities within each day. Activities include 
 - [ ] AC2 - All form fields functional and validated
 - [ ] AC3 - Category selection with icon display
 - [ ] AC4 - Time picker for start/end times
-- [ ] AC5 - Location search with Mapbox Geocoding
+- [ ] AC5 - Location search with Leaflet Geocoding
 - [ ] AC6 - Can edit existing activity
 - [ ] AC7 - Can delete activity with confirmation
 - [ ] AC8 - Activities display in chronological order by start time

@@ -10,7 +10,7 @@ To see a map on the trip detail page
 I can visualize locations geographically
 
 ## Acceptance Criteria
-- [ ] AC1 - Mapbox map renders in right panel
+- [ ] AC1 - Leaflet map renders in right panel
 - [ ] AC2 - Map style is clean (light or navigation)
 - [ ] AC3 - Zoom controls visible
 - [ ] AC4 - Can pan around the map
@@ -19,4 +19,4 @@ I can visualize locations geographically
 - [ ] AC7 - Initial view shows world or trip region
 - [ ] AC8 - Map attribution visible
 - [ ] AC9 - Works on desktop Chrome/Firefox/Safari
-- [ ] AC10 - Graceful error if Mapbox token invalid
+- [ ] AC10 - Graceful error if Leaflet token invalid

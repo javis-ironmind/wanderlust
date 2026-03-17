@@ -7,12 +7,12 @@ Generate turn-by-turn routes between daily activities on the map. Shows travel t
 ## Implementation
 
 ### API
-- Mapbox Directions API
+- Leaflet Directions API
 - Walking/driving profile
 - Waypoint optimization
 
 ### Components Needed
-- `RouteLayer` - Mapbox layer for route lines
+- `RouteLayer` - Leaflet layer for route lines
 - `RouteSummary` - Panel showing total time/distance
 - `RouteDetails` - Step-by-step directions
 - `RouteOptions` - Driving/walking/fastest scenic

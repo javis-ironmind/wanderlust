@@ -7,7 +7,7 @@ Display daily itinerary activities on an interactive map. Each day shows all act
 ## Implementation
 
 ### Map Provider
-- Mapbox GL JS via react-map-gl
+- Leaflet GL JS via react-map-gl
 - Custom map style (light/navigation)
 - Custom markers for different activity types
 
