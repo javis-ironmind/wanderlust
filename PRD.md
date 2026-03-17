@@ -53,7 +53,7 @@ Wanderlust solves this by providing a unified, visually-driven travel planning e
 | State | Zustand + React Query | Lightweight global state, server state management |
 | Drag & Drop | @dnd-kit/core | Modern, accessible, performant drag-drop |
 | Maps | Leaflet + OpenStreetMap | Free, no API key, works immediately |
-| Maps (React) | react-leaflet | Official Mapbox React wrapper |
+| Maps (React) | react-leaflet | Official Leaflet React wrapper |
 | Routing | OSRM API | Turn-by-turn navigation |
 | Geocoding | Nominatim API | Address search and coordinate lookup |
 | Database | Vercel Postgres or local storage | Persistent trip data |
@@ -344,7 +344,7 @@ interface Hotel {
 
 ## 11. Technical Considerations
 
-### Mapbox Setup
+### Leaflet Setup
 - Need OpenStreetMap - no account needed
 - Token stored in environment variable
 - Use OpenStreetMap - unlimited (50,000 loads/month)
@@ -392,7 +392,7 @@ wanderlust/
 │   │   └── forms/
 │   ├── lib/
 │   │   ├── store.ts
-│   │   ├── mapbox.ts
+│   │   ├── leaflet.ts
 │   │   ├── utils.ts
 │   │   └── types.ts
 │   └── styles/
@@ -432,7 +432,7 @@ wanderlust/
 - [ ] Link flights/hotels to days
 
 ### Milestone 5: Map Integration
-- [ ] Mapbox setup
+- [ ] Leaflet setup
 - [ ] Display activities on map
 - [ ] Route generation
 - [ ] Navigation between points

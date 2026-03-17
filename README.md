@@ -49,7 +49,7 @@ Open [http://localhost:3000](http://localhost:3000) to view.
 
 Create `.env.local` with:
 ```
-NEXT_PUBLIC_MAPBOX_TOKEN=your_leaflet_token_here
+# No API key needed - using Leaflet + OpenStreetMap
 ```
 
 ## Project Structure
