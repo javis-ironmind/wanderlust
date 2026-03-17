@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import { Activity, Day } from '@/lib/types';
 import { ActivityCard } from './ActivityCard';
-import { GripVertical } from 'lucide-react';
 
 interface SortableActivityListProps {
   tripId: string;
@@ -25,9 +24,7 @@ interface DragState {
 export function SortableActivityList({
   tripId,
   day,
-  days,
   onMoveActivity,
-  onReorder,
   onEditActivity,
   onDeleteActivity,
 }: SortableActivityListProps) {
@@ -124,7 +121,7 @@ export function SortableActivityList({
         </div>
       ) : (
         <div className="space-y-2">
-          {day.activities.map((activity, index) => {
+          {day.activities.map((activity) => {
             const isDragging = dragState.draggedActivityId === activity.id;
             
             return (
