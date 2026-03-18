@@ -12,6 +12,7 @@ import CloudSyncSettings from '@/components/CloudSyncSettings';
 import CalendarExport from '@/components/CalendarExport';
 import { FlightForm } from '@/components/FlightForm';
 import { HotelForm } from '@/components/HotelForm';
+import { hasWriteAccess, validateAccessCode } from '@/lib/shareTrip';
 
 type Activity = {
   id: string;
@@ -82,8 +83,31 @@ export default function TripDetailPage() {
   const [showMap, setShowMap] = useState(false); // AC5: FAB to toggle map view on/off
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [showHotelModal, setShowHotelModal] = useState(false);
+  const [isSharedReadOnly, setIsSharedReadOnly] = useState(false);
+  const [shareCode, setShareCode] = useState<string | null>(null);
 
-  // AC1 & AC6: Compute markers from activities with locations
+  // AC2 & AC6: Check for share parameter and track views
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('share');
+      
+      if (code) {
+        setShareCode(code);
+        const permission = validateAccessCode(tripId, code);
+        
+        // If no valid permission or only read, show read-only
+        if (!permission || permission === 'read') {
+          setIsSharedReadOnly(true);
+        }
+        
+        // AC6: Track view count in localStorage
+        const viewKey = `wanderlust_views_${tripId}`;
+        const views = parseInt(localStorage.getItem(viewKey) || '0', 10);
+        localStorage.setItem(viewKey, String(views + 1));
+      }
+    }
+  }, [tripId]);
   const markers = useMemo(() => {
     if (!trip?.days) return [];
     const allActivities = trip.days.flatMap(day => day.activities);
@@ -219,6 +243,13 @@ export default function TripDetailPage() {
     }
     
     setQuickAddText(prev => ({ ...prev, [dayId]: '' }));
+  };
+
+  // AC6: Get view count
+  const getViewCount = () => {
+    if (typeof window === 'undefined') return 0;
+    const viewKey = `wanderlust_views_${tripId}`;
+    return parseInt(localStorage.getItem(viewKey) || '0', 10);
   };
 
   // Auto-fill day placeholder
@@ -442,6 +473,27 @@ export default function TripDetailPage() {
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>
           {trip.name}
         </h1>
+        {/* AC2: Show read-only indicator for shared trips */}
+        {isSharedReadOnly && (
+          <div style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '0.5rem',
+            padding: '0.5rem 1rem', 
+            background: 'rgba(139, 92, 246, 0.2)', 
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            border: '1px solid #8b5cf6'
+          }}>
+            <span style={{ fontSize: '1rem' }}>👁️</span>
+            <span style={{ color: '#c4b5fd', fontSize: '0.875rem', fontWeight: '600' }}>
+              Viewing Shared Trip {shareCode && `(Code: ${shareCode})`}
+            </span>
+            <span style={{ color: '#a78bfa', fontSize: '0.75rem' }}>
+              • {getViewCount()} views
+            </span>
+          </div>
+        )}
         <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>
           {trip.startDate} → {trip.endDate}
         </p>
@@ -653,26 +705,28 @@ export default function TripDetailPage() {
                       </p>
                     </div>
                   </div>
-                  {/* Quick add button in header */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setSelectedDay(day.id); setShowAddModal(true); }}
-                    style={{
-                      background: '#3b82f6',
-                      color: 'white',
-                      padding: '0.4rem 0.75rem',
-                      borderRadius: '6px',
-                      border: 'none',
-                      fontSize: '0.75rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                    }}
-                  >
-                    + Add
-                  </button>
+                  {/* Quick add button in header - hidden in read-only */}
+                  {!isSharedReadOnly && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedDay(day.id); setShowAddModal(true); }}
+                      style={{
+                        background: '#3b82f6',
+                        color: 'white',
+                        padding: '0.4rem 0.75rem',
+                        borderRadius: '6px',
+                        border: 'none',
+                        fontSize: '0.75rem',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      + Add
+                    </button>
+                  )}
                 </div>
                 
-                {/* AC3: "Add a place" input when expanded */}
-                {isExpanded && (
+                {/* AC3: "Add a place" input when expanded - hidden in read-only */}
+                {isExpanded && !isSharedReadOnly && (
                   <div style={{ padding: '0.75rem 1.25rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <input
@@ -706,39 +760,41 @@ export default function TripDetailPage() {
                         Add
                       </button>
                     </div>
-                    {/* AC4: Auto-fill and Optimize buttons */}
-                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                      <button
-                        onClick={() => handleAutoFillDay(day.id)}
-                        style={{
-                          background: '#f59e0b',
-                          color: 'white',
-                          padding: '0.35rem 0.75rem',
-                          borderRadius: '6px',
-                          border: 'none',
-                          fontSize: '0.7rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        ⚡ Auto-fill day
-                      </button>
-                      <button
-                        onClick={() => handleOptimizeRoute(day.id)}
-                        style={{
-                          background: '#8b5cf6',
-                          color: 'white',
-                          padding: '0.35rem 0.75rem',
-                          borderRadius: '6px',
-                          border: 'none',
-                          fontSize: '0.7rem',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        🗺️ Optimize route
-                      </button>
-                    </div>
+                    {/* AC4: Auto-fill and Optimize buttons - hidden in read-only */}
+                    {!isSharedReadOnly && (
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                        <button
+                          onClick={() => handleAutoFillDay(day.id)}
+                          style={{
+                            background: '#f59e0b',
+                            color: 'white',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '0.7rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          ⚡ Auto-fill day
+                        </button>
+                        <button
+                          onClick={() => handleOptimizeRoute(day.id)}
+                          style={{
+                            background: '#8b5cf6',
+                            color: 'white',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '6px',
+                            border: 'none',
+                            fontSize: '0.7rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          🗺️ Optimize route
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -893,18 +949,20 @@ export default function TripDetailPage() {
         )}
       </div>
 
-      {/* Mobile Floating Action Button */}
-      <button
-        className="mobile-fab hide-on-desktop"
-        onClick={() => setShowAddModal(true)}
-        aria-label="Add Activity"
-        style={{
-          border: 'none',
-          cursor: 'pointer',
-        }}
-      >
-        <span style={{ fontSize: '1.5rem', fontWeight: '300' }}>+</span>
-      </button>
+      {/* Mobile Floating Action Button - disabled in read-only mode */}
+      {!isSharedReadOnly && (
+        <button
+          className="mobile-fab hide-on-desktop"
+          onClick={() => setShowAddModal(true)}
+          aria-label="Add Activity"
+          style={{
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          <span style={{ fontSize: '1.5rem', fontWeight: '300' }}>+</span>
+        </button>
+      )}
 
       {/* Add Activity Modal - full screen on mobile */}
       {showAddModal && (
@@ -1139,22 +1197,26 @@ export default function TripDetailPage() {
         </div>
       )}
 
-      {/* AC4: Floating Action Buttons */}
+      {/* AC4: Floating Action Buttons - modified for read-only mode */}
       <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', zIndex: 100 }}>
-        <button onClick={() => setShowAddModal(true)} style={{
-          width: '56px', height: '56px', borderRadius: '16px', border: 'none',
-          background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-          color: 'white', fontSize: '1.5rem', cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)',
-        }}>+</button>
+        {!isSharedReadOnly && (
+          <button onClick={() => setShowAddModal(true)} style={{
+            width: '56px', height: '56px', borderRadius: '16px', border: 'none',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+            color: 'white', fontSize: '1.5rem', cursor: 'pointer',
+            boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)',
+          }}>+</button>
+        )}
         <button onClick={() => trip && exportTripToPDF(trip)} style={{
           width: '48px', height: '48px', borderRadius: '14px', border: 'none',
           background: '#10b981', color: 'white', fontSize: '1.25rem', cursor: 'pointer',
         }}>📄</button>
-        <button onClick={() => setShowShareModal(true)} style={{
-          width: '48px', height: '48px', borderRadius: '14px', border: 'none',
-          background: '#8b5cf6', color: 'white', fontSize: '1.25rem', cursor: 'pointer',
-        }}>🔗</button>
+        {!isSharedReadOnly && (
+          <button onClick={() => setShowShareModal(true)} style={{
+            width: '48px', height: '48px', borderRadius: '14px', border: 'none',
+            background: '#8b5cf6', color: 'white', fontSize: '1.25rem', cursor: 'pointer',
+          }}>🔗</button>
+        )}
       </div>
 
     </div>
