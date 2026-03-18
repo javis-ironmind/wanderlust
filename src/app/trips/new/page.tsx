@@ -77,10 +77,9 @@ export default function NewTripPage() {
                   borderRadius: '12px', 
                   border: '2px solid #e2e8f0', 
                   fontSize: '1rem',
-                  transition: 'border-color 0.2s',
                   outline: 'none',
                 }}
-                placeholder="e.g., Japan Adventure"
+                placeholder="e.g., San Francisco"
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
               />
