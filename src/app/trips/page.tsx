@@ -1,18 +1,73 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+
+type Trip = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+};
+
 export default function TripsPage() {
+  const [trips, setTrips] = useState<Trip[]>([]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      setTrips(JSON.parse(saved));
+    }
+  }, []);
+
   return (
-    <html>
-      <head>
-        <title>My Trips</title>
-      </head>
-      <body style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', minHeight: '100vh', padding: '2rem', fontFamily: 'system-ui' }}>
-        <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-          <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'white' }}>My Trips</h1>
-          <p style={{ color: 'white', marginBottom: '2rem' }}>No trips yet</p>
-          <a href="/trips/new" style={{ background: 'white', color: '#667eea', padding: '12px 24px', borderRadius: '8px', textDecoration: 'none' }}>
+    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'white' }}>My Trips</h1>
+      
+      {trips.length === 0 ? (
+        <div style={{ marginTop: '2rem' }}>
+          <p style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+            No trips yet - Start planning your next adventure!
+          </p>
+          <a
+            href="/trips/new"
+            style={{
+              background: 'white',
+              color: '#667eea',
+              padding: '14px 28px',
+              borderRadius: '12px',
+              textDecoration: 'none',
+              fontWeight: '600',
+              display: 'inline-block'
+            }}
+          >
             Create Your First Trip
           </a>
         </div>
-      </body>
-    </html>
-  )
+      ) : (
+        <div style={{ marginTop: '2rem' }}>
+          {trips.map(trip => (
+            <a
+              key={trip.id}
+              href={`/trips/${trip.id}`}
+              style={{
+                display: 'block',
+                background: 'white',
+                padding: '1.5rem',
+                borderRadius: '12px',
+                marginBottom: '1rem',
+                textDecoration: 'none',
+                color: '#333',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}
+            >
+              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{trip.name}</h3>
+              <p style={{ margin: '0.5rem 0 0', color: '#666' }}>
+                {trip.startDate} → {trip.endDate}
+              </p>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
