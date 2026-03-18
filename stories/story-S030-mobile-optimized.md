@@ -15,7 +15,7 @@ The app needs to work well on mobile devices. Current responsive CSS is basic - 
 
 - [x] Add touch-friendly button sizes (min 44px tap targets)
 - [x] Implement swipe-to-delete for activities
-- [ ] Add pull-to-refresh on trip list
+- [x] Add pull-to-refresh on trip list
 - [x] Optimize modal/drawer for mobile (full-screen on mobile, modal on desktop)
 - [x] Add mobile bottom navigation or floating action button
 

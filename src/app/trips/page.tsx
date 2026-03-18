@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 type Trip = {
   id: string;
@@ -12,8 +12,11 @@ type Trip = {
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  const loadTrips = () => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('wanderlust_trips');
       if (saved) {
@@ -21,6 +24,37 @@ export default function TripsPage() {
       }
       setLoading(false);
     }
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setTimeout(() => {
+      loadTrips();
+      setRefreshing(false);
+    }, 800);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStart !== null && window.innerWidth <= 768) {
+      const currentY = e.touches[0].clientY;
+      const diff = currentY - touchStart;
+      if (diff > 60 && window.scrollY === 0) {
+        handleRefresh();
+        setTouchStart(null);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setTouchStart(null);
+  };
+
+  useEffect(() => {
+    loadTrips();
   }, []);
 
   if (loading) {
@@ -39,11 +73,27 @@ export default function TripsPage() {
   }
 
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
-      padding: '2rem',
-    }}>
+    <div 
+      ref={containerRef}
+      style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+        padding: '2rem',
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {refreshing && (
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '0.5rem', 
+          color: 'rgba(255,255,255,0.8)',
+          fontSize: '0.875rem'
+        }}>
+          ↻ Refreshing...
+        </div>
+      )}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
           My Trips ✈️
