@@ -8,6 +8,7 @@ import { ShareModal } from '@/components/ShareModal';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { BudgetWidget } from '@/components/BudgetWidget';
 import PackingList from '@/components/PackingList';
+import CloudSyncSettings from '@/components/CloudSyncSettings';
 import CalendarExport from '@/components/CalendarExport';
 
 type Activity = {
@@ -251,6 +252,11 @@ export default function TripDetailPage() {
 
         {/* Budget Widget */}
         <BudgetWidget trip={trip} onUpdateBudget={handleUpdateBudget} />
+
+        {/* Cloud Sync Settings */}
+        <div style={{ marginTop: '1rem' }}>
+          <CloudSyncSettings />
+        </div>
 
         {/* Packing List */}
         <div style={{ marginTop: '1rem' }}>

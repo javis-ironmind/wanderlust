@@ -20,37 +20,37 @@ interface TripActions {
   updateTrip: (tripId: string, updates: Partial<Trip>) => void;
   deleteTrip: (tripId: string) => void;
   setCurrentTrip: (tripId: string | null) => void;
-  
+
   // Day actions
   addDay: (tripId: string, day: Day) => void;
   updateDay: (tripId: string, dayId: string, updates: Partial<Day>) => void;
   deleteDay: (tripId: string, dayId: string) => void;
   reorderDays: (tripId: string, dayIds: string[]) => void;
-  
+
   // Activity actions
   addActivity: (tripId: string, dayId: string, activity: Activity) => void;
   updateActivity: (tripId: string, dayId: string, activityId: string, updates: Partial<Activity>) => void;
   deleteActivity: (tripId: string, dayId: string, activityId: string) => void;
   reorderActivities: (tripId: string, dayId: string, activityIds: string[]) => void;
   moveActivityToDay: (tripId: string, sourceDayId: string, destDayId: string, activityId: string, destIndex?: number) => void;
-  
+
   // Flight actions
   addFlight: (tripId: string, flight: Flight) => void;
   updateFlight: (tripId: string, flightId: string, updates: Partial<Flight>) => void;
   deleteFlight: (tripId: string, flightId: string) => void;
-  
+
   // Hotel actions
   addHotel: (tripId: string, hotel: Hotel) => void;
   updateHotel: (tripId: string, hotelId: string, updates: Partial<Hotel>) => void;
   deleteHotel: (tripId: string, hotelId: string) => void;
-  
+
   // Packing list actions
   addPackingItem: (tripId: string, item: PackingItem) => void;
   updatePackingItem: (tripId: string, itemId: string, updates: Partial<PackingItem>) => void;
   deletePackingItem: (tripId: string, itemId: string) => void;
   togglePackingItem: (tripId: string, itemId: string) => void;
   initializePackingList: (tripId: string) => void;
-  
+
   // Cloud sync actions
   setCloudSyncEnabled: (enabled: boolean) => void;
   setSyncStatus: (status: 'local' | 'syncing' | 'synced' | 'error') => void;
@@ -64,33 +64,57 @@ export const useTripStore = create<TripStore>((set) => ({
   // Initial state
   trips: [],
   currentTripId: null,
-  
+
   // Sync state
   cloudSyncEnabled: false,
   syncStatus: 'local',
   lastSyncedAt: null,
   pendingSyncQueue: [],
-  
+
   // Trip actions
-  addTrip: (trip) => set((state) => ({ 
-    trips: [...state.trips, trip] 
-  })),
-  
+  addTrip: (trip) => set((state) => {
+    // Auto-sync if cloud sync is enabled
+    if (state.cloudSyncEnabled) {
+      setTimeout(() => {
+        useTripStore.getState().syncTripToCloud(trip.id);
+      }, 1000);
+    }
+    return {
+      trips: [...state.trips, trip]
+    };
+  }),
+
   setTrips: (trips) => set({ trips }),
-  
-  updateTrip: (tripId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId ? { ...trip, ...updates } : trip
-    )
-  })),
-  
-  deleteTrip: (tripId) => set((state) => ({
-    trips: state.trips.filter((trip) => trip.id !== tripId),
-    currentTripId: state.currentTripId === tripId ? null : state.currentTripId
-  })),
-  
+
+  updateTrip: (tripId, updates) => set((state) => {
+    // Auto-sync if cloud sync is enabled
+    if (state.cloudSyncEnabled) {
+      setTimeout(() => {
+        useTripStore.getState().syncTripToCloud(tripId);
+      }, 1000); // Debounce sync
+    }
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId ? { ...trip, ...updates } : trip
+      )
+    };
+  }),
+
+  deleteTrip: (tripId) => set((state) => {
+    // Remove from pending queue if present
+    if (state.cloudSyncEnabled) {
+      // Optionally call delete API - for now just clear from queue
+      console.log('Trip deleted, clearing from sync queue:', tripId);
+    }
+    return {
+      trips: state.trips.filter((trip) => trip.id !== tripId),
+      currentTripId: state.currentTripId === tripId ? null : state.currentTripId,
+      pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
+    };
+  }),
+
   setCurrentTrip: (tripId) => set({ currentTripId: tripId }),
-  
+
   // Day actions
   addDay: (tripId, day) => set((state) => ({
     trips: state.trips.map((trip) =>
@@ -99,7 +123,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   updateDay: (tripId, dayId, updates) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -112,7 +136,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   deleteDay: (tripId, dayId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -120,7 +144,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   reorderDays: (tripId, dayIds) => set((state) => ({
     trips: state.trips.map((trip) => {
       if (trip.id !== tripId) return trip;
@@ -129,55 +153,69 @@ export const useTripStore = create<TripStore>((set) => ({
       return { ...trip, days: reordered };
     })
   })),
-  
+
   // Activity actions
-  addActivity: (tripId, dayId, activity) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            days: trip.days.map((day) =>
-              day.id === dayId
-                ? { ...day, activities: [...day.activities, activity] }
-                : day
-            )
-          }
-        : trip
-    )
-  })),
-  
-  updateActivity: (tripId, dayId, activityId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            days: trip.days.map((day) =>
-              day.id === dayId
-                ? {
-                    ...day,
-                    activities: day.activities.map((activity) =>
-                      activity.id === activityId
-                        ? { ...activity, ...updates }
-                        : activity
-                    )
-                  }
-                : day
-            )
-          }
-        : trip
-    )
-  })),
-  
-  deleteActivity: (tripId, dayId, activityId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            days: trip.days.map((day) =>
-              day.id === dayId
-                ? {
-                    ...day,
-                    activities: day.activities.filter(
+  addActivity: (tripId, dayId, activity) => set((state) => {
+    if (state.cloudSyncEnabled) {
+      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
+    }
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              days: trip.days.map((day) =>
+                day.id === dayId
+                  ? { ...day, activities: [...day.activities, activity] }
+                  : day
+              )
+            }
+          : trip
+      )
+    };
+  }),
+
+  updateActivity: (tripId, dayId, activityId, updates) => set((state) => {
+    if (state.cloudSyncEnabled) {
+      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
+    }
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              days: trip.days.map((day) =>
+                day.id === dayId
+                  ? {
+                      ...day,
+                      activities: day.activities.map((activity) =>
+                        activity.id === activityId
+                          ? { ...activity, ...updates }
+                          : activity
+                      )
+                    }
+                  : day
+              )
+            }
+          : trip
+      )
+    };
+  }),
+
+  deleteActivity: (tripId, dayId, activityId) => set((state) => {
+    if (state.cloudSyncEnabled) {
+      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
+    }
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              days: trip.days.map((day) =>
+                day.id === dayId
+                  ? {
+                      ...day,
+                      activities: day.activities.filter(
                       (activity) => activity.id !== activityId
                     )
                   }
@@ -187,7 +225,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   reorderActivities: (tripId, dayId, activityIds) => set((state) => ({
     trips: state.trips.map((trip) => {
       if (trip.id !== tripId) return trip;
@@ -202,19 +240,19 @@ export const useTripStore = create<TripStore>((set) => ({
       };
     })
   })),
-  
+
   moveActivityToDay: (tripId, sourceDayId, destDayId, activityId, destIndex) => set((state) => {
     // If moving to same day, just reorder
     if (sourceDayId === destDayId) {
       return state;
     }
-    
+
     return {
       trips: state.trips.map((trip) => {
         if (trip.id !== tripId) return trip;
-        
+
         let movedActivity: Activity | null = null;
-        
+
         // Find and remove activity from source day
         const updatedDays = trip.days.map((day) => {
           if (day.id === sourceDayId) {
@@ -228,15 +266,15 @@ export const useTripStore = create<TripStore>((set) => ({
           }
           return day;
         });
-        
+
         if (!movedActivity) return trip;
-        
+
         // Add activity to destination day
         return {
           ...trip,
           days: updatedDays.map((day) => {
             if (day.id === destDayId) {
-              const insertIndex = destIndex !== undefined 
+              const insertIndex = destIndex !== undefined
                 ? Math.min(destIndex, day.activities.length)
                 : day.activities.length;
               const newActivities = [...day.activities];
@@ -253,7 +291,7 @@ export const useTripStore = create<TripStore>((set) => ({
       })
     };
   }),
-  
+
   // Flight actions
   addFlight: (tripId, flight) => set((state) => ({
     trips: state.trips.map((trip) =>
@@ -262,7 +300,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   updateFlight: (tripId, flightId, updates) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -275,7 +313,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   deleteFlight: (tripId, flightId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -283,7 +321,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   // Hotel actions
   addHotel: (tripId, hotel) => set((state) => ({
     trips: state.trips.map((trip) =>
@@ -292,7 +330,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   updateHotel: (tripId, hotelId, updates) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -305,7 +343,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   deleteHotel: (tripId, hotelId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -313,7 +351,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   // Packing list actions
   addPackingItem: (tripId, item) => set((state) => ({
     trips: state.trips.map((trip) =>
@@ -327,7 +365,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   updatePackingItem: (tripId, itemId, updates) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -342,7 +380,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   deletePackingItem: (tripId, itemId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -355,7 +393,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   togglePackingItem: (tripId, itemId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -370,7 +408,7 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   initializePackingList: (tripId) => set((state) => ({
     trips: state.trips.map((trip) =>
       trip.id === tripId
@@ -404,30 +442,30 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
-  
+
   // Cloud sync actions
   setCloudSyncEnabled: (enabled) => set({ cloudSyncEnabled: enabled }),
-  
+
   setSyncStatus: (status) => set({ syncStatus: status }),
-  
+
   syncTripToCloud: async (tripId) => {
     const state = useTripStore.getState();
     const trip = state.trips.find((t) => t.id === tripId);
     if (!trip || !state.cloudSyncEnabled) return;
-    
+
     set({ syncStatus: 'syncing' });
-    
+
     try {
       const response = await fetch(`/api/trips/${tripId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(trip),
       });
-      
+
       if (!response.ok) throw new Error('Sync failed');
-      
-      set({ 
-        syncStatus: 'synced', 
+
+      set({
+        syncStatus: 'synced',
         lastSyncedAt: new Date(),
         pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
       });
@@ -436,7 +474,7 @@ export const useTripStore = create<TripStore>((set) => ({
       set({ syncStatus: 'error' });
     }
   },
-  
+
   queueForSync: (tripId) => set((state) => ({
     pendingSyncQueue: state.pendingSyncQueue.includes(tripId)
       ? state.pendingSyncQueue

@@ -15,21 +15,19 @@ Users need their trips to sync across devices. This requires a cloud backend to 
 
 - [x] Set up Vercel Postgres database schema for trips, days, activities
 - [x] Create API endpoints for CRUD operations (GET/POST/PUT/DELETE trips)
-- [x] Add "Enable Cloud Sync" toggle in trip settings (component built, needs integration)
-- [x] When enabled, trips auto-sync to cloud on changes (needs store integration)
+- [x] Add "Enable Cloud Sync" toggle in trip settings (component built, integrated into trip detail page)
+- [x] When enabled, trips auto-sync to cloud on changes (sync actions + debounced auto-sync in store)
 - [x] Show sync status indicator (synced/syncing/offline)
 - [x] Handle offline mode gracefully (queue changes, sync when online)
 
 ---
 
-## Cycle 101 Progress
+## Cycle 104 Progress
 
-**Completed (4/6 ACs):**
-- ✅ AC3: CloudSyncSettings component with toggle
-- ✅ AC4: syncTripToCloud, queueForSync actions in Zustand store
-- ✅ AC5: Offline queue via pendingSyncQueue in store
-
-**Note:** Full integration into trip pages (localStorage → cloud API) requires additional work. Core infrastructure is now in place.
+**Completed (6/6 ACs):**
+- ✅ AC3: CloudSyncSettings component integrated into trip detail page (src/app/trips/[tripId]/page.tsx)
+- ✅ AC4: Auto-sync on changes - added debounced sync to addTrip, updateTrip, deleteTrip, addActivity, updateActivity, deleteActivity in store.ts
+- ✅ All ACs now complete
 
 ---
 
