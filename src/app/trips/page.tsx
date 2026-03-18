@@ -7,6 +7,7 @@ type Trip = {
   name: string;
   startDate: string;
   endDate: string;
+  coverImage?: string;
 };
 
 export default function TripsPage() {
@@ -73,6 +74,16 @@ export default function TripsPage() {
   }
 
   return (
+    <>
+    <style>{`
+      .trip-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 24px -8px rgba(0,0,0,0.2) !important;
+      }
+      .create-card:hover {
+        background: rgba(255,255,255,0.15) !important;
+      }
+    `}</style>
     <div 
       ref={containerRef}
       style={{ 
@@ -121,7 +132,7 @@ export default function TripsPage() {
             </a>
           </div>
         ) : (
-          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {trips.map(trip => (
               <a
                 key={trip.id}
@@ -129,23 +140,34 @@ export default function TripsPage() {
                 style={{
                   display: 'block',
                   background: 'white',
-                  padding: '1.5rem',
                   borderRadius: '16px',
+                  overflow: 'hidden',
                   textDecoration: 'none',
                   color: '#1e3a5f',
                   boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  cursor: 'pointer',
                 }}
+                className="trip-card"
               >
-                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
-                <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
-                  📅 {trip.startDate} → {trip.endDate}
-                </p>
+                <div style={{
+                  height: '160px',
+                  background: trip.coverImage 
+                    ? `url(${trip.coverImage}) center/cover`
+                    : `linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)`,
+                }} />
+                <div style={{ padding: '1.25rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
+                  <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
+                    📅 {trip.startDate} → {trip.endDate}
+                  </p>
+                </div>
               </a>
             ))}
             
             <a
               href="/trips/new"
+              className="create-card"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -158,6 +180,8 @@ export default function TripsPage() {
                 textDecoration: 'none',
                 fontWeight: '500',
                 border: '2px dashed rgba(255,255,255,0.3)',
+                minHeight: '200px',
+                transition: 'background 0.2s ease',
               }}
             >
               + Create New Trip
@@ -166,5 +190,6 @@ export default function TripsPage() {
         )}
       </div>
     </div>
+    </>
   );
 }
