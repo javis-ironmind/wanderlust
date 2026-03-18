@@ -60,6 +60,7 @@ type Trip = {
   flights: any[];
   hotels: any[];
   budgetTotal?: number;
+  categories?: string[];
 };
 
 export default function TripDetailPage() {
@@ -87,6 +88,13 @@ export default function TripDetailPage() {
   const [showHotelModal, setShowHotelModal] = useState(false);
   const [isSharedReadOnly, setIsSharedReadOnly] = useState(false);
   const [shareCode, setShareCode] = useState<string | null>(null);
+  
+  // T015: Category editing state
+  const [showCategoryEditor, setShowCategoryEditor] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [customCategory, setCustomCategory] = useState('');
+  
+  const PREDEFINED_CATEGORIES = ['Business', 'Vacation', 'Adventure', 'Cultural', 'Relaxation', 'Romantic', 'Family', 'Solo'];
 
   // AC2 & AC6: Check for share parameter and track views
   useEffect(() => {
@@ -193,6 +201,48 @@ export default function TripDetailPage() {
   const handleUpdateBudget = (budget: number) => {
     if (!trip) return;
     const updatedTrip = { ...trip, budgetTotal: budget };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+  };
+
+  // T015: Handle add category
+  const handleAddCategory = () => {
+    if (!trip) return;
+    const categoryToAdd = selectedCategory === 'custom' ? customCategory.trim() : selectedCategory;
+    if (!categoryToAdd) return;
+    
+    const currentCategories = trip.categories || [];
+    if (currentCategories.includes(categoryToAdd)) return;
+    
+    const updatedTrip = { ...trip, categories: [...currentCategories, categoryToAdd] };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+    
+    setSelectedCategory('');
+    setCustomCategory('');
+    setShowCategoryEditor(false);
+  };
+
+  // T015: Handle remove category
+  const handleRemoveCategory = (categoryToRemove: string) => {
+    if (!trip) return;
+    
+    const updatedTrip = { 
+      ...trip, 
+      categories: (trip.categories || []).filter(c => c !== categoryToRemove) 
+    };
     setTrip(updatedTrip);
     
     const saved = localStorage.getItem('wanderlust_trips');
@@ -377,6 +427,85 @@ export default function TripDetailPage() {
           <p style={{ color: 'rgba(255,255,255,0.8)', margin: '0.25rem 0 0' }}>
             📅 {trip?.startDate} → {trip?.endDate}
           </p>
+          {/* T015: Category display and editing */}
+          <div style={{ marginTop: '0.5rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+            {trip?.categories && trip.categories.length > 0 ? (
+              trip.categories.map((cat) => (
+                <span key={cat} style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.25rem',
+                  padding: '0.25rem 0.5rem', background: 'rgba(59, 130, 246, 0.3)',
+                  borderRadius: '6px', color: 'white', fontSize: '0.75rem', fontWeight: '600',
+                }}>
+                  {cat}
+                  {!isSharedReadOnly && (
+                    <button
+                      onClick={() => handleRemoveCategory(cat)}
+                      style={{
+                        background: 'transparent', border: 'none', color: 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer', padding: '0', marginLeft: '0.25rem', fontSize: '0.75rem',
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </span>
+              ))
+            ) : (
+              <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>No categories</span>
+            )}
+            {!isSharedReadOnly && (
+              <button
+                onClick={() => setShowCategoryEditor(!showCategoryEditor)}
+                style={{
+                  background: 'rgba(139, 92, 246, 0.3)', border: 'none', borderRadius: '6px',
+                  color: 'white', fontSize: '0.7rem', padding: '0.25rem 0.5rem', cursor: 'pointer',
+                }}
+              >
+                + Category
+              </button>
+            )}
+          </div>
+          {/* T015: Category editor dropdown */}
+          {showCategoryEditor && !isSharedReadOnly && (
+            <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                style={{
+                  padding: '0.35rem 0.5rem', borderRadius: '6px', border: 'none',
+                  fontSize: '0.75rem', background: 'white', color: '#1e3a5f',
+                }}
+              >
+                <option value="">Select category...</option>
+                {PREDEFINED_CATEGORIES.map((cat) => (
+                  <option key={cat} value={cat}>{cat}</option>
+                ))}
+                <option value="custom">+ Custom</option>
+              </select>
+              {selectedCategory === 'custom' && (
+                <input
+                  type="text"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  placeholder="Custom category"
+                  style={{
+                    padding: '0.35rem 0.5rem', borderRadius: '6px', border: 'none',
+                    fontSize: '0.75rem', width: '120px',
+                  }}
+                />
+              )}
+              <button
+                onClick={handleAddCategory}
+                disabled={!selectedCategory || (selectedCategory === 'custom' && !customCategory.trim())}
+                style={{
+                  background: '#3b82f6', border: 'none', borderRadius: '6px',
+                  color: 'white', fontSize: '0.7rem', padding: '0.35rem 0.75rem', cursor: 'pointer',
+                }}
+              >
+                Add
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

@@ -105,6 +105,7 @@ export interface Trip {
   hotels: Hotel[];
   packingList?: PackingList;
   notes?: string;
+  categories?: string[]; // Trip categories: Business, Vacation, Adventure, etc.
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
 }
