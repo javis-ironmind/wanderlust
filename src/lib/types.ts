@@ -40,6 +40,7 @@ export interface Activity {
   confirmationNumber?: string;
   url?: string;
   imageUrl?: string; // Thumbnail image URL
+  reminder?: number; // minutes before (15, 30, 60, 120, 1440)
   order: number;
 }
 

@@ -13,7 +13,10 @@ import CloudSyncSettings from '@/components/CloudSyncSettings';
 import CalendarExport from '@/components/CalendarExport';
 import { FlightForm } from '@/components/FlightForm';
 import { HotelForm } from '@/components/HotelForm';
+import { ReminderSettings } from '@/components/ReminderSettings';
+import { ReminderBell } from '@/components/ReminderBell';
 import { hasWriteAccess, validateAccessCode } from '@/lib/shareTrip';
+import { addReminder, removeReminder } from '@/lib/reminders';
 
 type Activity = {
   id: string;
@@ -30,6 +33,7 @@ type Activity = {
     longitude?: number;
     name?: string;
   };
+  reminder?: number; // minutes before (15, 30, 60, 120, 1440)
 };
 
 type Day = {
@@ -78,6 +82,7 @@ export default function TripDetailPage() {
   const [newActivityStartDate, setNewActivityStartDate] = useState(''); // For multi-day
   const [newActivityEndDate, setNewActivityEndDate] = useState(''); // For multi-day
   const [newActivityCost, setNewActivityCost] = useState('');
+  const [newActivityReminder, setNewActivityReminder] = useState<number | undefined>(undefined);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal' | 'flights'>('itinerary');
@@ -166,6 +171,7 @@ export default function TripDetailPage() {
       endDate: newActivityEndDate || undefined,
       cost: newActivityCost ? parseFloat(newActivityCost) : undefined,
       currency: 'USD',
+      reminder: newActivityReminder,
     };
     
     const updatedDays = trip.days.map(day => {
@@ -181,6 +187,17 @@ export default function TripDetailPage() {
     const updatedTrip = { ...trip, days: updatedDays };
     setTrip(updatedTrip);
     
+    // Save reminder if set
+    if (newActivityReminder && newActivityStartTime) {
+      addReminder(
+        tripId,
+        newActivity.id,
+        newActivity.title,
+        newActivityStartTime,
+        newActivityReminder
+      );
+    }
+    
     const saved = localStorage.getItem('wanderlust_trips');
     if (saved) {
       const trips: Trip[] = JSON.parse(saved);
@@ -195,6 +212,7 @@ export default function TripDetailPage() {
     setNewActivityStartDate('');
     setNewActivityEndDate('');
     setNewActivityCost('');
+    setNewActivityReminder(undefined);
     setShowAddModal(false);
   };
 
@@ -506,6 +524,11 @@ export default function TripDetailPage() {
               </button>
             </div>
           )}
+          
+          {/* T016: Reminder Bell */}
+          <div style={{ marginLeft: 'auto' }}>
+            <ReminderBell tripId={tripId} />
+          </div>
         </div>
       </div>
 
@@ -1310,6 +1333,14 @@ export default function TripDetailPage() {
                   }}
                 />
               </div>
+            </div>
+            
+            {/* Reminder input */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <ReminderSettings 
+                reminder={newActivityReminder} 
+                onChange={setNewActivityReminder} 
+              />
             </div>
             
             <div style={{ display: 'flex', gap: '0.75rem' }}>

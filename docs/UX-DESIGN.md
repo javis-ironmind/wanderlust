@@ -140,3 +140,8 @@ The UI should match Wanderlog's clean, polished aesthetic:
 ## Mobile-First
 - Start with mobile layout
 - Then tablet/desktop enhancements
+
+## Future Features
+- Import from Markdown/Notion
+- Export to PDF/Calendar
+- AI trip generation
