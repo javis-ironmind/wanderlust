@@ -7,12 +7,12 @@ Build the Itinerary tab with collapsible day sections
 
 ## Acceptance Criteria
 
-- [ ] AC1 - Days displayed as collapsible sections with ▼ / ▶ toggle
-- [ ] AC2 - Shows date and activity count for each day
-- [ ] AC3 - "Add a place" input when day is expanded
-- [ ] AC4 - "Auto-fill day" and "Optimize route" buttons
-- [ ] AC5 - Activities listed with time, name, category icon
-- [ ] AC6 - Drag handle on activity cards
+- [x] AC1 - Days displayed as collapsible sections with ▼ / ▶ toggle
+- [x] AC2 - Shows date and activity count for each day
+- [x] AC3 - "Add a place" input when day is expanded
+- [x] AC4 - "Auto-fill day" and "Optimize route" buttons
+- [x] AC5 - Activities listed with time, name, category icon
+- [x] AC6 - Drag handle on activity cards
 
 ## E2E Tests
 - Test collapsing/expanding day sections

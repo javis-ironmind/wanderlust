@@ -75,6 +75,8 @@ export default function TripDetailPage() {
   const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal'>('itinerary');
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // Track which days are expanded
+  const [quickAddText, setQuickAddText] = useState<Record<string, string>>({}); // Quick add input per day
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -150,6 +152,67 @@ export default function TripDetailPage() {
       localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
     }
   };
+
+  // Toggle day expansion (collapsible sections)
+  const toggleDay = (dayId: string) => {
+    setExpandedDays(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(dayId)) {
+        newSet.delete(dayId);
+      } else {
+        newSet.add(dayId);
+      }
+      return newSet;
+    });
+  };
+
+  // Quick add activity to a day
+  const handleQuickAdd = (dayId: string) => {
+    const text = quickAddText[dayId]?.trim();
+    if (!text || !trip) return;
+    
+    const newActivity: Activity = {
+      id: `activity-${Date.now()}`,
+      title: text,
+      category: 'activity',
+    };
+    
+    const updatedDays = trip.days.map(day => {
+      if (day.id === dayId) {
+        return { ...day, activities: [...day.activities, newActivity] };
+      }
+      return day;
+    });
+    
+    const updatedTrip = { ...trip, days: updatedDays };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+    
+    setQuickAddText(prev => ({ ...prev, [dayId]: '' }));
+  };
+
+  // Auto-fill day placeholder
+  const handleAutoFillDay = (dayId: string) => {
+    alert('Auto-fill: Coming soon! This will suggest popular activities for this location.');
+  };
+
+  // Optimize route placeholder
+  const handleOptimizeRoute = (dayId: string) => {
+    alert('Optimize Route: Coming soon! This will reorder activities for optimal travel time.');
+  };
+
+  // Initialize expanded days with first day on load
+  useEffect(() => {
+    if (trip?.days?.length && expandedDays.size === 0) {
+      setExpandedDays(new Set([trip.days[0].id]));
+    }
+  }, [trip?.days]);
 
   if (loading) {
     return (
@@ -403,64 +466,208 @@ export default function TripDetailPage() {
           </div>
         )}
 
-        {/* Itinerary */}
-        <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', marginBottom: '1rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f', margin: 0 }}>
-              {currentDay?.date || 'No days'}
-            </h2>
-            <button
-              onClick={() => setShowAddModal(true)}
-              style={{
-                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                color: 'white',
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                border: 'none',
-                fontSize: '0.875rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-              }}
-            >
-              + Add Activity
-            </button>
-          </div>
-          
-          {(!currentDay || !currentDay.activities || currentDay.activities.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-              <p>No activities planned yet</p>
-              <p style={{ fontSize: '0.875rem' }}>Click "+ Add Activity" to start building!</p>
-            </div>
-          ) : (
-            <div>
-              {sortActivitiesByTime(currentDay.activities).map((activity) => (
-                <div key={activity.id} style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div>
-                    <h3 style={{ margin: 0, fontSize: '1rem', color: '#1e3a5f' }}>{activity.title}</h3>
-                    {activity.startTime && (
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-                        {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        {activity.endTime && ` - ${new Date(activity.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+        {/* Itinerary - Collapsible Day Sections (T002) */}
+        <div style={{ marginBottom: '1rem' }}>
+          {days.map((day, index) => {
+            const isExpanded = expandedDays.has(day.id);
+            const activityCount = day.activities?.length || 0;
+            
+            return (
+              <div key={day.id} style={{ 
+                background: 'white', 
+                borderRadius: '12px', 
+                marginBottom: '0.75rem',
+                overflow: 'hidden',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              }}>
+                {/* AC1: Collapsible Day Header with Toggle */}
+                <div 
+                  onClick={() => toggleDay(day.id)}
+                  style={{ 
+                    padding: '1rem 1.25rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    cursor: 'pointer',
+                    background: isExpanded ? '#f8fafc' : 'white',
+                    borderBottom: isExpanded ? '1px solid #e2e8f0' : 'none',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    {/* AC1: ▼ / ▶ toggle icon */}
+                    <span style={{ 
+                      fontSize: '0.75rem', 
+                      color: '#64748b',
+                      transition: 'transform 0.2s',
+                      transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                    }}>
+                      {isExpanded ? '▼' : '▶'}
+                    </span>
+                    {/* AC2: Date and activity count */}
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: '600', color: '#1e3a5f' }}>
+                        Day {index + 1}
+                      </h3>
+                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#64748b' }}>
+                        {day.date} • {activityCount} {activityCount === 1 ? 'activity' : 'activities'}
                       </p>
-                    )}
-                    {activity.category && (
-                      <span style={{ 
-                        display: 'inline-block',
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '6px', 
-                        background: '#eff6ff', 
-                        color: '#3b82f6',
-                        fontSize: '0.75rem',
-                        marginTop: '0.25rem',
-                      }}>
-                        {activity.category}
-                      </span>
+                    </div>
+                  </div>
+                  {/* Quick add button in header */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setSelectedDay(day.id); setShowAddModal(true); }}
+                    style={{
+                      background: '#3b82f6',
+                      color: 'white',
+                      padding: '0.4rem 0.75rem',
+                      borderRadius: '6px',
+                      border: 'none',
+                      fontSize: '0.75rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    + Add
+                  </button>
+                </div>
+                
+                {/* AC3: "Add a place" input when expanded */}
+                {isExpanded && (
+                  <div style={{ padding: '0.75rem 1.25rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <input
+                        type="text"
+                        placeholder="Add a place..."
+                        value={quickAddText[day.id] || ''}
+                        onChange={(e) => setQuickAddText(prev => ({ ...prev, [day.id]: e.target.value }))}
+                        onKeyDown={(e) => e.key === 'Enter' && handleQuickAdd(day.id)}
+                        style={{
+                          flex: 1,
+                          padding: '0.5rem 0.75rem',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '8px',
+                          fontSize: '0.875rem',
+                          outline: 'none',
+                        }}
+                      />
+                      <button
+                        onClick={() => handleQuickAdd(day.id)}
+                        style={{
+                          background: '#10b981',
+                          color: 'white',
+                          padding: '0.5rem 1rem',
+                          borderRadius: '8px',
+                          border: 'none',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Add
+                      </button>
+                    </div>
+                    {/* AC4: Auto-fill and Optimize buttons */}
+                    <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                      <button
+                        onClick={() => handleAutoFillDay(day.id)}
+                        style={{
+                          background: '#f59e0b',
+                          color: 'white',
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: '6px',
+                          border: 'none',
+                          fontSize: '0.7rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        ⚡ Auto-fill day
+                      </button>
+                      <button
+                        onClick={() => handleOptimizeRoute(day.id)}
+                        style={{
+                          background: '#8b5cf6',
+                          color: 'white',
+                          padding: '0.35rem 0.75rem',
+                          borderRadius: '6px',
+                          border: 'none',
+                          fontSize: '0.7rem',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        🗺️ Optimize route
+                      </button>
+                    </div>
+                  </div>
+                )}
+                
+                {/* AC5 & AC6: Activities with time, name, category icon, drag handle */}
+                {isExpanded && (
+                  <div>
+                    {(!day.activities || day.activities.length === 0) ? (
+                      <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8' }}>
+                        <p style={{ margin: 0 }}>No activities yet</p>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem' }}>Add a place above or click + Add</p>
+                      </div>
+                    ) : (
+                      sortActivitiesByTime(day.activities).map((activity) => (
+                        <div 
+                          key={activity.id} 
+                          style={{ 
+                            padding: '1rem 1.25rem', 
+                            borderBottom: '1px solid #f1f5f9',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.75rem',
+                          }}
+                        >
+                          {/* AC6: Drag handle */}
+                          <div style={{ 
+                            cursor: 'grab', 
+                            color: '#cbd5e1',
+                            fontSize: '1rem',
+                          }}
+                          title="Drag to reorder"
+                          >
+                            ⋮⋮
+                          </div>
+                          {/* AC5: Time, name, category icon */}
+                          <div style={{ flex: 1 }}>
+                            {activity.startTime && (
+                              <p style={{ margin: 0, fontSize: '0.75rem', color: '#3b82f6', fontWeight: '600' }}>
+                                {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {activity.endTime && ` - ${new Date(activity.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                              </p>
+                            )}
+                            <h4 style={{ margin: '0.25rem 0 0', fontSize: '0.95rem', color: '#1e3a5f' }}>
+                              {activity.title}
+                            </h4>
+                          </div>
+                          {/* AC5: Category icon */}
+                          {activity.category && (
+                            <span style={{ 
+                              padding: '0.25rem 0.5rem', 
+                              borderRadius: '6px', 
+                              background: '#eff6ff', 
+                              color: '#3b82f6',
+                              fontSize: '0.7rem',
+                              fontWeight: '600',
+                            }}>
+                              {activity.category === 'flight' ? '✈️' : 
+                               activity.category === 'hotel' ? '🏨' : 
+                               activity.category === 'restaurant' ? '🍽️' : 
+                               activity.category === 'activity' ? '🎯' : '📍'}
+                            </span>
+                          )}
+                        </div>
+                      ))
                     )}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Map */}
