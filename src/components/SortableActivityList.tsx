@@ -1,8 +1,26 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
+  UniqueIdentifier,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Activity, Day } from '@/lib/types';
-import { ActivityCard } from './ActivityCard';
+import { SortableActivityCard } from './SortableActivityCard';
 
 interface SortableActivityListProps {
   tripId: string;
@@ -14,139 +32,120 @@ interface SortableActivityListProps {
   onDeleteActivity?: (activityId: string) => void;
 }
 
-interface DragState {
-  isDragging: boolean;
-  draggedActivityId: string | null;
-  sourceDayId: string | null;
-  targetDayId: string | null;
-}
-
 export function SortableActivityList({
   tripId,
   day,
+  days,
   onMoveActivity,
+  onReorder,
   onEditActivity,
   onDeleteActivity,
 }: SortableActivityListProps) {
-  const [dragState, setDragState] = useState<DragState>({
-    isDragging: false,
-    draggedActivityId: null,
-    sourceDayId: null,
-    targetDayId: null,
-  });
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleDragStart = useCallback((e: React.DragEvent, activityId: string, dayId: string) => {
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', JSON.stringify({
-      activityId,
-      sourceDayId: dayId,
-    }));
-    
-    setDragState({
-      isDragging: true,
-      draggedActivityId: activityId,
-      sourceDayId: dayId,
-      targetDayId: null,
-    });
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-    setDragState({
-      isDragging: false,
-      draggedActivityId: null,
-      sourceDayId: null,
-      targetDayId: null,
-    });
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent, targetDayId: string) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    
-    if (dragState.targetDayId !== targetDayId) {
-      setDragState(prev => ({ ...prev, targetDayId }));
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    // Store the source day ID in the active data for cross-day moves
+    const { active } = event;
+    const sourceDay = days.find((d) =>
+      d.activities.some((a) => a.id === active.id)
+    );
+    if (sourceDay) {
+      // We can access this in onDragEnd via the active id
     }
-  }, [dragState.targetDayId]);
+  }, [days]);
 
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    // Only clear target if leaving the day container entirely
-    const relatedTarget = e.relatedTarget as HTMLElement;
-    if (!relatedTarget?.closest('[data-day-id]')) {
-      setDragState(prev => ({ ...prev, targetDayId: null }));
-    }
-  }, []);
+  const handleDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
 
-  const handleDrop = useCallback((e: React.DragEvent, destDayId: string) => {
-    e.preventDefault();
-    
-    try {
-      const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-      const { activityId, sourceDayId } = data;
-      
-      if (sourceDayId !== destDayId) {
-        // Move to different day
-        onMoveActivity(tripId, sourceDayId, destDayId, activityId);
+      if (!over) return;
+
+      const activeId = active.id as string;
+      const overId = over.id as string;
+
+      // Find source and destination days
+      const sourceDay = days.find((d) =>
+        d.activities.some((a) => a.id === activeId)
+      );
+      const destDay =
+        days.find((d) => d.activities.some((a) => a.id === overId)) ||
+        days.find((d) => d.id === overId);
+
+      if (!sourceDay || !destDay) return;
+
+      // Same day - reorder
+      if (sourceDay.id === destDay.id) {
+        const oldIndex = sourceDay.activities.findIndex(
+          (a) => a.id === activeId
+        );
+        const newIndex = sourceDay.activities.findIndex((a) => a.id === overId);
+
+        if (oldIndex !== newIndex && newIndex !== -1) {
+          const newOrder = arrayMove(
+            sourceDay.activities.map((a) => a.id),
+            oldIndex,
+            newIndex
+          );
+          onReorder(tripId, sourceDay.id, newOrder);
+        }
+      } else {
+        // Cross-day move
+        const destIndex = destDay.activities.findIndex((a) => a.id === overId);
+        onMoveActivity(
+          tripId,
+          sourceDay.id,
+          destDay.id,
+          activeId,
+          destIndex === -1 ? undefined : destIndex
+        );
       }
-    } catch (err) {
-      console.error('Drop error:', err);
-    }
-    
-    handleDragEnd();
-  }, [tripId, onMoveActivity, handleDragEnd]);
-
-  const isDropTarget = dragState.isDragging && dragState.targetDayId === day.id;
-  const isSourceDay = dragState.sourceDayId === day.id;
+    },
+    [days, tripId, onReorder, onMoveActivity]
+  );
 
   return (
-    <div
-      data-day-id={day.id}
-      onDragOver={(e) => handleDragOver(e, day.id)}
-      onDragLeave={handleDragLeave}
-      onDrop={(e) => handleDrop(e, day.id)}
-      className={`
-        min-h-[100px] p-2 rounded-lg transition-all duration-200
-        ${isDropTarget 
-          ? 'bg-blue-50 border-2 border-dashed border-blue-400 shadow-inner' 
-          : 'bg-gray-50 border-2 border-transparent'
-        }
-        ${isSourceDay ? 'opacity-60' : ''}
-      `}
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
     >
-      {day.activities.length === 0 ? (
-        <div className={`
-          flex items-center justify-center h-20 text-sm
-          ${isDropTarget ? 'text-blue-600' : 'text-gray-400'}
-        `}>
-          {isDropTarget ? 'Drop here to move' : 'No activities'}
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {day.activities.map((activity) => {
-            const isDragging = dragState.draggedActivityId === activity.id;
-            
-            return (
-              <div
-                key={activity.id}
-                draggable
-                onDragStart={(e) => handleDragStart(e, activity.id, day.id)}
-                onDragEnd={handleDragEnd}
-                className={`
-                  transition-all duration-200
-                  ${isDragging ? 'opacity-30 scale-95' : 'opacity-100'}
-                `}
-              >
-                <ActivityCard
+      <SortableContext
+        items={day.activities.map((a) => a.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div
+          data-day-id={day.id}
+          className="min-h-[100px] p-2 rounded-lg bg-gray-50 border-2 border-transparent transition-all duration-200"
+        >
+          {day.activities.length === 0 ? (
+            <div className="flex items-center justify-center h-20 text-sm text-gray-400">
+              No activities
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {day.activities.map((activity) => (
+                <SortableActivityCard
+                  key={activity.id}
                   activity={activity}
                   onEdit={onEditActivity}
                   onDelete={onDeleteActivity}
-                  isDragging={isDragging}
                 />
-              </div>
-            );
-          })}
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
+      </SortableContext>
+    </DndContext>
   );
 }
 

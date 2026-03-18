@@ -337,7 +337,8 @@ export default function TripDetailPage() {
     if (trip?.days?.length && expandedDays.size === 0) {
       setExpandedDays(new Set([trip.days[0].id]));
     }
-  }, [trip?.days]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trip?.days, expandedDays.size]);
 
   if (loading) {
     return (

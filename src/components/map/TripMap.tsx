@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { CATEGORY_COLORS } from '@/lib/map-colors';
 
 interface MapMarker {
   id: string;
@@ -19,18 +20,6 @@ interface TripMapProps {
   route?: [number, number][]; // AC3: Route line positions
   className?: string;
 }
-
-// Custom marker colors by category
-const categoryColors: Record<string, string> = {
-  restaurant: '#f97316',
-  attraction: '#8b5cf6',
-  activity: '#06b6d4',
-  transport: '#3b82f6',
-  hotel: '#ec4899',
-  shopping: '#84cc16',
-  entertainment: '#f43f5e',
-  other: '#6b7280',
-};
 
 function createMarkerIcon(color: string = '#3b82f6') {
   return L.divIcon({
@@ -71,7 +60,7 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], route, class
   }, [markers]);
 
   const getMarkerIcon = (category?: string) => {
-    const color = category ? categoryColors[category] || categoryColors.other : categoryColors.other;
+    const color = category ? CATEGORY_COLORS[category] || CATEGORY_COLORS.other : CATEGORY_COLORS.other;
     return createMarkerIcon(color);
   };
 

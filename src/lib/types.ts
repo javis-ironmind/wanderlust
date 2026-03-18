@@ -109,6 +109,8 @@ export interface Trip {
   categories?: string[]; // Trip categories: Business, Vacation, Adventure, etc.
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
+  budgetTotal?: number;
+  copiedFrom?: string; // Track original trip if duplicated
 }
 
 // For creating a new trip

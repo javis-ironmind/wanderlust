@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
 import { ToastContainer } from '@/lib/toast'
+import { CrossTabSyncProvider } from '@/components/CrossTabSyncProvider'
 
 export const metadata: Metadata = {
   title: 'Wanderlust Travel Planner',
@@ -34,6 +35,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body>
+        <CrossTabSyncProvider />
         <ServiceWorkerRegistration />
         <ToastContainer />
         {children}

@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, ZoomControl, Marker, Popup, useMap } from 'rea
 import 'leaflet/dist/leaflet.css';
 import { useEffect, useState, useMemo } from 'react';
 import L from 'leaflet';
+import { CATEGORY_COLORS } from '@/lib/map-colors';
 
 // Fix for default marker icons in Leaflet with Next.js
 const defaultIcon = L.icon({
@@ -17,19 +18,6 @@ const defaultIcon = L.icon({
 });
 
 L.Marker.prototype.options.icon = defaultIcon;
-
-// Category colors for pins
-const CATEGORY_COLORS: Record<string, string> = {
-  flight: '#3B82F6',      // blue
-  hotel: '#8B5CF6',       // purple
-  restaurant: '#F59E0B',  // amber
-  attraction: '#EF4444',  // red
-  activity: '#10B981',    // green
-  transport: '#06B6D4',   // cyan
-  shopping: '#EC4899',    // pink
-  entertainment: '#F97316', // orange
-  other: '#6B7280'        // gray
-};
 
 // Custom icon creator with category color
 const createCategoryIcon = (category: string) => {

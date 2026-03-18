@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 import { Trip, Day, Activity, Flight, Hotel, PackingItem, TripTemplate, TemplateDay, TemplateActivity } from './types';
 
 interface SyncState {
@@ -561,9 +562,9 @@ export const useTripStore = create<TripStore>((set, get) => ({
   }),
 
   clearExpiredUndoItems: () => set((state) => {
-    const fiveSecondsAgo = new Date(Date.now() - 5000);
+    const fiveMinutesAgo = new Date(Date.now() - 300000);
     return {
-      undoQueue: state.undoQueue.filter((item) => item.deletedAt > fiveSecondsAgo)
+      undoQueue: state.undoQueue.filter((item) => item.deletedAt > fiveMinutesAgo)
     };
   }),
 
@@ -704,7 +705,7 @@ export const useTrip = () => useTripStore((state) => ({
   currentTrip: state.trips.find((t) => t.id === state.currentTripId) || null,
 }));
 
-export const useTripActions = () => useTripStore((state) => ({
+export const useTripActions = () => useTripStore(useShallow((state) => ({
   addTrip: state.addTrip,
   updateTrip: state.updateTrip,
   deleteTrip: state.deleteTrip,
@@ -741,4 +742,4 @@ export const useTripActions = () => useTripStore((state) => ({
   deleteTemplate: state.deleteTemplate,
   updateTemplate: state.updateTemplate,
   loadTemplates: state.loadTemplates,
-}));
+})));

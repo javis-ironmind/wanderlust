@@ -1,9 +1,30 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { X, Plane, Save, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { Flight } from '@/lib/types';
 import { useTripStore } from '@/lib/store';
-import { X, Plane, Save, Trash2 } from 'lucide-react';
+import { flightSchema, FlightFormData } from '@/lib/schemas';
 
 // Common airlines for autocomplete
 const AIRLINES = [
@@ -82,577 +103,438 @@ interface FlightFormProps {
 
 export function FlightForm({ tripId, flight, onClose, onSave }: FlightFormProps) {
   const { addFlight, updateFlight, deleteFlight } = useTripStore();
-  
-  // Form state
-  const [airline, setAirline] = useState(flight?.airline || '');
-  const [flightNumber, setFlightNumber] = useState(flight?.flightNumber || '');
-  const [departureAirport, setDepartureAirport] = useState(flight?.departureAirport || '');
-  const [departureCity, setDepartureCity] = useState(flight?.departureCity || '');
-  const [departureTime, setDepartureTime] = useState(
-    flight?.departureTime ? flight.departureTime.slice(0, 16) : ''
-  );
-  const [arrivalAirport, setArrivalAirport] = useState(flight?.arrivalAirport || '');
-  const [arrivalCity, setArrivalCity] = useState(flight?.arrivalCity || '');
-  const [arrivalTime, setArrivalTime] = useState(
-    flight?.arrivalTime ? flight.arrivalTime.slice(0, 16) : ''
-  );
-  const [terminal, setTerminal] = useState(flight?.terminal || '');
-  const [gate, setGate] = useState(flight?.gate || '');
-  const [confirmationNumber, setConfirmationNumber] = useState(flight?.confirmationNumber || '');
-  const [seat, setSeat] = useState(flight?.seat || '');
-  const [notes, setNotes] = useState(flight?.notes || '');
-  const [cost, setCost] = useState(flight?.cost?.toString() || '');
-  const [currency, setCurrency] = useState(flight?.currency || 'USD');
-  
-  // UI state
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showAirlineDropdown, setShowAirlineDropdown] = useState(false);
   const [showDepartureDropdown, setShowDepartureDropdown] = useState(false);
   const [showArrivalDropdown, setShowArrivalDropdown] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  
-  // Filtered options
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm<FlightFormData>({
+    resolver: zodResolver(flightSchema),
+    defaultValues: {
+      airline: flight?.airline || '',
+      flightNumber: flight?.flightNumber || '',
+      departureAirport: flight?.departureAirport || '',
+      departureCity: flight?.departureCity || '',
+      departureTime: flight?.departureTime || '',
+      arrivalAirport: flight?.arrivalAirport || '',
+      arrivalCity: flight?.arrivalCity || '',
+      arrivalTime: flight?.arrivalTime || '',
+      terminal: flight?.terminal || '',
+      gate: flight?.gate || '',
+      seat: flight?.seat || '',
+      confirmationNumber: flight?.confirmationNumber || '',
+      cost: flight?.cost?.toString() || '',
+      currency: flight?.currency || 'USD',
+      notes: flight?.notes || '',
+    },
+  });
+
+  const airlineValue = watch('airline');
+  const departureAirportValue = watch('departureAirport');
+  const arrivalAirportValue = watch('arrivalAirport');
+
   const filteredAirlines = AIRLINES.filter(
     (a) =>
-      a.name.toLowerCase().includes(airline.toLowerCase()) ||
-      a.code.toLowerCase().includes(airline.toLowerCase())
+      a.name.toLowerCase().includes(airlineValue?.toLowerCase() || '') ||
+      a.code.toLowerCase().includes(airlineValue?.toLowerCase() || '')
   );
-  
+
   const filteredDepartureAirports = AIRPORTS.filter(
     (a) =>
-      a.code.toLowerCase().includes(departureAirport.toLowerCase()) ||
-      a.city.toLowerCase().includes(departureAirport.toLowerCase()) ||
-      a.name.toLowerCase().includes(departureAirport.toLowerCase())
+      a.code.toLowerCase().includes(departureAirportValue?.toLowerCase() || '') ||
+      a.city.toLowerCase().includes(departureAirportValue?.toLowerCase() || '') ||
+      a.name.toLowerCase().includes(departureAirportValue?.toLowerCase() || '')
   );
-  
+
   const filteredArrivalAirports = AIRPORTS.filter(
     (a) =>
-      a.code.toLowerCase().includes(arrivalAirport.toLowerCase()) ||
-      a.city.toLowerCase().includes(arrivalAirport.toLowerCase()) ||
-      a.name.toLowerCase().includes(arrivalAirport.toLowerCase())
+      a.code.toLowerCase().includes(arrivalAirportValue?.toLowerCase() || '') ||
+      a.city.toLowerCase().includes(arrivalAirportValue?.toLowerCase() || '') ||
+      a.name.toLowerCase().includes(arrivalAirportValue?.toLowerCase() || '')
   );
-  
+
   const selectAirline = (airlineObj: typeof AIRLINES[0]) => {
-    setAirline(airlineObj.name);
+    setValue('airline', airlineObj.name, { shouldValidate: true });
     setShowAirlineDropdown(false);
   };
-  
+
   const selectDepartureAirport = (airportObj: typeof AIRPORTS[0]) => {
-    setDepartureAirport(airportObj.code);
-    setDepartureCity(airportObj.city);
+    setValue('departureAirport', airportObj.code, { shouldValidate: true });
+    setValue('departureCity', airportObj.city);
     setShowDepartureDropdown(false);
   };
-  
+
   const selectArrivalAirport = (airportObj: typeof AIRPORTS[0]) => {
-    setArrivalAirport(airportObj.code);
-    setArrivalCity(airportObj.city);
+    setValue('arrivalAirport', airportObj.code, { shouldValidate: true });
+    setValue('arrivalCity', airportObj.city);
     setShowArrivalDropdown(false);
   };
-  
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate required fields
-    if (!airline.trim() || !flightNumber.trim() || !departureAirport.trim() || !arrivalAirport.trim()) {
-      alert('Please fill in all required fields');
-      return;
-    }
-    
+
+  const onSubmit = (data: FlightFormData) => {
     const flightData: Flight = {
       id: flight?.id || `flight-${Date.now()}`,
-      airline,
-      flightNumber: flightNumber.toUpperCase(),
-      departureAirport: departureAirport.toUpperCase(),
-      departureCity,
-      departureTime: departureTime ? new Date(departureTime).toISOString() : '',
-      arrivalAirport: arrivalAirport.toUpperCase(),
-      arrivalCity,
-      arrivalTime: arrivalTime ? new Date(arrivalTime).toISOString() : '',
-      terminal,
-      gate,
-      confirmationNumber,
-      seat,
-      notes,
-      cost: cost ? parseFloat(cost) : undefined,
-      currency,
+      airline: data.airline,
+      flightNumber: data.flightNumber.toUpperCase(),
+      departureAirport: data.departureAirport.toUpperCase(),
+      departureCity: data.departureCity || '',
+      departureTime: data.departureTime ? new Date(data.departureTime).toISOString() : '',
+      arrivalAirport: data.arrivalAirport.toUpperCase(),
+      arrivalCity: data.arrivalCity || '',
+      arrivalTime: data.arrivalTime ? new Date(data.arrivalTime).toISOString() : '',
+      terminal: data.terminal || '',
+      gate: data.gate || '',
+      confirmationNumber: data.confirmationNumber || '',
+      seat: data.seat || '',
+      notes: data.notes || '',
+      cost: data.cost ? parseFloat(data.cost) : undefined,
+      currency: data.currency,
     };
-    
+
     if (flight) {
       updateFlight(tripId, flight.id, flightData);
     } else {
       addFlight(tripId, flightData);
     }
-    
+
     onSave?.();
     onClose();
   };
-  
+
   const handleDelete = () => {
     if (flight) {
       deleteFlight(tripId, flight.id);
       onClose();
     }
   };
-  
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '0.625rem',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.5rem',
-    fontSize: '0.875rem',
-    outline: 'none',
-    transition: 'border-color 0.2s',
-  };
-  
-  const labelStyle: React.CSSProperties = {
-    display: 'block',
-    fontSize: '0.75rem',
-    fontWeight: '500',
-    color: '#374151',
-    marginBottom: '0.375rem',
-  };
-  
-  const dropdownStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '100%',
-    left: 0,
-    right: 0,
-    background: 'white',
-    border: '1px solid #d1d5db',
-    borderRadius: '0.5rem',
-    maxHeight: '200px',
-    overflow: 'auto',
-    zIndex: 50,
-    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-  };
-  
-  const dropdownItemStyle: React.CSSProperties = {
-    padding: '0.5rem 0.75rem',
-    fontSize: '0.875rem',
-    cursor: 'pointer',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  };
-  
+
   return (
-    <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.5)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 100,
-        padding: '1rem',
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'white',
-          borderRadius: '1rem',
-          width: '100%',
-          maxWidth: '600px',
-          maxHeight: '90vh',
-          overflow: 'auto',
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            padding: '1rem 1.5rem',
-            borderBottom: '1px solid #e5e7eb',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Plane className="w-5 h-5" style={{ color: '#2563eb' }} />
-            <h2 style={{ fontSize: '1.125rem', fontWeight: '600' }}>
-              {flight ? 'Edit Flight' : 'Add Flight'}
-            </h2>
+    <Dialog open onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Plane className="w-5 h-5 text-blue-600" />
+              <DialogTitle>{flight ? 'Edit Flight' : 'Add Flight'}</DialogTitle>
+            </div>
+            <Button variant="ghost" size="icon" onClick={onClose}>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              padding: '0.25rem',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              color: '#6b7280',
-            }}
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        
-        <form onSubmit={handleSubmit} style={{ padding: '1.5rem' }}>
-          {/* Required Fields Section */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '1rem', color: '#111827' }}>
-              Flight Details *
-            </h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              {/* Airline */}
-              <div style={{ position: 'relative' }}>
-                <label style={labelStyle}>Airline *</label>
-                <input
-                  type="text"
-                  value={airline}
-                  onChange={(e) => {
-                    setAirline(e.target.value);
-                    setShowAirlineDropdown(true);
-                  }}
-                  onFocus={() => setShowAirlineDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowAirlineDropdown(false), 200)}
-                  placeholder="e.g., American Airlines"
-                  style={inputStyle}
-                />
-                {showAirlineDropdown && filteredAirlines.length > 0 && (
-                  <div style={dropdownStyle}>
-                    {filteredAirlines.slice(0, 8).map((airlineObj) => (
-                      <div
-                        key={airlineObj.code}
-                        style={dropdownItemStyle}
-                        onMouseDown={() => selectAirline(airlineObj)}
-                      >
-                        <span>{airlineObj.name}</span>
-                        <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>{airlineObj.code}</span>
-                      </div>
-                    ))}
-                  </div>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Flight Details */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900">Flight Details *</h3>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="airline">Airline *</Label>
+                <div className="relative">
+                  <Input
+                    id="airline"
+                    {...register('airline')}
+                    onFocus={() => setShowAirlineDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowAirlineDropdown(false), 200)}
+                    placeholder="e.g., American Airlines"
+                    className={errors.airline ? 'border-red-500' : ''}
+                  />
+                  {showAirlineDropdown && filteredAirlines.length > 0 && (
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-auto">
+                      {filteredAirlines.slice(0, 8).map((airlineObj) => (
+                        <div
+                          key={airlineObj.code}
+                          className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100"
+                          onMouseDown={() => selectAirline(airlineObj)}
+                        >
+                          <span>{airlineObj.name}</span>
+                          <span className="text-xs text-gray-500">{airlineObj.code}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {errors.airline && (
+                  <p className="text-xs text-red-500">{errors.airline.message}</p>
                 )}
               </div>
-              
-              {/* Flight Number */}
-              <div>
-                <label style={labelStyle}>Flight Number *</label>
-                <input
-                  type="text"
-                  value={flightNumber}
-                  onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
+
+              <div className="space-y-2">
+                <Label htmlFor="flightNumber">Flight Number *</Label>
+                <Input
+                  id="flightNumber"
+                  {...register('flightNumber')}
                   placeholder="e.g., AA123"
-                  style={inputStyle}
+                  className={`uppercase ${errors.flightNumber ? 'border-red-500' : ''}`}
                 />
+                {errors.flightNumber && (
+                  <p className="text-xs text-red-500">{errors.flightNumber.message}</p>
+                )}
               </div>
             </div>
-            
-            {/* Departure */}
-            <div style={{ marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#111827' }}>
-                Departure *
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '0.75rem' }}>
-                <div style={{ position: 'relative' }}>
-                  <label style={labelStyle}>Airport *</label>
-                  <input
-                    type="text"
-                    value={departureAirport}
-                    onChange={(e) => {
-                      setDepartureAirport(e.target.value);
-                      setShowDepartureDropdown(true);
-                    }}
+          </div>
+
+          {/* Departure */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900">Departure *</h3>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="departureAirport">Airport *</Label>
+                <div className="relative">
+                  <Input
+                    id="departureAirport"
+                    {...register('departureAirport')}
                     onFocus={() => setShowDepartureDropdown(true)}
                     onBlur={() => setTimeout(() => setShowDepartureDropdown(false), 200)}
                     placeholder="JFK"
-                    style={inputStyle}
+                    className={`uppercase ${errors.departureAirport ? 'border-red-500' : ''}`}
                   />
                   {showDepartureDropdown && filteredDepartureAirports.length > 0 && (
-                    <div style={dropdownStyle}>
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-auto">
                       {filteredDepartureAirports.slice(0, 6).map((airportObj) => (
                         <div
                           key={airportObj.code}
-                          style={dropdownItemStyle}
+                          className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100"
                           onMouseDown={() => selectDepartureAirport(airportObj)}
                         >
                           <span>{airportObj.code}</span>
-                          <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>{airportObj.city}</span>
+                          <span className="text-xs text-gray-500">{airportObj.city}</span>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                
-                <div>
-                  <label style={labelStyle}>City</label>
-                  <input
-                    type="text"
-                    value={departureCity}
-                    onChange={(e) => setDepartureCity(e.target.value)}
-                    placeholder="New York"
-                    style={inputStyle}
-                  />
-                </div>
-                
-                <div>
-                  <label style={labelStyle}>Date/Time</label>
-                  <input
-                    type="datetime-local"
-                    value={departureTime}
-                    onChange={(e) => setDepartureTime(e.target.value)}
-                    style={inputStyle}
-                  />
-                </div>
+                {errors.departureAirport && (
+                  <p className="text-xs text-red-500">{errors.departureAirport.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="departureCity">City</Label>
+                <Input
+                  id="departureCity"
+                  {...register('departureCity')}
+                  placeholder="New York"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="departureTime">Date/Time</Label>
+                <Input
+                  id="departureTime"
+                  type="datetime-local"
+                  {...register('departureTime')}
+                />
               </div>
             </div>
-            
-            {/* Arrival */}
-            <div style={{ marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '0.75rem', color: '#111827' }}>
-                Arrival *
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '0.75rem' }}>
-                <div style={{ position: 'relative' }}>
-                  <label style={labelStyle}>Airport *</label>
-                  <input
-                    type="text"
-                    value={arrivalAirport}
-                    onChange={(e) => {
-                      setArrivalAirport(e.target.value);
-                      setShowArrivalDropdown(true);
-                    }}
+          </div>
+
+          {/* Arrival */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900">Arrival *</h3>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="arrivalAirport">Airport *</Label>
+                <div className="relative">
+                  <Input
+                    id="arrivalAirport"
+                    {...register('arrivalAirport')}
                     onFocus={() => setShowArrivalDropdown(true)}
                     onBlur={() => setTimeout(() => setShowArrivalDropdown(false), 200)}
                     placeholder="LAX"
-                    style={inputStyle}
+                    className={`uppercase ${errors.arrivalAirport ? 'border-red-500' : ''}`}
                   />
                   {showArrivalDropdown && filteredArrivalAirports.length > 0 && (
-                    <div style={dropdownStyle}>
+                    <div className="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg max-h-48 overflow-auto">
                       {filteredArrivalAirports.slice(0, 6).map((airportObj) => (
                         <div
                           key={airportObj.code}
-                          style={dropdownItemStyle}
+                          className="flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-gray-100"
                           onMouseDown={() => selectArrivalAirport(airportObj)}
                         >
                           <span>{airportObj.code}</span>
-                          <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>{airportObj.city}</span>
+                          <span className="text-xs text-gray-500">{airportObj.city}</span>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
-                
-                <div>
-                  <label style={labelStyle}>City</label>
-                  <input
-                    type="text"
-                    value={arrivalCity}
-                    onChange={(e) => setArrivalCity(e.target.value)}
-                    placeholder="Los Angeles"
-                    style={inputStyle}
-                  />
-                </div>
-                
-                <div>
-                  <label style={labelStyle}>Date/Time</label>
-                  <input
-                    type="datetime-local"
-                    value={arrivalTime}
-                    onChange={(e) => setArrivalTime(e.target.value)}
-                    style={inputStyle}
-                  />
-                </div>
+                {errors.arrivalAirport && (
+                  <p className="text-xs text-red-500">{errors.arrivalAirport.message}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="arrivalCity">City</Label>
+                <Input
+                  id="arrivalCity"
+                  {...register('arrivalCity')}
+                  placeholder="Los Angeles"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="arrivalTime">Date/Time</Label>
+                <Input
+                  id="arrivalTime"
+                  type="datetime-local"
+                  {...register('arrivalTime')}
+                />
               </div>
             </div>
           </div>
-          
-          {/* Optional Fields */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '1rem', color: '#111827' }}>
-              Additional Details
-            </h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={labelStyle}>Terminal</label>
-                <input
-                  type="text"
-                  value={terminal}
-                  onChange={(e) => setTerminal(e.target.value)}
+
+          {/* Additional Details */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-semibold text-gray-900">Additional Details</h3>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="terminal">Terminal</Label>
+                <Input
+                  id="terminal"
+                  {...register('terminal')}
                   placeholder="A"
-                  style={inputStyle}
                 />
               </div>
-              
-              <div>
-                <label style={labelStyle}>Gate</label>
-                <input
-                  type="text"
-                  value={gate}
-                  onChange={(e) => setGate(e.target.value)}
+
+              <div className="space-y-2">
+                <Label htmlFor="gate">Gate</Label>
+                <Input
+                  id="gate"
+                  {...register('gate')}
                   placeholder="B12"
-                  style={inputStyle}
                 />
               </div>
-              
-              <div>
-                <label style={labelStyle}>Seat</label>
-                <input
-                  type="text"
-                  value={seat}
-                  onChange={(e) => setSeat(e.target.value)}
+
+              <div className="space-y-2">
+                <Label htmlFor="seat">Seat</Label>
+                <Input
+                  id="seat"
+                  {...register('seat')}
                   placeholder="12A"
-                  style={inputStyle}
                 />
               </div>
             </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-              <div>
-                <label style={labelStyle}>Confirmation Number</label>
-                <input
-                  type="text"
-                  value={confirmationNumber}
-                  onChange={(e) => setConfirmationNumber(e.target.value)}
+
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="confirmationNumber">Confirmation Number</Label>
+                <Input
+                  id="confirmationNumber"
+                  {...register('confirmationNumber')}
                   placeholder="ABC123"
-                  style={inputStyle}
                 />
               </div>
-              
-              <div>
-                <label style={labelStyle}>Cost</label>
-                <input
+
+              <div className="space-y-2">
+                <Label htmlFor="cost">Cost</Label>
+                <Input
+                  id="cost"
                   type="number"
-                  value={cost}
-                  onChange={(e) => setCost(e.target.value)}
-                  placeholder="0.00"
                   step="0.01"
-                  style={inputStyle}
+                  {...register('cost')}
+                  placeholder="0.00"
                 />
               </div>
-              
-              <div>
-                <label style={labelStyle}>Currency</label>
-                <select
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  style={{ ...inputStyle, cursor: 'pointer' }}
+
+              <div className="space-y-2">
+                <Label htmlFor="currency">Currency</Label>
+                <Select
+                  value={watch('currency')}
+                  onValueChange={(value) => setValue('currency', value)}
                 >
-                  <option value="USD">USD</option>
-                  <option value="EUR">EUR</option>
-                  <option value="GBP">GBP</option>
-                  <option value="CAD">CAD</option>
-                  <option value="AUD">AUD</option>
-                  <option value="JPY">JPY</option>
-                </select>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="USD">USD</SelectItem>
+                    <SelectItem value="EUR">EUR</SelectItem>
+                    <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="CAD">CAD</SelectItem>
+                    <SelectItem value="AUD">AUD</SelectItem>
+                    <SelectItem value="JPY">JPY</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
-            <div>
-              <label style={labelStyle}>Notes</label>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                {...register('notes')}
                 placeholder="Any additional notes..."
                 rows={2}
-                style={{ ...inputStyle, resize: 'vertical' }}
               />
             </div>
           </div>
-          
-          {/* Actions */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
+
+          <DialogFooter className="flex justify-between items-center pt-4 border-t">
             <div>
               {flight && (
                 showDeleteConfirm ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span style={{ fontSize: '0.875rem', color: '#dc2626' }}>Delete this flight?</span>
-                    <button
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-red-600">Delete this flight?</span>
+                    <Button
                       type="button"
+                      variant="destructive"
+                      size="sm"
                       onClick={handleDelete}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        background: '#dc2626',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.875rem',
-                        cursor: 'pointer',
-                      }}
                     >
                       Yes, Delete
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => setShowDeleteConfirm(false)}
-                      style={{
-                        padding: '0.375rem 0.75rem',
-                        background: '#f3f4f6',
-                        border: 'none',
-                        borderRadius: '0.375rem',
-                        fontSize: '0.875rem',
-                        cursor: 'pointer',
-                      }}
                     >
                       Cancel
-                    </button>
+                    </Button>
                   </div>
                 ) : (
-                  <button
+                  <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => setShowDeleteConfirm(true)}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.375rem',
-                      padding: '0.5rem',
-                      background: 'transparent',
-                      border: 'none',
-                      color: '#dc2626',
-                      fontSize: '0.875rem',
-                      cursor: 'pointer',
-                    }}
+                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-4 h-4 mr-1" />
                     Delete
-                  </button>
+                  </Button>
                 )
               )}
             </div>
-            
-            <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button
+
+            <div className="flex gap-2">
+              <Button
                 type="button"
+                variant="outline"
                 onClick={onClose}
-                style={{
-                  padding: '0.625rem 1.25rem',
-                  background: '#f3f4f6',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                }}
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.375rem',
-                  padding: '0.625rem 1.25rem',
-                  background: '#2563eb',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0.5rem',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                }}
+                disabled={isSubmitting}
               >
-                <Save className="w-4 h-4" />
+                <Save className="w-4 h-4 mr-1" />
                 {flight ? 'Update Flight' : 'Add Flight'}
-              </button>
+              </Button>
             </div>
-          </div>
+          </DialogFooter>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

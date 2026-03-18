@@ -1,22 +1,11 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import TemplateModal from '@/components/TemplateModal';
-
-type Trip = {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  coverImage?: string;
-  days?: any[];
-  flights?: any[];
-  hotels?: any[];
-  budgetTotal?: number;
-  copiedFrom?: string;
-  categories?: string[]; // Trip-level categories
-};
+import { useTripStore } from '@/lib/store';
+import { loadFromStorage, saveToStorage } from '@/lib/storage';
+import { Trip } from '@/lib/types';
 
 // Trip category config for display
 const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
@@ -33,7 +22,8 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: stri
 type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
 
 export default function TripsPage() {
-  const [trips, setTrips] = useState<Trip[]>([]);
+  const trips = useTripStore((state) => state.trips);
+  const setTrips = useTripStore((state) => state.setTrips);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -45,24 +35,34 @@ export default function TripsPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>('all'); // AC3: Category filter
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const mountedRef = useRef(true);
 
-  const loadTrips = () => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('wanderlust_trips');
-      if (saved) {
-        setTrips(JSON.parse(saved));
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const loadTrips = useCallback(() => {
+    if (typeof window !== 'undefined' && mountedRef.current) {
+      const savedTrips = loadFromStorage();
+      if (savedTrips.length > 0) {
+        setTrips(savedTrips);
       }
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => {
-      loadTrips();
-      setRefreshing(false);
+    const timer = setTimeout(() => {
+      if (mountedRef.current) {
+        loadTrips();
+        setRefreshing(false);
+      }
     }, 800);
-  };
+    return () => clearTimeout(timer);
+  }, [loadTrips]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientY);
@@ -90,14 +90,11 @@ export default function TripsPage() {
 
   // Deep clone trip with new IDs
   const duplicateTrip = (tripToCopy: Trip) => {
-    const saved = localStorage.getItem('wanderlust_trips');
-    if (!saved) return;
-    
-    const allTrips: Trip[] = JSON.parse(saved);
+    const allTrips = useTripStore.getState().trips;
     const originalTrip = allTrips.find(t => t.id === tripToCopy.id);
-    
+
     if (!originalTrip) return;
-    
+
     // Deep clone and generate new IDs
     const duplicatedTrip: Trip = {
       ...originalTrip,
@@ -122,19 +119,19 @@ export default function TripsPage() {
         id: generateId(),
       })) || [],
     };
-    
+
     // Add copiedFrom reference
     duplicatedTrip.copiedFrom = originalTrip.id;
-    
-    // Save the duplicated trip
+
+    // Save via store and persist
     const updatedTrips = [...allTrips, duplicatedTrip];
-    localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
-    
+    setTrips(updatedTrips);
+    saveToStorage(updatedTrips);
+
     // Close modal and reload
     setShowDuplicateModal(false);
     setTripToDuplicate(null);
-    loadTrips();
-    
+
     // Navigate to the new trip
     router.push(`/trips/${duplicatedTrip.id}`);
   };
@@ -171,6 +168,7 @@ export default function TripsPage() {
 
   useEffect(() => {
     loadTrips();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (loading) {
