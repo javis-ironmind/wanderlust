@@ -25,7 +25,8 @@ export default function NewTripPage() {
     trips.push(newTrip);
     localStorage.setItem('wanderlust_trips', JSON.stringify(trips));
     
-    router.push('/trips');
+    // Navigate to the new trip detail page
+    router.push(`/trips/${newTrip.id}`);
   };
 
   return (

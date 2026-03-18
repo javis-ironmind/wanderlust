@@ -20,8 +20,8 @@ export interface Location {
   id: string;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   placeId?: string; // Google Maps place ID
 }
 
@@ -75,8 +75,8 @@ export interface Hotel {
   id: string;
   name: string;
   address: string;
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   checkInDate: string; // ISO date
   checkInTime?: string;
   checkOutDate: string; // ISO date

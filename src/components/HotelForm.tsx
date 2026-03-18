@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Hotel } from '@/lib/types';
 import { useTripStore } from '@/lib/store';
-import { X, Building2, Save, Trash2, Calendar, MapPin, Phone, Globe, Link } from 'lucide-react';
+import { X, Building2, Save, Trash2, Calendar, MapPin, Phone, Globe } from 'lucide-react';
 
 // Common hotel chains for autocomplete
 const HOTEL_CHAINS = [
@@ -66,8 +66,6 @@ export function HotelForm({ tripId, hotel, onClose, onSave }: HotelFormProps) {
   // Form state
   const [name, setName] = useState(hotel?.name || '');
   const [address, setAddress] = useState(hotel?.address || '');
-  const [latitude, setLatitude] = useState(hotel?.latitude || 0);
-  const [longitude, setLongitude] = useState(hotel?.longitude || 0);
   const [checkInDate, setCheckInDate] = useState(hotel?.checkInDate || '');
   const [checkInTime, setCheckInTime] = useState(hotel?.checkInTime || '15:00');
   const [checkOutDate, setCheckOutDate] = useState(hotel?.checkOutDate || '');
@@ -130,8 +128,6 @@ export function HotelForm({ tripId, hotel, onClose, onSave }: HotelFormProps) {
       id: hotel?.id || `hotel-${Date.now()}`,
       name,
       address,
-      latitude,
-      longitude,
       checkInDate,
       checkInTime,
       checkOutDate,
