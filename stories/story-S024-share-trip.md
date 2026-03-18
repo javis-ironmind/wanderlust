@@ -4,11 +4,11 @@
 As a traveler, I want to share my trip itinerary with travel companions so we can collaborate on planning.
 
 ## Acceptance Criteria
-- [ ] Add "Share" button to trip detail view
-- [ ] Generate shareable link with read-only access
-- [ ] Support write access for collaborators
-- [ ] Display list of people with access
-- [ ] Revoke access option
+- [x] Add "Share" button to trip detail view
+- [x] Generate shareable link with read-only access
+- [x] Support write access for collaborators
+- [x] Display list of people with access
+- [x] Revoke access option
 
 ## Technical Notes
 - Use URL-based sharing with encoded trip ID

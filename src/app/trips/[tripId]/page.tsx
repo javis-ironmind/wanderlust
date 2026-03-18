@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
 import { exportTripToPDF } from '@/lib/exportPDF';
+import { ShareModal } from '@/components/ShareModal';
 
 type Activity = {
   id: string;
@@ -46,6 +47,7 @@ export default function TripDetailPage() {
   const [newActivityCategory, setNewActivityCategory] = useState('activity');
   const [newActivityStartTime, setNewActivityStartTime] = useState('');
   const [newActivityEndTime, setNewActivityEndTime] = useState('');
+  const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -192,9 +194,26 @@ export default function TripDetailPage() {
               fontWeight: '600',
               cursor: 'pointer',
               marginBottom: '1rem',
+              marginRight: '0.5rem',
             }}
           >
             📄 Export PDF
+          </button>
+          <button
+            onClick={() => setShowShareModal(true)}
+            style={{
+              background: '#8b5cf6',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '1rem',
+            }}
+          >
+            🔗 Share
           </button>
         </div>
         
@@ -293,6 +312,14 @@ export default function TripDetailPage() {
         <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', minHeight: '250px' }}>
           <TripMap className="leaflet-container" markers={[]} />
         </div>
+
+        {/* Share Modal */}
+        <ShareModal
+          tripId={tripId}
+          tripName={trip?.name || ''}
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+        />
       </div>
 
       {/* Add Activity Modal - NO MAP */}
