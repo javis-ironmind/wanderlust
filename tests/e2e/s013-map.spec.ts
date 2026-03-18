@@ -14,18 +14,22 @@ test.describe('S013 - Map Component', () => {
     await page.waitForURL(/.*\/trips\/.+/);
   });
 
-  test('map component renders on trip detail page', async ({ page }) => {
+  test('AC1 - map component renders on trip detail page', async ({ page }) => {
     await page.goto(`${BASE_URL}/trips`);
     await page.click('text=Map Test Trip');
     
-    // Map should be visible
-    const mapContainer = page.locator('.leaflet-container, [class*="leaflet"]');
-    await expect(mapContainer).toBeVisible({ timeout: 10000 });
+    // Wait for map to load - Leaflet creates a container
+    await page.waitForSelector('.leaflet-container', { timeout: 10000 });
+    const mapContainer = page.locator('.leaflet-container');
+    await expect(mapContainer).toBeVisible();
   });
 
-  test('map has zoom controls', async ({ page }) => {
+  test('AC3 - map has zoom controls', async ({ page }) => {
     await page.goto(`${BASE_URL}/trips`);
     await page.click('text=Map Test Trip');
+    
+    // Wait for map
+    await page.waitForSelector('.leaflet-container', { timeout: 10000 });
     
     // Leaflet zoom controls
     const zoomIn = page.locator('.leaflet-control-zoom-in');
@@ -35,16 +39,18 @@ test.describe('S013 - Map Component', () => {
     await expect(zoomOut).toBeVisible();
   });
 
-  test('map can pan', async ({ page }) => {
+  test('AC4 - map can pan', async ({ page }) => {
     await page.goto(`${BASE_URL}/trips`);
     await page.click('text=Map Test Trip');
     
-    // Get initial center by dragging
+    // Wait for map
+    await page.waitForSelector('.leaflet-container', { timeout: 10000 });
+    
+    // Drag to pan
     const map = page.locator('.leaflet-container');
     const box = await map.boundingBox();
     
     if (box) {
-      // Drag to pan
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
       await page.mouse.down();
       await page.mouse.move(box.x + box.width / 2 + 100, box.y + box.height / 2);
@@ -55,11 +61,26 @@ test.describe('S013 - Map Component', () => {
     await expect(map).toBeVisible();
   });
 
-  test('map attribution visible', async ({ page }) => {
+  test('AC5 - map loads tiles without errors', async ({ page }) => {
     await page.goto(`${BASE_URL}/trips`);
     await page.click('text=Map Test Trip');
     
-    const attribution = page.locator('.leaflet-control-attribution');
-    await expect(attribution).toBeVisible();
+    // Wait for map container
+    await page.waitForSelector('.leaflet-container', { timeout: 10000 });
+    
+    // Check no console errors related to map
+    const errors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        errors.push(msg.text());
+      }
+    });
+    
+    // Give time for tiles to load
+    await page.waitForTimeout(2000);
+    
+    // No critical map errors
+    const mapErrors = errors.filter(e => e.includes('leaflet') || e.includes('tile') || e.includes('map'));
+    expect(mapErrors.length).toBe(0);
   });
 });

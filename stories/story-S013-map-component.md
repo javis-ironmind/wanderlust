@@ -21,9 +21,10 @@ Implement Leaflet map component in the right panel to visualize daily activities
 - [x] AC10 - Graceful error if Leaflet token invalid
 
 ## E2E Test Requirements
-- Test that map component renders on trip detail page
-- Test zoom controls work
-- Test pan functionality works
+- ✅ AC1 - Test that map component renders on trip detail page
+- ✅ AC3 - Test zoom controls work
+- ✅ AC4 - Test pan functionality works
+- ✅ AC5 - Test map loads without errors
 
 ## Implementation Notes
 - Use react-leaflet for React integration
