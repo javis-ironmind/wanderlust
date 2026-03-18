@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
 import { exportTripToPDF } from '@/lib/exportPDF';
 import { ShareModal } from '@/components/ShareModal';
+import { WeatherWidget } from '@/components/WeatherWidget';
 
 type Activity = {
   id: string;
@@ -227,23 +228,31 @@ export default function TripDetailPage() {
         {days.length > 0 && (
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {days.map((day, index) => (
-              <button
-                key={day.id}
-                onClick={() => setSelectedDay(day.id)}
-                style={{
-                  padding: '0.5rem 1rem',
-                  borderRadius: '10px',
-                  border: 'none',
-                  background: selectedDay === day.id ? '#3b82f6' : '#334155',
-                  color: 'white',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  fontWeight: '500',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                Day {index + 1} ({day.activities?.length || 0})
-              </button>
+              <div key={day.id} style={{ position: 'relative' }}>
+                <button
+                  onClick={() => setSelectedDay(day.id)}
+                  style={{
+                    padding: '0.5rem 1rem',
+                    borderRadius: '10px',
+                    border: 'none',
+                    background: selectedDay === day.id ? '#3b82f6' : '#334155',
+                    color: 'white',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem',
+                    fontWeight: '500',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  Day {index + 1} ({day.activities?.length || 0})
+                </button>
+                <WeatherWidget 
+                  tripId={trip.id}
+                  startDate={trip.startDate}
+                  endDate={trip.endDate}
+                  location={trip.name.split(' ').pop() || trip.name} 
+                  date={day.date}
+                />
+              </div>
             ))}
           </div>
         )}
