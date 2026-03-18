@@ -88,7 +88,21 @@ export async function fetchWeather(
   startDate: string,
   endDate: string
 ): Promise<WeatherData[]> {
-  const cacheKey = getCacheKey(latitude, longitude, startDate, endDate);
+  // Open-Meteo API has a limit on date range (about 5 months max)
+  // Clamp dates to stay within API limits
+  const maxDaysRange = 16; // ~2 weeks is safe
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+
+  let actualEndDate = endDate;
+  if (diffDays > maxDaysRange) {
+    const clampedEnd = new Date(start);
+    clampedEnd.setDate(start.getDate() + maxDaysRange);
+    actualEndDate = clampedEnd.toISOString().split('T')[0];
+  }
+
+  const cacheKey = getCacheKey(latitude, longitude, startDate, actualEndDate);
   
   // Check cache first
   const cached = getCachedWeather(cacheKey);
@@ -96,7 +110,7 @@ export async function fetchWeather(
     return cached;
   }
   
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&start_date=${startDate}&end_date=${endDate}&timezone=auto`;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&start_date=${startDate}&end_date=${actualEndDate}&timezone=auto`;
   
   const response = await fetch(url);
   if (!response.ok) {
