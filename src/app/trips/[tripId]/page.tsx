@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
+import { exportTripToPDF } from '@/lib/exportPDF';
 
 type Activity = {
   id: string;
@@ -165,19 +166,37 @@ export default function TripDetailPage() {
       paddingBottom: '5rem',
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <button
-          onClick={() => router.push('/trips')}
-          style={{ 
-            background: 'transparent', 
-            border: 'none', 
-            color: 'rgba(255,255,255,0.7)', 
-            cursor: 'pointer', 
-            marginBottom: '1rem',
-            fontSize: '0.875rem',
-          }}
-        >
-          ← Back to Trips
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <button
+            onClick={() => router.push('/trips')}
+            style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: 'rgba(255,255,255,0.7)', 
+              cursor: 'pointer', 
+              marginBottom: '1rem',
+              fontSize: '0.875rem',
+            }}
+          >
+            ← Back to Trips
+          </button>
+          <button
+            onClick={() => trip && exportTripToPDF(trip)}
+            style={{
+              background: '#10b981',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '1rem',
+            }}
+          >
+            📄 Export PDF
+          </button>
+        </div>
         
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>
           {trip.name}
