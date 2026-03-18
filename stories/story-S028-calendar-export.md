@@ -11,25 +11,25 @@
 ## Acceptance Criteria
 
 ### AC1: Export Button
-- [ ] Add "Export to Calendar" button in trip header area
-- [ ] Button has calendar icon (Lucide)
-- [ ] Button triggers export modal/function
+- [x] Add "Export to Calendar" button in trip header area
+- [x] Button has calendar icon (Lucide)
+- [x] Button triggers export modal/function
 
 ### AC2: iCal File Generation
-- [ ] Generate valid .ics file with trip activities
-- [ ] Each activity becomes a calendar event
-- [ ] Event includes: title, time, location, notes
-- [ ] Flight events: departure/arrival times
-- [ ] Hotel check-in/out as all-day or timed events
+- [x] Generate valid .ics file with trip activities
+- [x] Each activity becomes a calendar event
+- [x] Event includes: title, time, location, notes
+- [x] Flight events: departure/arrival times
+- [x] Hotel check-in/out as all-day or timed events
 
 ### AC3: Google Calendar Link
-- [ ] Generate Google Calendar URL
-- [ ] URL pre-fills: title, dates, description
-- [ ] Opens in new tab
+- [x] Generate Google Calendar URL
+- [x] URL pre-fills: title, dates, description
+- [x] Opens in new tab
 
 ### AC4: Download Trigger
-- [ ] Browser downloads .ics file on click
-- [ ] Filename includes trip name and dates
+- [x] Browser downloads .ics file on click
+- [x] Filename includes trip name and dates
 
 ---
 
