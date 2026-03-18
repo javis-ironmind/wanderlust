@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import ServiceWorkerRegistration from '@/components/ServiceWorkerRegistration'
+import { ToastContainer } from '@/lib/toast'
 
 export const metadata: Metadata = {
   title: 'Wanderlust Travel Planner',
@@ -34,6 +35,7 @@ export default function RootLayout({
       </head>
       <body>
         <ServiceWorkerRegistration />
+        <ToastContainer />
         {children}
       </body>
     </html>
