@@ -8,6 +8,7 @@ import { ShareModal } from '@/components/ShareModal';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { BudgetWidget } from '@/components/BudgetWidget';
 import PackingList from '@/components/PackingList';
+import CalendarExport from '@/components/CalendarExport';
 
 type Activity = {
   id: string;
@@ -238,6 +239,7 @@ export default function TripDetailPage() {
           >
             🔗 Share
           </button>
+          {trip && <CalendarExport trip={trip} />}
         </div>
         
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>
