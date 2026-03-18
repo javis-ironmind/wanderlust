@@ -19,7 +19,7 @@ test.describe('S006 - Trip Detail Layout', () => {
 
   test('AC2 - Header shows trip name and dates', async ({ page }) => {
     await expect(page.locator('h1')).toContainText('Detail Test Trip');
-    await expect(page.locator('text=2026-11-01')).toBeVisible();
+    await expect(page.locator('p:has-text("2026-11-01")')).toBeVisible();
   });
 
   test('AC9 - Back button visible', async ({ page }) => {
