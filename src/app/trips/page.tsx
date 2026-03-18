@@ -10,11 +10,15 @@ type Trip = {
   coverImage?: string;
 };
 
+type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
+
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('date-newest');
   const containerRef = useRef<HTMLDivElement>(null);
 
   const loadTrips = () => {
@@ -54,6 +58,27 @@ export default function TripsPage() {
     setTouchStart(null);
   };
 
+  // Filter and sort trips
+  const filteredTrips = trips
+    .filter(trip => 
+      searchQuery.trim() === '' || 
+      trip.name.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'date-newest':
+          return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+        case 'date-oldest':
+          return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+        case 'name-az':
+          return a.name.localeCompare(b.name);
+        case 'name-za':
+          return b.name.localeCompare(a.name);
+        default:
+          return 0;
+      }
+    });
+
   useEffect(() => {
     loadTrips();
   }, []);
@@ -83,6 +108,15 @@ export default function TripsPage() {
       .create-card:hover {
         background: rgba(255,255,255,0.15) !important;
       }
+      .search-input:focus {
+        outline: none;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2) !important;
+      }
+      .sort-select:focus {
+        outline: none;
+        border-color: #3b82f6 !important;
+      }
     `}</style>
     <div 
       ref={containerRef}
@@ -109,6 +143,100 @@ export default function TripsPage() {
         <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
           My Trips ✈️
         </h1>
+
+        {/* Search and Sort Controls */}
+        {trips.length > 0 && (
+          <div style={{ 
+            marginTop: '1.5rem', 
+            marginBottom: '1.5rem',
+            display: 'flex', 
+            gap: '1rem',
+            flexWrap: 'wrap',
+            alignItems: 'center'
+          }}>
+            {/* Search Input */}
+            <div style={{ position: 'relative', flex: '1', minWidth: '200px' }}>
+              <span style={{
+                position: 'absolute',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                color: '#64748b',
+                fontSize: '1rem',
+              }}>
+                🔍
+              </span>
+              <input
+                type="text"
+                placeholder="Search trips..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 2.5rem 0.75rem 2.5rem',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'white',
+                  fontSize: '0.95rem',
+                  boxSizing: 'border-box',
+                }}
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'rgba(255,255,255,0.6)',
+                    cursor: 'pointer',
+                    fontSize: '1rem',
+                    padding: '0',
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            {/* Sort Dropdown */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as SortOption)}
+              className="sort-select"
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                minWidth: '150px',
+              }}
+            >
+              <option value="date-newest" style={{ background: '#1e3a5f' }}>Date (Newest)</option>
+              <option value="date-oldest" style={{ background: '#1e3a5f' }}>Date (Oldest)</option>
+              <option value="name-az" style={{ background: '#1e3a5f' }}>Name (A-Z)</option>
+              <option value="name-za" style={{ background: '#1e3a5f' }}>Name (Z-A)</option>
+            </select>
+          </div>
+        )}
+
+        {/* Trip Count */}
+        {trips.length > 0 && (
+          <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+            {searchQuery 
+              ? `${filteredTrips.length} of ${trips.length} trips`
+              : `${trips.length} trip${trips.length !== 1 ? 's' : ''}`
+            }
+          </p>
+        )}
         
         {trips.length === 0 ? (
           <div style={{ marginTop: '2rem' }}>
@@ -131,9 +259,30 @@ export default function TripsPage() {
               Create Your First Trip
             </a>
           </div>
+        ) : filteredTrips.length === 0 ? (
+          <div style={{ marginTop: '2rem', textAlign: 'center', padding: '3rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '1.1rem' }}>
+              No trips match "{searchQuery}"
+            </p>
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                marginTop: '1rem',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                padding: '0.75rem 1.5rem',
+                borderRadius: '8px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                cursor: 'pointer',
+                fontSize: '0.95rem',
+              }}
+            >
+              Clear Search
+            </button>
+          </div>
         ) : (
-          <div style={{ marginTop: '2rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
-            {trips.map(trip => (
+          <div style={{ marginTop: '0.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
+            {filteredTrips.map(trip => (
               <a
                 key={trip.id}
                 href={`/trips/${trip.id}`}
