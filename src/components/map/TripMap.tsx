@@ -21,17 +21,16 @@ interface TripMapProps {
 
 // Custom marker colors by category
 const categoryColors: Record<string, string> = {
-  restaurant: '#f97316',  // orange
-  attraction: '#8b5cf6', // purple
-  activity: '#06b6d4',   // cyan
-  transport: '#3b82f6',  // blue
-  hotel: '#ec4899',      // pink
-  shopping: '#84cc16',   // lime
-  entertainment: '#f43f5e', // rose
-  other: '#6b7280',      // gray
+  restaurant: '#f97316',
+  attraction: '#8b5cf6',
+  activity: '#06b6d4',
+  transport: '#3b82f6',
+  hotel: '#ec4899',
+  shopping: '#84cc16',
+  entertainment: '#f43f5e',
+  other: '#6b7280',
 };
 
-// Create custom icon
 function createMarkerIcon(color: string = '#3b82f6') {
   return L.divIcon({
     className: 'custom-marker',
