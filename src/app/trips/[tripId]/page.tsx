@@ -3,13 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
-
-type Trip = {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-};
+import { SaveIndicator } from '@/components/SaveIndicator';
+import { ExportImport } from '@/components/ExportImport';
+import { loadFromStorage, saveToStorage } from '@/lib/storage';
+import { Trip } from '@/lib/types';
 
 export default function TripDetailPage() {
   const params = useParams();
@@ -19,18 +16,26 @@ export default function TripDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('wanderlust_trips');
-      if (saved) {
-        const trips: Trip[] = JSON.parse(saved);
-        const found = trips.find(t => t.id === tripId);
-        if (found) {
-          setTrip(found);
-        }
-      }
-      setLoading(false);
+    const loadedTrips = loadFromStorage();
+    const found = loadedTrips.find(t => t.id === tripId);
+    if (found) {
+      setTrip(found);
     }
+    setLoading(false);
   }, [tripId]);
+
+  // Auto-save on changes
+  useEffect(() => {
+    if (trip) {
+      const loadedTrips = loadFromStorage();
+      const updatedTrips = loadedTrips.map(t => t.id === trip.id ? trip : t);
+      // If trip not in storage, add it
+      if (!updatedTrips.find(t => t.id === trip.id)) {
+        updatedTrips.push(trip);
+      }
+      saveToStorage(updatedTrips);
+    }
+  }, [trip]);
 
   if (loading) {
     return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
@@ -59,7 +64,14 @@ export default function TripDetailPage() {
         ← Back to Trips
       </button>
       
-      <h1 style={{ fontSize: '2.5rem', color: 'white', marginBottom: '0.5rem' }}>{trip.name}</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <h1 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>{trip.name}</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <SaveIndicator />
+          <ExportImport trips={[trip]} onImport={() => {}} />
+        </div>
+      </div>
+      
       <p style={{ color: 'white', fontSize: '1.1rem', opacity: 0.8, marginBottom: '2rem' }}>
         {trip.startDate} → {trip.endDate}
       </p>

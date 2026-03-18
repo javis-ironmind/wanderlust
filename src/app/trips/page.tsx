@@ -1,27 +1,54 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePersistence } from '@/lib/usePersistence';
+import { SaveIndicator } from '@/components/SaveIndicator';
+import { ExportImport } from '@/components/ExportImport';
+import { loadFromStorage, saveToStorage } from '@/lib/storage';
 
 type Trip = {
   id: string;
   name: string;
   startDate: string;
   endDate: string;
+  days: Array<{
+    id: string;
+    date: string;
+    activities: Array<{
+      id: string;
+      title: string;
+      order: number;
+    }>;
+  }>;
+  flights: Array<{ id: string }>;
+  hotels: Array<{ id: string }>;
 };
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const { replaceAllTrips } = usePersistence();
+  
+  // Load initial data
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('wanderlust_trips');
-      if (saved) {
-        setTrips(JSON.parse(saved));
-      }
-      setLoading(false);
-    }
+    const loadedTrips = loadFromStorage();
+    setTrips(loadedTrips as Trip[]);
+    setLoading(false);
   }, []);
+  
+  // Auto-save when trips change
+  useEffect(() => {
+    if (!loading && trips.length > 0) {
+      saveToStorage(trips as any);
+    }
+  }, [trips, loading]);
+  
+  const handleImport = (importedTrips: any[]) => {
+    // Merge: add imported trips that don't already exist
+    const existingIds = new Set(trips.map(t => t.id));
+    const newTrips = importedTrips.filter(t => !existingIds.has(t.id));
+    setTrips(prev => [...prev, ...newTrips]);
+  };
 
   if (loading) {
     return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
@@ -29,7 +56,15 @@ export default function TripsPage() {
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5rem', color: 'white' }}>My Trips</h1>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <h1 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>My Trips</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+          <SaveIndicator />
+          {trips.length > 0 && (
+            <ExportImport trips={trips as any} onImport={handleImport} />
+          )}
+        </div>
+      </div>
       
       {trips.length === 0 ? (
         <div style={{ marginTop: '2rem' }}>
@@ -72,6 +107,9 @@ export default function TripsPage() {
               <p style={{ margin: '0.5rem 0 0', color: '#666' }}>
                 {trip.startDate} → {trip.endDate}
               </p>
+              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#999' }}>
+                {trip.days?.length || 0} days · {trip.flights?.length || 0} flights · {trip.hotels?.length || 0} hotels
+              </div>
             </a>
           ))}
         </div>
