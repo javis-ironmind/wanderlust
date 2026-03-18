@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Trip, Day, Activity, Flight, Hotel } from './types';
+import { Trip, Day, Activity, Flight, Hotel, PackingItem } from './types';
 
 interface TripState {
   trips: Trip[];
@@ -36,6 +36,13 @@ interface TripActions {
   addHotel: (tripId: string, hotel: Hotel) => void;
   updateHotel: (tripId: string, hotelId: string, updates: Partial<Hotel>) => void;
   deleteHotel: (tripId: string, hotelId: string) => void;
+  
+  // Packing list actions
+  addPackingItem: (tripId: string, item: PackingItem) => void;
+  updatePackingItem: (tripId: string, itemId: string, updates: Partial<PackingItem>) => void;
+  deletePackingItem: (tripId: string, itemId: string) => void;
+  togglePackingItem: (tripId: string, itemId: string) => void;
+  initializePackingList: (tripId: string) => void;
 }
 
 type TripStore = TripState & TripActions;
@@ -287,6 +294,97 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
+  
+  // Packing list actions
+  addPackingItem: (tripId, item) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? {
+            ...trip,
+            packingList: {
+              items: [...(trip.packingList?.items || []), item]
+            }
+          }
+        : trip
+    )
+  })),
+  
+  updatePackingItem: (tripId, itemId, updates) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? {
+            ...trip,
+            packingList: {
+              items: (trip.packingList?.items || []).map((item) =>
+                item.id === itemId ? { ...item, ...updates } : item
+              )
+            }
+          }
+        : trip
+    )
+  })),
+  
+  deletePackingItem: (tripId, itemId) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? {
+            ...trip,
+            packingList: {
+              items: (trip.packingList?.items || []).filter((item) => item.id !== itemId)
+            }
+          }
+        : trip
+    )
+  })),
+  
+  togglePackingItem: (tripId, itemId) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? {
+            ...trip,
+            packingList: {
+              items: (trip.packingList?.items || []).map((item) =>
+                item.id === itemId ? { ...item, packed: !item.packed } : item
+              )
+            }
+          }
+        : trip
+    )
+  })),
+  
+  initializePackingList: (tripId) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? {
+            ...trip,
+            packingList: {
+              items: [
+                { id: crypto.randomUUID(), name: 'Passport', category: 'Documents', packed: false },
+                { id: crypto.randomUUID(), name: 'Phone charger', category: 'Electronics', packed: false },
+                { id: crypto.randomUUID(), name: 'Laptop', category: 'Electronics', packed: false },
+                { id: crypto.randomUUID(), name: 'Camera', category: 'Electronics', packed: false },
+                { id: crypto.randomUUID(), name: 'T-shirts', category: 'Clothes', packed: false },
+                { id: crypto.randomUUID(), name: 'Pants', category: 'Clothes', packed: false },
+                { id: crypto.randomUUID(), name: 'Underwear', category: 'Clothes', packed: false },
+                { id: crypto.randomUUID(), name: 'Socks', category: 'Clothes', packed: false },
+                { id: crypto.randomUUID(), name: 'Jacket', category: 'Clothes', packed: false },
+                { id: crypto.randomUUID(), name: 'Toothbrush', category: 'Toiletries', packed: false },
+                { id: crypto.randomUUID(), name: 'Toothpaste', category: 'Toiletries', packed: false },
+                { id: crypto.randomUUID(), name: 'Shampoo', category: 'Toiletries', packed: false },
+                { id: crypto.randomUUID(), name: 'Sunscreen', category: 'Toiletries', packed: false },
+                { id: crypto.randomUUID(), name: 'Wallet', category: 'Documents', packed: false },
+                { id: crypto.randomUUID(), name: 'Travel insurance', category: 'Documents', packed: false },
+                { id: crypto.randomUUID(), name: 'Medications', category: 'Toiletries', packed: false },
+                { id: crypto.randomUUID(), name: 'Sunglasses', category: 'Misc', packed: false },
+                { id: crypto.randomUUID(), name: 'Headphones', category: 'Electronics', packed: false },
+                { id: crypto.randomUUID(), name: 'Power bank', category: 'Electronics', packed: false },
+                { id: crypto.randomUUID(), name: 'Adapter/Converter', category: 'Electronics', packed: false },
+              ]
+            }
+          }
+        : trip
+    )
+  })),
 }));
 
 // Convenience hooks
@@ -316,4 +414,9 @@ export const useTripActions = () => useTripStore((state) => ({
   addHotel: state.addHotel,
   updateHotel: state.updateHotel,
   deleteHotel: state.deleteHotel,
+  addPackingItem: state.addPackingItem,
+  updatePackingItem: state.updatePackingItem,
+  deletePackingItem: state.deletePackingItem,
+  togglePackingItem: state.togglePackingItem,
+  initializePackingList: state.initializePackingList,
 }));

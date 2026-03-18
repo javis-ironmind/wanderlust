@@ -7,6 +7,7 @@ import { exportTripToPDF } from '@/lib/exportPDF';
 import { ShareModal } from '@/components/ShareModal';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { BudgetWidget } from '@/components/BudgetWidget';
+import PackingList from '@/components/PackingList';
 
 type Activity = {
   id: string;
@@ -248,6 +249,11 @@ export default function TripDetailPage() {
 
         {/* Budget Widget */}
         <BudgetWidget trip={trip} onUpdateBudget={handleUpdateBudget} />
+
+        {/* Packing List */}
+        <div style={{ marginTop: '1rem' }}>
+          <PackingList tripId={tripId} />
+        </div>
 
         {days.length > 0 && (
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>

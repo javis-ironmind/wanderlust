@@ -102,6 +102,7 @@ export interface Trip {
   days: Day[];
   flights: Flight[];
   hotels: Hotel[];
+  packingList?: PackingList;
   notes?: string;
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
@@ -207,4 +208,16 @@ export interface UIState {
   mapViewport: MapViewport | null;
   isMapOpen: boolean;
   isSidebarOpen: boolean;
+}
+
+// Packing list types
+export interface PackingItem {
+  id: string;
+  name: string;
+  category: string;
+  packed: boolean;
+}
+
+export interface PackingList {
+  items: PackingItem[];
 }
