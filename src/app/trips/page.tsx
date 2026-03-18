@@ -1,94 +1,120 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { SaveIndicator } from '@/components/SaveIndicator';
-import { ExportImport } from '@/components/ExportImport';
-import { Trip } from '@/lib/types';
-import { loadFromStorage, saveToStorage } from '@/lib/storage';
+
+type Trip = {
+  id: string;
+  name: string;
+  startDate: string;
+  endDate: string;
+};
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Load initial data
+
   useEffect(() => {
-    const loadedTrips = loadFromStorage();
-    setTrips(loadedTrips);
-    setLoading(false);
-  }, []);
-  
-  // Auto-save when trips change
-  useEffect(() => {
-    if (!loading && trips.length > 0) {
-      saveToStorage(trips);
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('wanderlust_trips');
+      if (saved) {
+        setTrips(JSON.parse(saved));
+      }
+      setLoading(false);
     }
-  }, [trips, loading]);
-  
-  const handleImport = (importedTrips: Trip[]) => {
-    // Merge: add imported trips that don't already exist
-    const existingIds = new Set(trips.map(t => t.id));
-    const newTrips = importedTrips.filter(t => !existingIds.has(t.id));
-    setTrips(prev => [...prev, ...newTrips]);
-  };
+  }, []);
 
   if (loading) {
-    return <div className="p-4 md:p-8 text-white">Loading...</div>;
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+        padding: '2rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <p style={{ color: 'white' }}>Loading...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="p-4 md:p-8 max-w-2xl lg:max-w-4xl mx-auto">
-      {/* Header - Responsive */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-2">
-        <h1 className="text-2xl md:text-3xl lg:text-4xl text-white m-0">My Trips</h1>
-        <div className="flex items-center gap-2 md:gap-4">
-          <SaveIndicator />
-          {trips.length > 0 && (
-            <ExportImport trips={trips} onImport={handleImport} />
-          )}
-        </div>
-      </div>
-      
-      {trips.length === 0 ? (
-        <div className="mt-4 md:mt-8">
-          <p className="text-white text-base md:text-lg mb-4 md:mb-6">
-            No trips yet - Start planning your next adventure!
-          </p>
-          <a
-            href="/trips/new"
-            className="inline-block px-5 py-3 md:px-7 md:py-4 rounded-xl text-base md:text-lg font-semibold"
-            style={{
-              background: 'white',
-              color: '#667eea',
-              textDecoration: 'none',
-            }}
-          >
-            Create Your First Trip
-          </a>
-        </div>
-      ) : (
-        <div className="mt-4 md:mt-8">
-          {trips.map(trip => (
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
+      padding: '2rem',
+    }}>
+      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
+          My Trips ✈️
+        </h1>
+        
+        {trips.length === 0 ? (
+          <div style={{ marginTop: '2rem' }}>
+            <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+              No trips yet — Start planning your next adventure!
+            </p>
             <a
-              key={trip.id}
-              href={`/trips/${trip.id}`}
-              className="block p-4 md:p-6 rounded-xl mb-3 md:mb-4 no-underline"
+              href="/trips/new"
               style={{
-                background: 'white',
-                color: '#333',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                fontWeight: '600',
+                display: 'inline-block',
+                boxShadow: '0 4px 14px 0 rgba(59,130,246,0.39)',
               }}
             >
-              <h3 className="text-lg md:text-xl m-0">{trip.name}</h3>
-              <p className="text-sm md:text-base mt-1 md:mt-2 mb-0 text-gray-600">
-                {trip.startDate} → {trip.endDate}
-              </p>
-              <div className="mt-1 md:mt-2 text-xs md:text-sm text-gray-500">
-                {trip.days?.length || 0} days · {trip.flights?.length || 0} flights · {trip.hotels?.length || 0} hotels
-              </div>
+              Create Your First Trip
             </a>
-          ))}
-        </div>
-      )}
+          </div>
+        ) : (
+          <div style={{ marginTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {trips.map(trip => (
+              <a
+                key={trip.id}
+                href={`/trips/${trip.id}`}
+                style={{
+                  display: 'block',
+                  background: 'white',
+                  padding: '1.5rem',
+                  borderRadius: '16px',
+                  textDecoration: 'none',
+                  color: '#1e3a5f',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                }}
+              >
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
+                <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
+                  📅 {trip.startDate} → {trip.endDate}
+                </p>
+              </a>
+            ))}
+            
+            <a
+              href="/trips/new"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                fontWeight: '500',
+                border: '2px dashed rgba(255,255,255,0.3)',
+              }}
+            >
+              + Create New Trip
+            </a>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
