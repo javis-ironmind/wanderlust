@@ -2,18 +2,18 @@
 
 import { useEffect, useCallback } from 'react';
 import { useTripStore } from '@/lib/store';
+import { Trip } from '@/lib/types';
 import { 
   loadFromStorage, 
   saveToStorage, 
   setupCrossTabSync,
   importTrips,
-  Trip 
 } from '@/lib/storage';
 
 export function usePersistence() {
   const trips = useTripStore((state) => state.trips);
-  const setTrips = useTripStore((state) => state.setTrips);
   const addTrip = useTripStore((state) => state.addTrip);
+  const setTrips = useTripStore((state) => state.setTrips);
   
   // Load trips from localStorage on mount
   useEffect(() => {
@@ -21,7 +21,7 @@ export function usePersistence() {
     if (loadedTrips.length > 0) {
       setTrips(loadedTrips);
     }
-  }, [setTrips]);
+  }, []);
   
   // Save trips to localStorage whenever they change
   useEffect(() => {
@@ -38,12 +38,11 @@ export function usePersistence() {
       const newTripIds = new Set(newTrips.map(t => t.id));
       
       let hasChanges = false;
-      for (const id of newTripIds) {
+      newTripIds.forEach((id) => {
         if (!currentTripIds.has(id)) {
           hasChanges = true;
-          break;
         }
-      }
+      });
       
       if (hasChanges || newTrips.length !== trips.length) {
         setTrips(newTrips);
@@ -51,7 +50,7 @@ export function usePersistence() {
     });
     
     return cleanup;
-  }, [trips, setTrips]);
+  }, [trips]);
   
   // Import trips (merge with existing)
   const importAndMerge = useCallback(async (file: File) => {
@@ -69,7 +68,7 @@ export function usePersistence() {
   // Replace all trips (for import with merge option)
   const replaceAllTrips = useCallback((newTrips: Trip[]) => {
     setTrips(newTrips);
-  }, [setTrips]);
+  }, []);
   
   return {
     importAndMerge,

@@ -20,7 +20,7 @@ export function ExportImport({ trips, onImport }: ExportImportProps) {
       setImportStatus('Export successful!');
       setError('');
       setTimeout(() => setImportStatus(''), 3000);
-    } catch (err) {
+    } catch {
       setError('Export failed');
       setImportStatus('');
     }

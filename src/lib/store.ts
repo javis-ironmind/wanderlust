@@ -9,6 +9,7 @@ interface TripState {
 interface TripActions {
   // Trip actions
   addTrip: (trip: Trip) => void;
+  setTrips: (trips: Trip[]) => void;
   updateTrip: (tripId: string, updates: Partial<Trip>) => void;
   deleteTrip: (tripId: string) => void;
   setCurrentTrip: (tripId: string | null) => void;
@@ -48,6 +49,8 @@ export const useTripStore = create<TripStore>((set) => ({
   addTrip: (trip) => set((state) => ({ 
     trips: [...state.trips, trip] 
   })),
+  
+  setTrips: (trips) => set({ trips }),
   
   updateTrip: (tripId, updates) => set((state) => ({
     trips: state.trips.map((trip) =>

@@ -1,49 +1,30 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePersistence } from '@/lib/usePersistence';
 import { SaveIndicator } from '@/components/SaveIndicator';
 import { ExportImport } from '@/components/ExportImport';
+import { Trip } from '@/lib/types';
 import { loadFromStorage, saveToStorage } from '@/lib/storage';
-
-type Trip = {
-  id: string;
-  name: string;
-  startDate: string;
-  endDate: string;
-  days: Array<{
-    id: string;
-    date: string;
-    activities: Array<{
-      id: string;
-      title: string;
-      order: number;
-    }>;
-  }>;
-  flights: Array<{ id: string }>;
-  hotels: Array<{ id: string }>;
-};
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(true);
-  const { replaceAllTrips } = usePersistence();
   
   // Load initial data
   useEffect(() => {
     const loadedTrips = loadFromStorage();
-    setTrips(loadedTrips as Trip[]);
+    setTrips(loadedTrips);
     setLoading(false);
   }, []);
   
   // Auto-save when trips change
   useEffect(() => {
     if (!loading && trips.length > 0) {
-      saveToStorage(trips as any);
+      saveToStorage(trips);
     }
   }, [trips, loading]);
   
-  const handleImport = (importedTrips: any[]) => {
+  const handleImport = (importedTrips: Trip[]) => {
     // Merge: add imported trips that don't already exist
     const existingIds = new Set(trips.map(t => t.id));
     const newTrips = importedTrips.filter(t => !existingIds.has(t.id));
@@ -61,7 +42,7 @@ export default function TripsPage() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <SaveIndicator />
           {trips.length > 0 && (
-            <ExportImport trips={trips as any} onImport={handleImport} />
+            <ExportImport trips={trips} onImport={handleImport} />
           )}
         </div>
       </div>

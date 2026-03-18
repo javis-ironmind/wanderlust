@@ -145,7 +145,7 @@ export async function importTrips(file: File): Promise<Trip[]> {
         }
         
         resolve(data.trips);
-      } catch (error) {
+      } catch {
         reject(new Error('Failed to parse JSON file. File may be corrupted.'));
       }
     };

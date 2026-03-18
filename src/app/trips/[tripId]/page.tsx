@@ -110,7 +110,6 @@ export default function TripDetailPage() {
   const handleAddDay = () => {
     if (!trip) return;
     
-    const newDayNumber = trip.days.length + 1;
     const lastDate = trip.days.length > 0 
       ? new Date(trip.days[trip.days.length - 1].date)
       : new Date(trip.startDate);
