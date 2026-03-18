@@ -11,13 +11,22 @@ type Trip = {
 
 export default function TripsPage() {
   const [trips, setTrips] = useState<Trip[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('wanderlust_trips');
-    if (saved) {
-      setTrips(JSON.parse(saved));
+    // Only run on client
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('wanderlust_trips');
+      if (saved) {
+        setTrips(JSON.parse(saved));
+      }
+      setLoading(false);
     }
   }, []);
+
+  if (loading) {
+    return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
+  }
 
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
