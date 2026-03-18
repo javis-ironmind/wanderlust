@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
 import { exportTripToPDF } from '@/lib/exportPDF';
@@ -77,6 +77,26 @@ export default function TripDetailPage() {
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal'>('itinerary');
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // Track which days are expanded
   const [quickAddText, setQuickAddText] = useState<Record<string, string>>({}); // Quick add input per day
+  const [showMap, setShowMap] = useState(false); // AC5: FAB to toggle map view on/off
+
+  // AC1 & AC6: Compute markers from activities with locations
+  const markers = useMemo(() => {
+    if (!trip?.days) return [];
+    const allActivities = trip.days.flatMap(day => day.activities);
+    return allActivities
+      .filter(activity => activity.location?.latitude && activity.location?.longitude)
+      .map(activity => ({
+        id: activity.id,
+        position: [activity.location!.latitude!, activity.location!.longitude!] as [number, number],
+        title: activity.title,
+        category: activity.category || 'other',
+      }));
+  }, [trip]);
+
+  // AC3: Compute route polyline from markers in order
+  const routePositions = useMemo(() => {
+    return markers.map(m => m.position);
+  }, [markers]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -670,10 +690,41 @@ export default function TripDetailPage() {
           })}
         </div>
 
-        {/* Map */}
-        <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', minHeight: '250px' }}>
-          <TripMap className="leaflet-container" markers={[]} />
-        </div>
+        {/* Map - AC1: Shows only when activities have locations */}
+        {showMap && markers.length > 0 && (
+          <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', minHeight: '250px', marginBottom: '1rem' }}>
+            <TripMap 
+              className="leaflet-container" 
+              markers={markers}
+              route={routePositions}
+            />
+          </div>
+        )}
+
+        {/* AC5: FAB to toggle map view on/off */}
+        {markers.length > 0 && (
+          <button
+            onClick={() => setShowMap(!showMap)}
+            style={{
+              position: 'fixed',
+              bottom: '7rem',
+              right: '2rem',
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              border: 'none',
+              background: showMap ? '#3b82f6' : '#64748b',
+              color: 'white',
+              fontSize: '1.25rem',
+              cursor: 'pointer',
+              zIndex: 100,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            }}
+            title={showMap ? 'Hide Map' : 'Show Map'}
+          >
+            🗺️
+          </button>
+        )}
 
         {/* Share Modal */}
         <ShareModal

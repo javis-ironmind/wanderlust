@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, ZoomControl, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -16,6 +16,7 @@ interface TripMapProps {
   center?: [number, number];
   zoom?: number;
   markers?: MapMarker[];
+  route?: [number, number][]; // AC3: Route line positions
   className?: string;
 }
 
@@ -48,12 +49,26 @@ function createMarkerIcon(color: string = '#3b82f6') {
   });
 }
 
-export function TripMap({ center = [20, 0], zoom = 2, markers = [], className = '' }: TripMapProps) {
+export function TripMap({ center = [20, 0], zoom = 2, markers = [], route, className = '' }: TripMapProps) {
   const [isMounted, setIsMounted] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>(center);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // AC6: Auto-calculate center when markers change
+  useEffect(() => {
+    if (markers && markers.length > 0) {
+      const validMarkers = markers.filter(m => m.position[0] && m.position[1]);
+      if (validMarkers.length > 0) {
+        // Calculate center from markers
+        const avgLat = validMarkers.reduce((sum, m) => sum + m.position[0], 0) / validMarkers.length;
+        const avgLng = validMarkers.reduce((sum, m) => sum + m.position[1], 0) / validMarkers.length;
+        setMapCenter([avgLat, avgLng]);
+      }
+    }
+  }, [markers]);
 
   const getMarkerIcon = (category?: string) => {
     const color = category ? categoryColors[category] || categoryColors.other : categoryColors.other;
@@ -72,7 +87,7 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], className = 
   
   return (
     <MapContainer
-      center={center}
+      center={mapCenter}
       zoom={zoom}
       className={className}
       style={{ minHeight: '400px', height: '100%', width: '100%' }}
@@ -83,6 +98,17 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], className = 
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <ZoomControl position="bottomright" />
+      
+      {/* AC3: Route line drawn between activities in order */}
+      {route && route.length > 1 && (
+        <Polyline 
+          positions={route} 
+          color="#3b82f6" 
+          weight={3} 
+          opacity={0.7} 
+          dashArray="10, 10"
+        />
+      )}
       
       {validMarkers.map((marker) => (
         <Marker
