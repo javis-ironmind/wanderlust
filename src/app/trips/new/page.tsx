@@ -8,9 +8,19 @@ export default function NewTripPage() {
   const [name, setName] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [coverImage, setCoverImage] = useState('');
+  const [collaborators, setCollaborators] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    
+    // Validation: end date must be after start date
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      setError('End date must be after start date');
+      return;
+    }
     
     // Generate days between start and end dates
     const days = [];
@@ -25,11 +35,19 @@ export default function NewTripPage() {
       });
     }
     
+    // Parse collaborators into array
+    const collaboratorsList = collaborators
+      .split(',')
+      .map(c => c.trim())
+      .filter(c => c.length > 0);
+    
     const newTrip = {
       id: `trip-${Date.now()}`,
       name,
       startDate,
       endDate,
+      coverImage: coverImage || null,
+      collaborators: collaboratorsList,
       days,
       flights: [],
       hotels: [],
@@ -61,9 +79,22 @@ export default function NewTripPage() {
           <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>Start planning your next adventure!</p>
           
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {error && (
+              <div style={{ 
+                padding: '0.75rem 1rem', 
+                background: '#fef2f2', 
+                border: '1px solid #fecaca', 
+                borderRadius: '8px', 
+                color: '#dc2626',
+                fontSize: '0.875rem'
+              }}>
+                {error}
+              </div>
+            )}
+            
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
-                Where are you going?
+                Where are you going? *
               </label>
               <input
                 name="name"
@@ -88,7 +119,7 @@ export default function NewTripPage() {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
-                  Start Date
+                  Start Date *
                 </label>
                 <input
                   name="startDate"
@@ -109,7 +140,7 @@ export default function NewTripPage() {
               
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
-                  End Date
+                  End Date *
                 </label>
                 <input
                   name="endDate"
@@ -127,6 +158,52 @@ export default function NewTripPage() {
                   }}
                 />
               </div>
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
+                Cover Image URL <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span>
+              </label>
+              <input
+                name="coverImage"
+                type="url"
+                value={coverImage}
+                onChange={(e) => setCoverImage(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.875rem 1rem', 
+                  borderRadius: '12px', 
+                  border: '2px solid #e2e8f0', 
+                  fontSize: '1rem',
+                  outline: 'none',
+                }}
+                placeholder="https://example.com/image.jpg"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
+                Collaborators <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional, comma-separated)</span>
+              </label>
+              <input
+                name="collaborators"
+                type="text"
+                value={collaborators}
+                onChange={(e) => setCollaborators(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.875rem 1rem', 
+                  borderRadius: '12px', 
+                  border: '2px solid #e2e8f0', 
+                  fontSize: '1rem',
+                  outline: 'none',
+                }}
+                placeholder="alice@example.com, bob@example.com"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              />
             </div>
             
             <button
