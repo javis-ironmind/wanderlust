@@ -8,7 +8,8 @@ type Activity = {
   id: string;
   title: string;
   category?: string;
-  startTime?: string;
+  startTime?: string;  // ISO datetime
+  endTime?: string;    // ISO datetime
   location?: {
     latitude?: number;
     longitude?: number;
@@ -39,6 +40,11 @@ export default function TripDetailPage() {
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newActivityName, setNewActivityName] = useState('');
+  const [newActivityCategory, setNewActivityCategory] = useState('activity');
+  const [newActivityStartTime, setNewActivityStartTime] = useState('');
+  const [newActivityEndTime, setNewActivityEndTime] = useState('');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -58,13 +64,14 @@ export default function TripDetailPage() {
   }, [tripId]);
 
   const handleAddActivity = () => {
-    const activityName = prompt('Activity name:');
-    if (!activityName || !selectedDay || !trip) return;
+    if (!newActivityName.trim() || !selectedDay || !trip) return;
     
     const newActivity: Activity = {
       id: `activity-${Date.now()}`,
-      title: activityName,
-      category: 'activity',
+      title: newActivityName.trim(),
+      category: newActivityCategory,
+      startTime: newActivityStartTime || undefined,
+      endTime: newActivityEndTime || undefined,
     };
     
     const updatedDays = trip.days.map(day => {
@@ -80,13 +87,18 @@ export default function TripDetailPage() {
     const updatedTrip = { ...trip, days: updatedDays };
     setTrip(updatedTrip);
     
-    // Save to localStorage
     const saved = localStorage.getItem('wanderlust_trips');
     if (saved) {
       const trips: Trip[] = JSON.parse(saved);
       const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
       localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
     }
+    
+    setNewActivityName('');
+    setNewActivityCategory('activity');
+    setNewActivityStartTime('');
+    setNewActivityEndTime('');
+    setShowAddModal(false);
   };
 
   if (loading) {
@@ -150,9 +162,9 @@ export default function TripDetailPage() {
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%)',
       padding: '1rem',
+      paddingBottom: '5rem',
     }}>
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Header */}
         <button
           onClick={() => router.push('/trips')}
           style={{ 
@@ -174,7 +186,6 @@ export default function TripDetailPage() {
           {trip.startDate} → {trip.endDate}
         </p>
 
-        {/* Day Tabs */}
         {days.length > 0 && (
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
             {days.map((day, index) => (
@@ -199,41 +210,46 @@ export default function TripDetailPage() {
           </div>
         )}
 
-        {/* Content */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1rem' }}>
-          {/* Itinerary */}
-          <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f', margin: 0 }}>
-                {currentDay?.date || 'No days'}
-              </h2>
-              <button
-                onClick={handleAddActivity}
-                style={{
-                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                  color: 'white',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '0.875rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                + Add Activity
-              </button>
+        {/* Itinerary */}
+        <div style={{ background: 'white', borderRadius: '16px', padding: '1.5rem', marginBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f', margin: 0 }}>
+              {currentDay?.date || 'No days'}
+            </h2>
+            <button
+              onClick={() => setShowAddModal(true)}
+              style={{
+                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                color: 'white',
+                padding: '0.5rem 1rem',
+                borderRadius: '8px',
+                border: 'none',
+                fontSize: '0.875rem',
+                fontWeight: '600',
+                cursor: 'pointer',
+              }}
+            >
+              + Add Activity
+            </button>
+          </div>
+          
+          {(!currentDay || !currentDay.activities || currentDay.activities.length === 0) ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+              <p>No activities planned yet</p>
+              <p style={{ fontSize: '0.875rem' }}>Click "+ Add Activity" to start building!</p>
             </div>
-            
-            {(!currentDay || !currentDay.activities || currentDay.activities.length === 0) ? (
-              <div style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                <p>No activities planned yet</p>
-                <p style={{ fontSize: '0.875rem' }}>Click "+ Add Activity" to start building your itinerary!</p>
-              </div>
-            ) : (
-              <div>
-                {currentDay.activities.map((activity) => (
-                  <div key={activity.id} style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0' }}>
+          ) : (
+            <div>
+              {currentDay.activities.map((activity) => (
+                <div key={activity.id} style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
                     <h3 style={{ margin: 0, fontSize: '1rem', color: '#1e3a5f' }}>{activity.title}</h3>
+                    {activity.startTime && (
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#64748b' }}>
+                        {new Date(activity.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {activity.endTime && ` - ${new Date(activity.endTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
+                      </p>
+                    )}
                     {activity.category && (
                       <span style={{ 
                         display: 'inline-block',
@@ -242,26 +258,176 @@ export default function TripDetailPage() {
                         background: '#eff6ff', 
                         color: '#3b82f6',
                         fontSize: '0.75rem',
-                        marginTop: '0.5rem',
+                        marginTop: '0.25rem',
                       }}>
                         {activity.category}
                       </span>
                     )}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-          {/* Map */}
-          <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', minHeight: '300px' }}>
-            <TripMap 
-              className="leaflet-container"
-              markers={[]}
-            />
-          </div>
+        {/* Map */}
+        <div style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', minHeight: '250px' }}>
+          <TripMap className="leaflet-container" markers={[]} />
         </div>
       </div>
+
+      {/* Add Activity Modal - NO MAP */}
+      {showAddModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 100,
+          padding: '1rem',
+        }} onClick={() => setShowAddModal(false)}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '1.5rem',
+            width: '100%',
+            maxWidth: '400px',
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 1rem', color: '#1e3a5f', fontSize: '1.25rem' }}>Add Activity</h3>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                Activity Name
+              </label>
+              <input
+                type="text"
+                value={newActivityName}
+                onChange={e => setNewActivityName(e.target.value)}
+                placeholder="e.g., Visit Golden Gate"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+                autoFocus
+              />
+            </div>
+            
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                Category
+              </label>
+              <select
+                value={newActivityCategory}
+                onChange={e => setNewActivityCategory(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  background: 'white',
+                  boxSizing: 'border-box',
+                }}
+              >
+                <option value="activity">Activity</option>
+                <option value="restaurant">Restaurant</option>
+                <option value="attraction">Attraction</option>
+                <option value="transport">Transport</option>
+                <option value="hotel">Hotel</option>
+                <option value="shopping">Shopping</option>
+                <option value="entertainment">Entertainment</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            {/* Time inputs */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                Start Time (optional)
+              </label>
+              <input
+                type="datetime-local"
+                value={newActivityStartTime}
+                onChange={e => setNewActivityStartTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                End Time (optional)
+              </label>
+              <input
+                type="datetime-local"
+                value={newActivityEndTime}
+                onChange={e => setNewActivityEndTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+            
+            <div style={{ display: 'flex', gap: '0.75rem' }}>
+              <button
+                onClick={() => setShowAddModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  background: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleAddActivity}
+                disabled={!newActivityName.trim()}
+                style={{
+                  flex: 1,
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: newActivityName.trim() 
+                    ? 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)' 
+                    : '#94a3b8',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: newActivityName.trim() ? 'pointer' : 'not-allowed',
+                }}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
