@@ -10,6 +10,8 @@ import { BudgetWidget } from '@/components/BudgetWidget';
 import PackingList from '@/components/PackingList';
 import CloudSyncSettings from '@/components/CloudSyncSettings';
 import CalendarExport from '@/components/CalendarExport';
+import { FlightForm } from '@/components/FlightForm';
+import { HotelForm } from '@/components/HotelForm';
 
 type Activity = {
   id: string;
@@ -74,10 +76,12 @@ export default function TripDetailPage() {
   const [newActivityEndDate, setNewActivityEndDate] = useState(''); // For multi-day
   const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
-  const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal'>('itinerary');
+  const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal' | 'flights'>('itinerary');
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // Track which days are expanded
   const [quickAddText, setQuickAddText] = useState<Record<string, string>>({}); // Quick add input per day
   const [showMap, setShowMap] = useState(false); // AC5: FAB to toggle map view on/off
+  const [showFlightModal, setShowFlightModal] = useState(false);
+  const [showHotelModal, setShowHotelModal] = useState(false);
 
   // AC1 & AC6: Compute markers from activities with locations
   const markers = useMemo(() => {
@@ -367,6 +371,7 @@ export default function TripDetailPage() {
         {[
           { id: 'overview', label: '📋 Overview' },
           { id: 'itinerary', label: '📅 Itinerary' },
+          { id: 'flights', label: '✈️ Flights' },
           { id: 'explore', label: '🔍 Explore' },
           { id: 'budget', label: '💰 $' },
           { id: 'journal', label: '📝 Journal' },
@@ -452,6 +457,121 @@ export default function TripDetailPage() {
         {/* Packing List */}
         <div style={{ marginTop: '1rem' }}>
           <PackingList tripId={tripId} />
+        </div>
+
+        {/* Flights & Hotels Section (T009) */}
+        <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f' }}>✈️ Flights & Hotels</h2>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                onClick={() => setShowFlightModal?.(true)}
+                style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                + Flight
+              </button>
+              <button
+                onClick={() => setShowHotelModal?.(true)}
+                style={{
+                  background: '#8b5cf6',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                + Hotel
+              </button>
+            </div>
+          </div>
+
+          {/* Flights */}
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '600', color: '#334155' }}>Flights</h3>
+            {trip.flights && trip.flights.length > 0 ? (
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {trip.flights.map((flight: any) => (
+                  <div key={flight.id} style={{ 
+                    padding: '1rem', 
+                    background: '#f8fafc', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#1e3a5f' }}>{flight.airline} {flight.flightNumber}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#64748b' }}>
+                        {flight.departureAirport} → {flight.arrivalAirport}
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                        {flight.departureTime ? new Date(flight.departureTime).toLocaleString() : 'No time'}
+                      </div>
+                      {flight.confirmationNumber && (
+                        <div style={{ fontSize: '0.8rem', color: '#3b82f6' }}>Confirmation: {flight.confirmationNumber}</div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Edit</button>
+                      <button style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#fee2e2', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#dc2626' }}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ margin: 0, color: '#94a3b8', fontStyle: 'italic' }}>No flights added yet</p>
+            )}
+          </div>
+
+          {/* Hotels */}
+          <div>
+            <h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '600', color: '#334155' }}>Hotels</h3>
+            {trip.hotels && trip.hotels.length > 0 ? (
+              <div style={{ display: 'grid', gap: '0.75rem' }}>
+                {trip.hotels.map((hotel: any) => (
+                  <div key={hotel.id} style={{ 
+                    padding: '1rem', 
+                    background: '#f8fafc', 
+                    borderRadius: '8px', 
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}>
+                    <div>
+                      <div style={{ fontWeight: '600', color: '#1e3a5f' }}>{hotel.name}</div>
+                      <div style={{ fontSize: '0.875rem', color: '#64748b' }}>{hotel.address}</div>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                        Check-in: {hotel.checkInDate} → Check-out: {hotel.checkOutDate}
+                      </div>
+                      {hotel.confirmationNumber && (
+                        <div style={{ fontSize: '0.8rem', color: '#8b5cf6' }}>Confirmation: {hotel.confirmationNumber}</div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#e2e8f0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>Edit</button>
+                      <button style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', background: '#fee2e2', border: 'none', borderRadius: '4px', cursor: 'pointer', color: '#dc2626' }}>Delete</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p style={{ margin: 0, color: '#94a3b8', fontStyle: 'italic' }}>No hotels added yet</p>
+            )}
+          </div>
         </div>
 
         {days.length > 0 && (
@@ -733,6 +853,44 @@ export default function TripDetailPage() {
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
         />
+
+        {/* Flight Modal */}
+        {showFlightModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000,
+          }} onClick={() => setShowFlightModal(false)}>
+            <div style={{
+              background: 'white', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', width: '90%',
+              maxHeight: '90vh', overflow: 'auto',
+            }} onClick={e => e.stopPropagation()}>
+              <FlightForm
+                tripId={tripId}
+                onClose={() => setShowFlightModal(false)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Hotel Modal */}
+        {showHotelModal && (
+          <div style={{
+            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            zIndex: 1000,
+          }} onClick={() => setShowHotelModal(false)}>
+            <div style={{
+              background: 'white', borderRadius: '12px', padding: '1.5rem', maxWidth: '500px', width: '90%',
+              maxHeight: '90vh', overflow: 'auto',
+            }} onClick={e => e.stopPropagation()}>
+              <HotelForm
+                tripId={tripId}
+                onClose={() => setShowHotelModal(false)}
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile Floating Action Button */}
