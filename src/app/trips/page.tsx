@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 
 type Trip = {
   id: string;
@@ -8,6 +9,11 @@ type Trip = {
   startDate: string;
   endDate: string;
   coverImage?: string;
+  days?: any[];
+  flights?: any[];
+  hotels?: any[];
+  budgetTotal?: number;
+  copiedFrom?: string;
 };
 
 type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
@@ -19,7 +25,10 @@ export default function TripsPage() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date-newest');
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [tripToDuplicate, setTripToDuplicate] = useState<Trip | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   const loadTrips = () => {
     if (typeof window !== 'undefined') {
@@ -56,6 +65,69 @@ export default function TripsPage() {
 
   const handleTouchEnd = () => {
     setTouchStart(null);
+  };
+
+  // Generate a unique ID
+  const generateId = () => {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  };
+
+  // Deep clone trip with new IDs
+  const duplicateTrip = (tripToCopy: Trip) => {
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (!saved) return;
+    
+    const allTrips: Trip[] = JSON.parse(saved);
+    const originalTrip = allTrips.find(t => t.id === tripToCopy.id);
+    
+    if (!originalTrip) return;
+    
+    // Deep clone and generate new IDs
+    const duplicatedTrip: Trip = {
+      ...originalTrip,
+      id: generateId(),
+      name: `${originalTrip.name} (Copy)`,
+      // Deep clone days with new IDs
+      days: originalTrip.days?.map((day: any) => ({
+        ...day,
+        id: generateId(),
+        activities: day.activities?.map((activity: any) => ({
+          ...activity,
+          id: generateId(),
+        })) || []
+      })) || [],
+      // Deep clone flights and hotels
+      flights: originalTrip.flights?.map(flight => ({
+        ...flight,
+        id: generateId(),
+      })) || [],
+      hotels: originalTrip.hotels?.map(hotel => ({
+        ...hotel,
+        id: generateId(),
+      })) || [],
+    };
+    
+    // Add copiedFrom reference
+    duplicatedTrip.copiedFrom = originalTrip.id;
+    
+    // Save the duplicated trip
+    const updatedTrips = [...allTrips, duplicatedTrip];
+    localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    
+    // Close modal and reload
+    setShowDuplicateModal(false);
+    setTripToDuplicate(null);
+    loadTrips();
+    
+    // Navigate to the new trip
+    router.push(`/trips/${duplicatedTrip.id}`);
+  };
+
+  const handleDuplicateClick = (e: React.MouseEvent, trip: Trip) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTripToDuplicate(trip);
+    setShowDuplicateModal(true);
   };
 
   // Filter and sort trips
@@ -283,9 +355,8 @@ export default function TripsPage() {
         ) : (
           <div style={{ marginTop: '0.5rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1.5rem' }}>
             {filteredTrips.map(trip => (
-              <a
+              <div
                 key={trip.id}
-                href={`/trips/${trip.id}`}
                 style={{
                   display: 'block',
                   background: 'white',
@@ -296,8 +367,10 @@ export default function TripsPage() {
                   boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
                   transition: 'transform 0.2s ease, box-shadow 0.2s ease',
                   cursor: 'pointer',
+                  position: 'relative',
                 }}
                 className="trip-card"
+                onClick={() => router.push(`/trips/${trip.id}`)}
               >
                 <div style={{
                   height: '160px',
@@ -305,13 +378,36 @@ export default function TripsPage() {
                     ? `url(${trip.coverImage}) center/cover`
                     : `linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)`,
                 }} />
+                {/* Duplicate Button */}
+                <button
+                  onClick={(e) => handleDuplicateClick(e, trip)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    background: 'rgba(255,255,255,0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10,
+                  }}
+                  title="Duplicate trip"
+                >
+                  📋 Duplicate
+                </button>
                 <div style={{ padding: '1.25rem' }}>
                   <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
                   <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
                     📅 {trip.startDate} → {trip.endDate}
                   </p>
                 </div>
-              </a>
+              </div>
             ))}
             
             <a
@@ -338,6 +434,75 @@ export default function TripsPage() {
           </div>
         )}
       </div>
+
+      {/* Duplicate Confirmation Modal */}
+      {showDuplicateModal && tripToDuplicate && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}
+        onClick={() => setShowDuplicateModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '2rem',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center',
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ margin: '0 0 1rem', fontSize: '1.5rem', color: '#1e3a5f' }}>
+              Duplicate Trip?
+            </h2>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+              Create a copy of "<strong>{tripToDuplicate.name}</strong>"?
+              <br />
+              The copy will be named "<strong>{tripToDuplicate.name} (Copy)</strong>"
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowDuplicateModal(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: 'white',
+                  color: '#64748b',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => duplicateTrip(tripToDuplicate)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                ✓ Duplicate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
     </>
   );
