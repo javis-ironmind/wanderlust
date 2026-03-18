@@ -8,9 +8,18 @@ interface SyncState {
   pendingSyncQueue: string[]; // trip IDs pending sync
 }
 
+interface UndoItem {
+  activity: Activity;
+  tripId: string;
+  dayId: string;
+  originalIndex: number;
+  deletedAt: Date;
+}
+
 interface TripState extends SyncState {
   trips: Trip[];
   currentTripId: string | null;
+  undoQueue: UndoItem[]; // For deleted activities
 }
 
 interface TripActions {
@@ -51,6 +60,11 @@ interface TripActions {
   togglePackingItem: (tripId: string, itemId: string) => void;
   initializePackingList: (tripId: string) => void;
 
+  // Undo actions
+  undoDeleteActivity: (activity: Activity, tripId: string, dayId: string, originalIndex: number) => void;
+  clearExpiredUndoItems: () => void;
+  clearUndoQueue: () => void;
+
   // Cloud sync actions
   setCloudSyncEnabled: (enabled: boolean) => void;
   setSyncStatus: (status: 'local' | 'syncing' | 'synced' | 'error') => void;
@@ -64,6 +78,9 @@ export const useTripStore = create<TripStore>((set) => ({
   // Initial state
   trips: [],
   currentTripId: null,
+
+  // Undo queue for deleted activities
+  undoQueue: [],
 
   // Sync state
   cloudSyncEnabled: false,
@@ -202,17 +219,51 @@ export const useTripStore = create<TripStore>((set) => ({
     };
   }),
 
-  deleteActivity: (tripId, dayId, activityId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, days: trip.days.map((day) =>
-            day.id === dayId
-              ? { ...day, activities: day.activities.filter((activity) => activity.id !== activityId) }
-              : day
-          ) }
-        : trip
-    )
-  })),
+  deleteActivity: (tripId, dayId, activityId) => set((state) => {
+    // Find the activity before deleting to store for undo
+    let deletedActivity: Activity | null = null;
+    let originalIndex = 0;
+    
+    state.trips.forEach((trip) => {
+      if (trip.id === tripId) {
+        trip.days.forEach((day) => {
+          if (day.id === dayId) {
+            const idx = day.activities.findIndex((a) => a.id === activityId);
+            if (idx !== -1) {
+              deletedActivity = day.activities[idx];
+              originalIndex = idx;
+            }
+          }
+        });
+      }
+    });
+
+    // Only add to undo queue if we found the activity
+    let newUndoQueue = state.undoQueue;
+    if (deletedActivity) {
+      const undoItem: UndoItem = {
+        activity: deletedActivity as Activity,
+        tripId,
+        dayId,
+        originalIndex,
+        deletedAt: new Date()
+      };
+      newUndoQueue = [undoItem, ...state.undoQueue].slice(0, 5);
+    }
+    
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, days: trip.days.map((day) =>
+              day.id === dayId
+                ? { ...day, activities: day.activities.filter((activity) => activity.id !== activityId) }
+                : day
+            ) }
+          : trip
+      ),
+      undoQueue: newUndoQueue
+    };
+  }),
 
   reorderActivities: (tripId, dayId, activityIds) => set((state) => ({
     trips: state.trips.map((trip) => {
@@ -468,6 +519,44 @@ export const useTripStore = create<TripStore>((set) => ({
       ? state.pendingSyncQueue
       : [...state.pendingSyncQueue, tripId]
   })),
+
+  // Undo actions
+  undoDeleteActivity: (activity, tripId, dayId, originalIndex) => set((state) => {
+    // Remove from undo queue
+    const newUndoQueue = state.undoQueue.filter(
+      (item) => !(item.activity.id === activity.id && item.tripId === tripId)
+    );
+    
+    return {
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              days: trip.days.map((day) => {
+                if (day.id !== dayId) return day;
+                const newActivities = [...day.activities];
+                newActivities.splice(originalIndex, 0, activity);
+                // Reindex orders
+                return {
+                  ...day,
+                  activities: newActivities.map((a, i) => ({ ...a, order: i }))
+                };
+              })
+            }
+          : trip
+      ),
+      undoQueue: newUndoQueue
+    };
+  }),
+
+  clearExpiredUndoItems: () => set((state) => {
+    const fiveSecondsAgo = new Date(Date.now() - 5000);
+    return {
+      undoQueue: state.undoQueue.filter((item) => item.deletedAt > fiveSecondsAgo)
+    };
+  }),
+
+  clearUndoQueue: () => set({ undoQueue: [] }),
 }));
 
 // Convenience hooks
@@ -506,4 +595,7 @@ export const useTripActions = () => useTripStore((state) => ({
   setSyncStatus: state.setSyncStatus,
   syncTripToCloud: state.syncTripToCloud,
   queueForSync: state.queueForSync,
+  undoDeleteActivity: state.undoDeleteActivity,
+  clearExpiredUndoItems: state.clearExpiredUndoItems,
+  clearUndoQueue: state.clearUndoQueue,
 }));
