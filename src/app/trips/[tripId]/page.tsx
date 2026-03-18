@@ -363,25 +363,42 @@ export default function TripDetailPage() {
         />
       </div>
 
-      {/* Add Activity Modal - NO MAP */}
+      {/* Mobile Floating Action Button */}
+      <button
+        className="mobile-fab hide-on-desktop"
+        onClick={() => setShowAddModal(true)}
+        aria-label="Add Activity"
+        style={{
+          border: 'none',
+          cursor: 'pointer',
+        }}
+      >
+        <span style={{ fontSize: '1.5rem', fontWeight: '300' }}>+</span>
+      </button>
+
+      {/* Add Activity Modal - full screen on mobile */}
       {showAddModal && (
         <div style={{
           position: 'fixed',
           inset: 0,
           background: '#000000',
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'center',
           zIndex: 100,
-          padding: '1rem',
         }} onClick={() => setShowAddModal(false)}>
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            padding: '1.5rem',
-            width: '100%',
-            maxWidth: '400px',
-          }} onClick={e => e.stopPropagation()}>
+          <div 
+            className="mobile-full-screen"
+            style={{
+              background: 'white',
+              borderRadius: '16px 16px 0 0',
+              padding: '1.5rem',
+              width: '100%',
+              maxWidth: '400px',
+              maxHeight: '90vh',
+              overflowY: 'auto',
+            }} 
+            onClick={e => e.stopPropagation()}>
             <h3 style={{ margin: '0 0 1rem', color: '#1e3a5f', fontSize: '1.25rem' }}>Add Activity</h3>
             
             <div style={{ marginBottom: '1rem' }}>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Activity, ActivityCategory } from '@/lib/types';
 import { 
   Plane, 
@@ -93,6 +93,10 @@ export function ActivityCard({
 }: ActivityCardProps) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [isSwiping, setIsSwiping] = useState(false);
+  const [swipeX, setSwipeX] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   
   const handleDelete = () => {
     if (showConfirmDelete) {
@@ -107,6 +111,39 @@ export function ActivityCard({
     onEdit?.(activity);
   };
   
+  // Touch event handlers for swipe-to-delete
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsSwiping(false);
+  };
+  
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+    
+    const currentX = e.touches[0].clientX;
+    const diff = touchStartX.current - currentX;
+    
+    // Only swipe left (delete direction)
+    if (diff > 0) {
+      const clampedDiff = Math.min(diff, 80);
+      setSwipeX(clampedDiff);
+      setIsSwiping(clampedDiff > 20);
+    }
+  };
+  
+  const handleTouchEnd = () => {
+    if (swipeX > 50) {
+      // Trigger delete
+      onDelete?.(activity.id);
+    }
+    // Reset
+    setTimeout(() => {
+      setSwipeX(0);
+      setIsSwiping(false);
+    }, 100);
+    touchStartX.current = null;
+  };
+  
   return (
     <div 
       className={`
@@ -114,15 +151,30 @@ export function ActivityCard({
         transition-all duration-200
         ${isDragging ? 'shadow-lg ring-2 ring-blue-500 opacity-90' : ''}
         ${isHovered ? 'shadow-md border-gray-300' : ''}
+        ${isSwiping ? 'shadow-lg' : ''}
         hover:shadow-md hover:border-gray-300
         group
+        swipeable-item
+        ${isSwiping ? 'swiping' : ''}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
         setShowConfirmDelete(false);
       }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      style={{ 
+        transform: swipeX > 0 ? `translateX(-${swipeX}px)` : undefined,
+        transition: swipeX > 0 ? 'none' : undefined
+      }}
+      ref={cardRef}
     >
+      {/* Delete background reveal */}
+      <div className="swipeable-delete">
+        <Trash2 className="w-5 h-5" />
+      </div>
       {/* Drag Handle */}
       <div 
         {...dragHandleProps}
