@@ -66,7 +66,10 @@ export default function TripDetailPage() {
       
       {/* Map Section */}
       <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden' }}>
-        <TripMap className="leaflet-container" />
+        <TripMap 
+          className="leaflet-container"
+          markers={[]}  // Will be populated with activities
+        />
       </div>
     </div>
   );

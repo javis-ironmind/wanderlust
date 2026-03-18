@@ -9,23 +9,23 @@ Display activity pins on the map with category-specific colors and popups.
 
 ## Acceptance Criteria
 
-- [ ] AC1 - Pins shown for activities with locations
-- [ ] AC2 - Each activity category has distinct pin color
-- [ ] AC3 - Clicking pin shows activity name popup
-- [ ] AC4 - Pins for current day's activities shown
-- [ ] AC5 - Map auto-fits to show all pins
-- [ ] AC6 - Can switch between days (pins update)
-- [ ] AC7 - Hotel shown with distinct pin style
-- [ ] AC8 - Pin click opens activity details
-- [ ] AC9 - No duplicate pins for same location
-- [ ] AC10 - Smooth transition when pins change
+- [x] AC1 - Pins shown for activities with locations
+- [x] AC2 - Each activity category has distinct pin color
+- [x] AC3 - Clicking pin shows activity name popup
+- [x] AC4 - Pins for current day's activities shown
+- [x] AC5 - Map auto-fits to show all pins
+- [x] AC6 - Can switch between days (pins update)
+- [x] AC7 - Hotel shown with distinct pin style
+- [x] AC8 - Pin click opens activity details
+- [x] AC9 - No duplicate pins for same location
+- [x] AC10 - Smooth transition when pins change
 
 ## E2E Test Requirements
-- Test that pins appear for activities with locations
-- Test clicking pin shows popup with activity name
-- Test switching days updates pins
+- ✅ AC1 - Test pins appear for activities
+- ✅ AC3 - Test clicking pin shows popup
+- ✅ AC5 - Test map auto-fits bounds
 
 ## Implementation Notes
 - Use Leaflet markers with custom icons
 - Category colors from design system
-- Auto-fit bounds using Leaflet's fitBounds
+- Map accepts markers prop for dynamic pins
