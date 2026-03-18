@@ -6,6 +6,7 @@ import { TripMap } from '@/components/map/TripMap';
 import { exportTripToPDF } from '@/lib/exportPDF';
 import { ShareModal } from '@/components/ShareModal';
 import { WeatherWidget } from '@/components/WeatherWidget';
+import { BudgetWidget } from '@/components/BudgetWidget';
 
 type Activity = {
   id: string;
@@ -13,6 +14,8 @@ type Activity = {
   category?: string;
   startTime?: string;  // ISO datetime
   endTime?: string;    // ISO datetime
+  cost?: number;
+  currency?: string;
   location?: {
     latitude?: number;
     longitude?: number;
@@ -34,6 +37,7 @@ type Trip = {
   days: Day[];
   flights: any[];
   hotels: any[];
+  budgetTotal?: number;
 };
 
 export default function TripDetailPage() {
@@ -48,6 +52,7 @@ export default function TripDetailPage() {
   const [newActivityCategory, setNewActivityCategory] = useState('activity');
   const [newActivityStartTime, setNewActivityStartTime] = useState('');
   const [newActivityEndTime, setNewActivityEndTime] = useState('');
+  const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
   useEffect(() => {
@@ -76,6 +81,8 @@ export default function TripDetailPage() {
       category: newActivityCategory,
       startTime: newActivityStartTime || undefined,
       endTime: newActivityEndTime || undefined,
+      cost: newActivityCost ? parseFloat(newActivityCost) : undefined,
+      currency: 'USD',
     };
     
     const updatedDays = trip.days.map(day => {
@@ -102,7 +109,21 @@ export default function TripDetailPage() {
     setNewActivityCategory('activity');
     setNewActivityStartTime('');
     setNewActivityEndTime('');
+    setNewActivityCost('');
     setShowAddModal(false);
+  };
+
+  const handleUpdateBudget = (budget: number) => {
+    if (!trip) return;
+    const updatedTrip = { ...trip, budgetTotal: budget };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
   };
 
   if (loading) {
@@ -221,9 +242,12 @@ export default function TripDetailPage() {
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>
           {trip.name}
         </h1>
-        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1.5rem' }}>
+        <p style={{ color: 'rgba(255,255,255,0.7)', marginBottom: '1rem' }}>
           {trip.startDate} → {trip.endDate}
         </p>
+
+        {/* Budget Widget */}
+        <BudgetWidget trip={trip} onUpdateBudget={handleUpdateBudget} />
 
         {days.length > 0 && (
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', overflowX: 'auto', paddingBottom: '0.5rem' }}>
@@ -336,7 +360,7 @@ export default function TripDetailPage() {
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: 'rgba(0,0,0,0.5)',
+          background: '#000000',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -442,6 +466,41 @@ export default function TripDetailPage() {
                   boxSizing: 'border-box',
                 }}
               />
+            </div>
+            
+            {/* Cost input */}
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                Cost (optional)
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ 
+                  padding: '0.75rem', 
+                  background: '#f1f5f9', 
+                  borderRadius: '8px 0 0 8px',
+                  border: '2px solid #e2e8f0',
+                  borderRight: 'none',
+                  color: '#64748b',
+                }}>
+                  $
+                </span>
+                <input
+                  type="number"
+                  value={newActivityCost}
+                  onChange={e => setNewActivityCost(e.target.value)}
+                  placeholder="0.00"
+                  step="0.01"
+                  style={{
+                    flex: 1,
+                    padding: '0.75rem',
+                    borderRadius: '0 8px 8px 0',
+                    border: '2px solid #e2e8f0',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                  }}
+                />
+              </div>
             </div>
             
             <div style={{ display: 'flex', gap: '0.75rem' }}>
