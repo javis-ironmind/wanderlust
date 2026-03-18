@@ -223,3 +223,29 @@ export interface PackingItem {
 export interface PackingList {
   items: PackingItem[];
 }
+
+// Template types
+export interface TemplateActivity {
+  title: string;
+  category: ActivityCategory;
+  startTime?: string;
+  endTime?: string;
+  location?: Omit<Location, 'id'>;
+  notes?: string;
+  duration?: number; // minutes
+}
+
+export interface TemplateDay {
+  activities: TemplateActivity[];
+  notes?: string;
+}
+
+export interface TripTemplate {
+  id: string;
+  name: string;
+  description?: string;
+  days: TemplateDay[];
+  includeDates: boolean;
+  createdAt: string;
+  updatedAt: string;
+}

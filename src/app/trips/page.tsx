@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import TemplateModal from '@/components/TemplateModal';
 
 type Trip = {
   id: string;
@@ -39,6 +40,7 @@ export default function TripsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('date-newest');
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [tripToDuplicate, setTripToDuplicate] = useState<Trip | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all'); // AC3: Category filter
   const containerRef = useRef<HTMLDivElement>(null);
@@ -517,6 +519,30 @@ export default function TripsPage() {
             >
               + Create New Trip
             </a>
+            
+            {/* Create from Template Button */}
+            <button
+              onClick={() => setShowTemplateModal(true)}
+              className="create-card"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '12px',
+                textDecoration: 'none',
+                fontWeight: '500',
+                border: '2px dashed rgba(255,255,255,0.3)',
+                minHeight: '200px',
+                transition: 'background 0.2s ease',
+                cursor: 'pointer',
+              }}
+            >
+              📋 From Template
+            </button>
           </div>
         )}
       </div>
@@ -589,6 +615,13 @@ export default function TripsPage() {
           </div>
         </div>
       )}
+
+      {/* Template Modal for creating from template */}
+      <TemplateModal
+        isOpen={showTemplateModal}
+        onClose={() => setShowTemplateModal(false)}
+        mode="load"
+      />
     </div>
     </>
   );

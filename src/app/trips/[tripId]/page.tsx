@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { TripMap } from '@/components/map/TripMap';
 import { exportTripToPDF } from '@/lib/exportPDF';
 import { ShareModal } from '@/components/ShareModal';
+import TemplateModal from '@/components/TemplateModal';
 import { WeatherWidget } from '@/components/WeatherWidget';
 import { BudgetWidget } from '@/components/BudgetWidget';
 import PackingList from '@/components/PackingList';
@@ -77,6 +78,7 @@ export default function TripDetailPage() {
   const [newActivityEndDate, setNewActivityEndDate] = useState(''); // For multi-day
   const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal' | 'flights'>('itinerary');
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set()); // Track which days are expanded
   const [quickAddText, setQuickAddText] = useState<Record<string, string>>({}); // Quick add input per day
@@ -466,6 +468,22 @@ export default function TripDetailPage() {
             }}
           >
             🔗 Share
+          </button>
+          <button
+            onClick={() => setShowTemplateModal(true)}
+            style={{
+              background: '#059669',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '0.875rem',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '1rem',
+            }}
+          >
+            💾 Save as Template
           </button>
           {trip && <CalendarExport trip={trip} />}
         </div>
@@ -908,6 +926,14 @@ export default function TripDetailPage() {
           tripName={trip?.name || ''}
           isOpen={showShareModal}
           onClose={() => setShowShareModal(false)}
+        />
+
+        {/* Template Modal */}
+        <TemplateModal
+          isOpen={showTemplateModal}
+          onClose={() => setShowTemplateModal(false)}
+          mode="save"
+          tripId={tripId}
         />
 
         {/* Flight Modal */}

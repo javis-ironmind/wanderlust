@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Trip, Day, Activity, Flight, Hotel, PackingItem } from './types';
+import { Trip, Day, Activity, Flight, Hotel, PackingItem, TripTemplate, TemplateDay, TemplateActivity } from './types';
 
 interface SyncState {
   cloudSyncEnabled: boolean;
@@ -20,6 +20,7 @@ interface TripState extends SyncState {
   trips: Trip[];
   currentTripId: string | null;
   undoQueue: UndoItem[]; // For deleted activities
+  templates: TripTemplate[]; // Saved trip templates
 }
 
 interface TripActions {
@@ -70,17 +71,27 @@ interface TripActions {
   setSyncStatus: (status: 'local' | 'syncing' | 'synced' | 'error') => void;
   syncTripToCloud: (tripId: string) => Promise<void>;
   queueForSync: (tripId: string) => void;
+
+  // Template actions
+  saveTripAsTemplate: (tripId: string, name: string, description?: string, includeDates?: boolean) => void;
+  createTripFromTemplate: (templateId: string, name: string, startDate: string, endDate: string) => Trip | null;
+  deleteTemplate: (templateId: string) => void;
+  updateTemplate: (templateId: string, updates: Partial<TripTemplate>) => void;
+  loadTemplates: () => void;
 }
 
 type TripStore = TripState & TripActions;
 
-export const useTripStore = create<TripStore>((set) => ({
+export const useTripStore = create<TripStore>((set, get) => ({
   // Initial state
   trips: [],
   currentTripId: null,
 
   // Undo queue for deleted activities
   undoQueue: [],
+
+  // Templates
+  templates: [],
 
   // Sync state
   cloudSyncEnabled: false,
@@ -557,6 +568,133 @@ export const useTripStore = create<TripStore>((set) => ({
   }),
 
   clearUndoQueue: () => set({ undoQueue: [] }),
+
+  // Template actions
+  saveTripAsTemplate: (tripId, name, description, includeDates = false) => {
+    const { trips, templates } = get();
+    const trip = trips.find((t) => t.id === tripId);
+    if (!trip) return;
+
+    // Convert trip days to template format (strip IDs and dates)
+    const templateDays: TemplateDay[] = trip.days.map((day) => ({
+      activities: day.activities.map((activity) => ({
+        title: activity.title,
+        category: activity.category,
+        startTime: activity.startTime,
+        endTime: activity.endTime,
+        location: activity.location ? {
+          name: activity.location.name,
+          address: activity.location.address,
+          latitude: activity.location.latitude,
+          longitude: activity.location.longitude,
+          placeId: activity.location.placeId,
+        } : undefined,
+        notes: activity.notes,
+      })),
+      notes: day.notes,
+    }));
+
+    const newTemplate: TripTemplate = {
+      id: crypto.randomUUID(),
+      name,
+      description,
+      days: templateDays,
+      includeDates,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    const newTemplates = [...templates, newTemplate];
+    set({ templates: newTemplates });
+    
+    // Persist to localStorage
+    localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+  },
+
+  createTripFromTemplate: (templateId, name, startDate, endDate) => {
+    const { templates, addTrip } = get();
+    const template = templates.find((t) => t.id === templateId);
+    if (!template) return null;
+
+    // Calculate number of days
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const dayCount = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+
+    // Generate days from template
+    const days: Day[] = [];
+    for (let i = 0; i < dayCount; i++) {
+      const currentDate = new Date(start);
+      currentDate.setDate(start.getDate() + i);
+      const dateStr = currentDate.toISOString().split('T')[0];
+
+      // Use template day structure (cycle through if template has fewer days)
+      const templateDay = template.days[i % template.days.length];
+      
+      const activities: Activity[] = (templateDay?.activities || []).map((templateActivity, idx) => ({
+        id: crypto.randomUUID(),
+        title: templateActivity.title,
+        category: templateActivity.category,
+        startTime: templateActivity.startTime,
+        endTime: templateActivity.endTime,
+        location: templateActivity.location ? {
+          id: crypto.randomUUID(),
+          ...templateActivity.location,
+        } : undefined,
+        notes: templateActivity.notes,
+        order: idx,
+      }));
+
+      days.push({
+        id: crypto.randomUUID(),
+        date: dateStr,
+        activities,
+        notes: templateDay?.notes,
+      });
+    }
+
+    const newTrip: Trip = {
+      id: crypto.randomUUID(),
+      name,
+      description: template.description,
+      startDate,
+      endDate,
+      days,
+      flights: [],
+      hotels: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    addTrip(newTrip);
+    return newTrip;
+  },
+
+  deleteTemplate: (templateId) => set((state) => {
+    const newTemplates = state.templates.filter((t) => t.id !== templateId);
+    localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+    return { templates: newTemplates };
+  }),
+
+  updateTemplate: (templateId, updates) => set((state) => {
+    const newTemplates = state.templates.map((t) =>
+      t.id === templateId ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t
+    );
+    localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+    return { templates: newTemplates };
+  }),
+
+  loadTemplates: () => {
+    const stored = localStorage.getItem('wanderlust_templates');
+    if (stored) {
+      try {
+        const templates = JSON.parse(stored) as TripTemplate[];
+        set({ templates });
+      } catch (e) {
+        console.error('Failed to load templates:', e);
+      }
+    }
+  },
 }));
 
 // Convenience hooks
@@ -598,4 +736,9 @@ export const useTripActions = () => useTripStore((state) => ({
   undoDeleteActivity: state.undoDeleteActivity,
   clearExpiredUndoItems: state.clearExpiredUndoItems,
   clearUndoQueue: state.clearUndoQueue,
+  saveTripAsTemplate: state.saveTripAsTemplate,
+  createTripFromTemplate: state.createTripFromTemplate,
+  deleteTemplate: state.deleteTemplate,
+  updateTemplate: state.updateTemplate,
+  loadTemplates: state.loadTemplates,
 }));
