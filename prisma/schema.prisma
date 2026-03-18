@@ -1,0 +1,96 @@
+// Wanderlust Prisma Schema
+// Database models for cloud sync feature
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// User model for authentication
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  trips     Trip[]
+}
+
+// Trip model - main container for travel plans
+model Trip {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  startDate     DateTime?
+  endDate       DateTime?
+  coverImage    String?
+  isCloudSync   Boolean  @default(false)
+  lastSyncedAt  DateTime?
+  syncStatus    String   @default("local") // local, syncing, synced, error
+  
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  days          Day[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  version       Int      @default(1) // For conflict resolution
+}
+
+// Day model - each day in a trip
+model Day {
+  id          String   @id @default(cuid())
+  date        DateTime
+  notes       String?
+  order       Int      @default(0)
+  
+  tripId      String
+  trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  
+  activities  Activity[]
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Activity model - individual activities/events
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  type        String   // flight, hotel, activity, restaurant, transport
+  startTime   DateTime?
+  endTime     DateTime?
+  location    String?
+  notes       String?
+  cost        Float?
+  currency    String   @default("USD")
+  bookingRef  String?
+  order       Int      @default(0)
+  
+  dayId       String
+  day         Day      @relation(fields: [dayId], references: [id], onDelete: Cascade)
+  
+  metadata    Json?    // Flexible field for type-specific data
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// SyncQueue - for offline change tracking
+model SyncQueue {
+  id          String   @id @default(cuid())
+  entityType  String   // trip, day, activity
+  entityId    String
+  action      String   // create, update, delete
+  data        Json
+  attempts    Int      @default(0)
+  lastAttempt DateTime?
+  error       String?
+  
+  createdAt   DateTime @default(now())
+}
