@@ -39,6 +39,7 @@ export interface Activity {
   currency?: string;
   confirmationNumber?: string;
   url?: string;
+  imageUrl?: string; // Thumbnail image URL
   order: number;
 }
 
@@ -136,6 +137,7 @@ export interface CreateActivityInput {
   currency?: string;
   confirmationNumber?: string;
   url?: string;
+  imageUrl?: string;
   order: number;
 }
 

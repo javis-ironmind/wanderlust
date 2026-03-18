@@ -175,10 +175,10 @@ export function ActivityCard({
       <div className="swipeable-delete">
         <Trash2 className="w-5 h-5" />
       </div>
-      {/* Drag Handle */}
+      {/* Drag Handle - always visible */}
       <div 
         {...dragHandleProps}
-        className="absolute left-0 top-1/2 -translate-y-1/2 p-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute left-0 top-1/2 -translate-y-1/2 p-2 cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 transition-opacity"
       >
         <GripVertical className="w-4 h-4" />
       </div>
@@ -205,6 +205,17 @@ export function ActivityCard({
             {activity.location.address && (
               <span className="text-gray-400"> - {activity.location.address}</span>
             )}
+          </div>
+        )}
+        
+        {/* Thumbnail Image */}
+        {activity.imageUrl && (
+          <div className="mb-2 rounded-md overflow-hidden">
+            <img 
+              src={activity.imageUrl} 
+              alt={activity.title}
+              className="w-full h-24 object-cover"
+            />
           </div>
         )}
         
