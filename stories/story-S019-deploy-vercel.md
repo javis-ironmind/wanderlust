@@ -1,18 +1,17 @@
-# Story S019: Deploy to Vercel
+# Story S019 - Vercel Deployment
 
-## As a
-Developer
+**Feature:** Deployment
+**Story Points:** 1
+**Priority:** Critical
 
-## I want
-The app deployed to Vercel for public access
-
-## So that
-Kelvin can use the app from anywhere
+## Description
+Deploy the application to Vercel with proper configuration.
 
 ## Acceptance Criteria
+
 - [ ] AC1 - GitHub repository created or code pushed
 - [ ] AC2 - Vercel project connected to repository
-- [ ] AC3 - Environment variables configured (Leaflet token)
+- [ ] AC3 - Environment variables configured
 - [ ] AC4 - Production build succeeds
 - [ ] AC5 - Deployment completes without errors
 - [ ] AC6 - Custom domain or vercel.app URL works
@@ -20,3 +19,13 @@ Kelvin can use the app from anywhere
 - [ ] AC8 - All features work in production
 - [ ] AC9 - Build logs show no warnings
 - [ ] AC10 - Deployment completes in <5 minutes
+
+## E2E Test Requirements
+- Test production URL loads correctly
+- Test no console errors on page load
+- Test all routes work in production
+
+## Implementation Notes
+- Use Vercel CLI for deployment
+- Configure build settings
+- Set up environment variables

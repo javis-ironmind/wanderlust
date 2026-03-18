@@ -1,15 +1,14 @@
-# Story S013: Map Component Setup
+# Story S013 - Map Component
 
-## As a
-User
+**Feature:** F007 - Map View
+**Story Points:** 3
+**Priority:** High
 
-## I want
-To see a map on the trip detail page
-
-## So that
-I can visualize locations geographically
+## Description
+Implement Leaflet map component in the right panel to visualize daily activities.
 
 ## Acceptance Criteria
+
 - [ ] AC1 - Leaflet map renders in right panel
 - [ ] AC2 - Map style is clean (light or navigation)
 - [ ] AC3 - Zoom controls visible
@@ -20,3 +19,13 @@ I can visualize locations geographically
 - [ ] AC8 - Map attribution visible
 - [ ] AC9 - Works on desktop Chrome/Firefox/Safari
 - [ ] AC10 - Graceful error if Leaflet token invalid
+
+## E2E Test Requirements
+- Test that map component renders on trip detail page
+- Test zoom controls work
+- Test pan functionality works
+
+## Implementation Notes
+- Use react-leaflet for React integration
+- OpenStreetMap tiles - no API key needed
+- Lazy load map for performance

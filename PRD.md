@@ -60,6 +60,7 @@ Wanderlust solves this by providing a unified, visually-driven travel planning e
 | Auth | NextAuth.js (optional) | Future: user accounts |
 | Deployment | Vercel | Zero-config Next.js deployment |
 | Icons | Lucide React | Clean, consistent iconography |
+| UI Components | Magic UI | Beautiful pre-built components (shadcn-like) |
 | Date Handling | date-fns | Lightweight date manipulation |
 | Forms | React Hook Form + Zod | Type-safe form validation |
 | Animations | Framer Motion | Smooth UI transitions |

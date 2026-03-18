@@ -1,15 +1,14 @@
-# Story S014: Display Activity Pins on Map
+# Story S014 - Activity Pins on Map
 
-## As a
-User
+**Feature:** F007 - Map View
+**Story Points:** 3
+**Priority:** High
 
-## I want
-To see activity locations as pins on the map
-
-## So that
-I can understand where each activity is located
+## Description
+Display activity pins on the map with category-specific colors and popups.
 
 ## Acceptance Criteria
+
 - [ ] AC1 - Pins shown for activities with locations
 - [ ] AC2 - Each activity category has distinct pin color
 - [ ] AC3 - Clicking pin shows activity name popup
@@ -20,3 +19,13 @@ I can understand where each activity is located
 - [ ] AC8 - Pin click opens activity details
 - [ ] AC9 - No duplicate pins for same location
 - [ ] AC10 - Smooth transition when pins change
+
+## E2E Test Requirements
+- Test that pins appear for activities with locations
+- Test clicking pin shows popup with activity name
+- Test switching days updates pins
+
+## Implementation Notes
+- Use Leaflet markers with custom icons
+- Category colors from design system
+- Auto-fit bounds using Leaflet's fitBounds

@@ -1,15 +1,14 @@
-# Story S020: Responsive Polish
+# Story S020 - Responsive Polish
 
-## As a
-User
+**Feature:** UI Polish
+**Story Points:** 3
+**Priority:** Medium
 
-## I want
-The app to work well on different screen sizes
-
-## So that
-I can use it on my tablet while traveling
+## Description
+Ensure responsive design works across desktop, tablet, and mobile.
 
 ## Acceptance Criteria
+
 - [ ] AC1 - Desktop (1200px+): Full 2-column layout
 - [ ] AC2 - Tablet (768-1199px): Collapsible sidebar, stacked map
 - [ ] AC3 - Mobile (<768px): Single column, bottom sheet for map
@@ -20,3 +19,13 @@ I can use it on my tablet while traveling
 - [ ] AC8 - Text readable at all sizes
 - [ ] AC9 - Buttons large enough for touch
 - [ ] AC10 - Loading states at all sizes
+
+## E2E Test Requirements
+- Test responsive layout at different breakpoints
+- Test touch interactions work on tablet viewport
+- Test forms are usable on mobile
+
+## Implementation Notes
+- Use Magic UI for responsive components
+- Tailwind responsive classes
+- Test with Playwright viewport sizes
