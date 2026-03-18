@@ -74,6 +74,7 @@ export default function TripDetailPage() {
   const [newActivityEndDate, setNewActivityEndDate] = useState(''); // For multi-day
   const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
+  const [activeTab, setActiveTab] = useState<'overview' | 'itinerary' | 'explore' | 'budget' | 'journal'>('itinerary');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -213,6 +214,92 @@ export default function TripDetailPage() {
       padding: '1rem',
       paddingBottom: '5rem',
     }}>
+      {/* AC1: Hero image with trip cover */}
+      <div style={{
+        height: '200px',
+        background: trip?.name?.includes('Paris') 
+          ? 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(30,58,95,1) 100%), url(https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200) center/cover'
+          : trip?.name?.includes('Tokyo')
+          ? 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(30,58,95,1) 100%), url(https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1200) center/cover'
+          : trip?.name?.includes('New York')
+          ? 'linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(30,58,95,1) 100%), url(https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=1200) center/cover'
+          : 'linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(30,58,95,1) 100%), url(https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200) center/cover',
+        borderRadius: '20px',
+        position: 'relative',
+        marginBottom: '1rem',
+      }}>
+        <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between' }}>
+          <button
+            onClick={() => router.push('/trips')}
+            style={{ 
+              background: 'rgba(0,0,0,0.5)', 
+              border: 'none', 
+              color: 'white', 
+              cursor: 'pointer',
+              padding: '0.5rem 1rem',
+              borderRadius: '8px',
+              backdropFilter: 'blur(4px)',
+            }}
+          >
+            ← Back
+          </button>
+        </div>
+        {/* AC2: Trip title with dates */}
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '1rem', 
+          left: '1rem', 
+          right: '1rem',
+        }}>
+          <h1 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'white', margin: 0 }}>
+            {trip?.name || 'Trip'}
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.8)', margin: '0.25rem 0 0' }}>
+            📅 {trip?.startDate} → {trip?.endDate}
+          </p>
+        </div>
+      </div>
+
+      {/* AC5: Reservation icons row */}
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', overflowX: 'auto' }}>
+        {[
+          { icon: '✈️', label: 'Flight' },
+          { icon: '🏨', label: 'Hotel' },
+          { icon: '🚗', label: 'Car' },
+          { icon: '🍽️', label: 'Restaurant' },
+          { icon: '📎', label: 'More' },
+        ].map((item) => (
+          <button key={item.label} style={{
+            display: 'flex', alignItems: 'center', gap: '0.25rem',
+            padding: '0.5rem 0.75rem', background: '#1e3a5f', border: 'none',
+            borderRadius: '8px', color: 'white', fontSize: '0.8rem',
+          }}>
+            {item.icon} {item.label}
+          </button>
+        ))}
+      </div>
+
+      {/* AC3: Tab navigation */}
+      <div style={{ display: 'flex', gap: '0.25rem', marginBottom: '1rem', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+        {[
+          { id: 'overview', label: '📋 Overview' },
+          { id: 'itinerary', label: '📅 Itinerary' },
+          { id: 'explore', label: '🔍 Explore' },
+          { id: 'budget', label: '💰 $' },
+          { id: 'journal', label: '📝 Journal' },
+        ].map((tab) => (
+          <button key={tab.id} onClick={() => setActiveTab(tab.id as any)}
+            style={{
+              padding: '0.5rem 0.75rem', background: 'transparent', border: 'none',
+              borderBottom: activeTab === tab.id ? '2px solid #3b82f6' : '2px solid transparent',
+              color: activeTab === tab.id ? 'white' : 'rgba(255,255,255,0.5)',
+              cursor: 'pointer', fontSize: '0.8rem',
+            }}>
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <button
@@ -635,6 +722,25 @@ export default function TripDetailPage() {
           </div>
         </div>
       )}
+
+      {/* AC4: Floating Action Buttons */}
+      <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', display: 'flex', flexDirection: 'column', gap: '0.75rem', zIndex: 100 }}>
+        <button onClick={() => setShowAddModal(true)} style={{
+          width: '56px', height: '56px', borderRadius: '16px', border: 'none',
+          background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+          color: 'white', fontSize: '1.5rem', cursor: 'pointer',
+          boxShadow: '0 4px 20px rgba(59, 130, 246, 0.4)',
+        }}>+</button>
+        <button onClick={() => trip && exportTripToPDF(trip)} style={{
+          width: '48px', height: '48px', borderRadius: '14px', border: 'none',
+          background: '#10b981', color: 'white', fontSize: '1.25rem', cursor: 'pointer',
+        }}>📄</button>
+        <button onClick={() => setShowShareModal(true)} style={{
+          width: '48px', height: '48px', borderRadius: '14px', border: 'none',
+          background: '#8b5cf6', color: 'white', fontSize: '1.25rem', cursor: 'pointer',
+        }}>🔗</button>
+      </div>
+
     </div>
   );
 }
