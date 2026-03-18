@@ -71,26 +71,20 @@ export function CategoryFilter({
 
   return (
     <div ref={dropdownRef} style={{ position: 'relative', zIndex: 50 }}>
-      {/* Filter Button */}
+      {/* Filter Button - Touch-friendly sizing */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-2 md:px-4 rounded-lg cursor-pointer text-sm md:text-base min-h-[44px]"
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          padding: '0.5rem 1rem',
           background: hasActiveFilter ? '#3B82F6' : '#374151',
           color: 'white',
           border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: '0.875rem',
           fontWeight: 500,
           transition: 'all 0.2s',
         }}
       >
         <span>🔍</span>
-        <span>Filter</span>
+        <span className="hidden sm:inline">Filter</span>
         {hasActiveFilter && (
           <span style={{
             background: 'white',
@@ -105,17 +99,19 @@ export function CategoryFilter({
         )}
       </button>
 
-      {/* Dropdown Menu */}
+      {/* Dropdown Menu - Responsive width */}
       {isOpen && (
         <div style={{
           position: 'absolute',
           top: '100%',
-          left: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
           marginTop: '0.5rem',
           background: 'white',
           borderRadius: '12px',
           boxShadow: '0 10px 40px rgba(0,0,0,0.2)',
-          minWidth: '280px',
+          width: 'calc(100vw - 2rem)',
+          maxWidth: '320px',
           padding: '0.75rem',
           zIndex: 100,
         }}>
@@ -158,14 +154,9 @@ export function CategoryFilter({
               return (
                 <label
                   key={category}
+                  className="flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors"
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.625rem 0.5rem',
                     cursor: 'pointer',
-                    borderRadius: '8px',
-                    transition: 'background 0.15s',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#F3F4F6';
@@ -178,9 +169,10 @@ export function CategoryFilter({
                     type="checkbox"
                     checked={isSelected}
                     onChange={() => handleCategoryToggle(category)}
+                    className="w-5 h-5"
                     style={{
-                      width: '18px',
-                      height: '18px',
+                      width: '20px',
+                      height: '20px',
                       accentColor: config.color,
                       cursor: 'pointer',
                     }}
@@ -196,7 +188,7 @@ export function CategoryFilter({
                   <span style={{
                     background: count > 0 ? '#E5E7EB' : 'transparent',
                     color: count > 0 ? '#6B7280' : '#9CA3AF',
-                    padding: '0.125rem 0.5rem',
+                    padding: '0.25rem 0.5rem',
                     borderRadius: '10px',
                     fontSize: '0.75rem',
                     fontWeight: 500,

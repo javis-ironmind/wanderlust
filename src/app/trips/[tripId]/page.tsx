@@ -145,15 +145,20 @@ export default function TripDetailPage() {
   };
 
   if (loading) {
-    return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
+    return (
+      <div className="p-4 md:p-8 text-white flex items-center justify-center min-h-[200px]">
+        <span className="text-lg">Loading...</span>
+      </div>
+    );
   }
 
   if (!trip) {
     return (
-      <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto', color: 'white' }}>
+      <div className="p-4 md:p-8 max-w-2xl mx-auto text-white">
         <button
           onClick={() => router.push('/trips')}
-          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', marginBottom: '1rem' }}
+          className="mb-4"
+          style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
         >
           ← Back to Trips
         </button>
@@ -166,18 +171,20 @@ export default function TripDetailPage() {
   const currentDay = trip.days[currentDayIndex];
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+    <div className="min-h-screen" style={{ padding: '1rem' }}>
+      {/* Mobile Header */}
       <button
         onClick={() => router.push('/trips')}
-        style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer', marginBottom: '1rem' }}
+        className="md:hidden mb-2"
+        style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}
       >
-        ← Back to Trips
+        ← Back
       </button>
       
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <h1 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>{trip.name}</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {/* Header - Responsive */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 mb-2">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl text-white m-0">{trip.name}</h1>
+        <div className="flex flex-wrap items-center gap-2 md:gap-4">
           <CategoryFilter
             selectedCategories={selectedCategories}
             onSelectionChange={setSelectedCategories}
@@ -188,18 +195,12 @@ export default function TripDetailPage() {
         </div>
       </div>
       
-      <p style={{ color: 'white', fontSize: '1.1rem', opacity: 0.8, marginBottom: '1rem' }}>
+      <p className="text-white text-base md:text-lg mb-2 md:mb-4 opacity-80">
         {trip.startDate} → {trip.endDate}
       </p>
 
-      {/* Day Tabs */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '0.5rem', 
-        marginBottom: '1.5rem',
-        overflowX: 'auto',
-        paddingBottom: '0.5rem',
-      }}>
+      {/* Day Tabs - Responsive scrollable */}
+      <div className="flex gap-2 mb-4 md:mb-6 overflow-x-auto pb-2 md:pb-0">
         {trip.days.map((day, index) => {
           const dayActivities = filteredDays.find(d => d.id === day.id)?.activities || [];
           const isSelected = selectedDay === day.id;
@@ -208,17 +209,12 @@ export default function TripDetailPage() {
             <button
               key={day.id}
               onClick={() => setSelectedDay(day.id)}
+              className="px-3 py-2 md:px-4 md:py-2 rounded-lg cursor-pointer text-sm md:text-base font-medium transition-all min-h-[44px]"
               style={{
-                padding: '0.5rem 1rem',
                 background: isSelected ? '#3B82F6' : '#374151',
                 color: 'white',
                 border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '0.875rem',
-                fontWeight: isSelected ? 600 : 400,
                 whiteSpace: 'nowrap',
-                transition: 'all 0.2s',
               }}
             >
               Day {index + 1} ({dayActivities.length})
@@ -227,67 +223,43 @@ export default function TripDetailPage() {
         })}
         <button
           onClick={handleAddDay}
+          className="px-3 py-2 md:px-4 md:py-2 rounded-lg cursor-pointer text-sm md:text-base font-medium min-h-[44px]"
           style={{
-            padding: '0.5rem 1rem',
             background: '#10B981',
             color: 'white',
             border: 'none',
-            borderRadius: '8px',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-            fontWeight: 500,
           }}
         >
-          + Add Day
+          + Day
         </button>
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '1.5rem' }}>
+      {/* Main Content - Responsive Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-[1fr_400px] gap-4 md:gap-6">
         {/* Itinerary Column */}
-        <div>
+        <div className="order-2 lg:order-1">
           {currentDay && (
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '1rem',
-              minHeight: '400px',
-            }}>
-              <h2 style={{ 
-                margin: '0 0 1rem 0', 
-                fontSize: '1.25rem', 
-                color: '#111827',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-              }}>
+            <div className="bg-white rounded-xl p-3 md:p-4 min-h-[300px] md:min-h-[400px]">
+              <h2 className="text-lg md:text-xl m-0 mb-3 md:mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                 <span>{currentDay.date}</span>
                 <button
                   onClick={() => {
                     // TODO: Open add activity modal
                     console.log('Add activity to day:', currentDay.id);
                   }}
+                  className="px-3 py-2 md:px-4 md:py-2 rounded-md cursor-pointer text-sm font-medium min-h-[44px]"
                   style={{
-                    padding: '0.375rem 0.75rem',
                     background: '#3B82F6',
                     color: 'white',
                     border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
                   }}
                 >
-                  + Add Activity
+                  + Add
                 </button>
               </h2>
               
               {currentDay.activities.length === 0 ? (
-                <div style={{
-                  textAlign: 'center',
-                  padding: '3rem',
-                  color: '#9CA3AF',
-                }}>
+                <div className="text-center py-8 md:py-12 text-gray-400">
                   No activities for this day
                 </div>
               ) : (
@@ -305,8 +277,8 @@ export default function TripDetailPage() {
           )}
         </div>
 
-        {/* Map Column */}
-        <div style={{ background: 'white', borderRadius: '12px', overflow: 'hidden', minHeight: '400px' }}>
+        {/* Map Column - First on mobile, second on desktop */}
+        <div className="order-1 lg:order-2 min-h-[300px] md:min-h-[400px]" style={{ background: 'white', borderRadius: '12px', overflow: 'hidden' }}>
           <TripMap 
             className="leaflet-container"
             markers={allActivities

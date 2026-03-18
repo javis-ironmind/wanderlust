@@ -32,14 +32,15 @@ export default function TripsPage() {
   };
 
   if (loading) {
-    return <div style={{ padding: '2rem', color: 'white' }}>Loading...</div>;
+    return <div className="p-4 md:p-8 text-white">Loading...</div>;
   }
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <h1 style={{ fontSize: '2.5rem', color: 'white', margin: 0 }}>My Trips</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <div className="p-4 md:p-8 max-w-2xl lg:max-w-4xl mx-auto">
+      {/* Header - Responsive */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-2">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl text-white m-0">My Trips</h1>
+        <div className="flex items-center gap-2 md:gap-4">
           <SaveIndicator />
           {trips.length > 0 && (
             <ExportImport trips={trips} onImport={handleImport} />
@@ -48,47 +49,40 @@ export default function TripsPage() {
       </div>
       
       {trips.length === 0 ? (
-        <div style={{ marginTop: '2rem' }}>
-          <p style={{ color: 'white', marginBottom: '1.5rem', fontSize: '1.1rem' }}>
+        <div className="mt-4 md:mt-8">
+          <p className="text-white text-base md:text-lg mb-4 md:mb-6">
             No trips yet - Start planning your next adventure!
           </p>
           <a
             href="/trips/new"
+            className="inline-block px-5 py-3 md:px-7 md:py-4 rounded-xl text-base md:text-lg font-semibold"
             style={{
               background: 'white',
               color: '#667eea',
-              padding: '14px 28px',
-              borderRadius: '12px',
               textDecoration: 'none',
-              fontWeight: '600',
-              display: 'inline-block'
             }}
           >
             Create Your First Trip
           </a>
         </div>
       ) : (
-        <div style={{ marginTop: '2rem' }}>
+        <div className="mt-4 md:mt-8">
           {trips.map(trip => (
             <a
               key={trip.id}
               href={`/trips/${trip.id}`}
+              className="block p-4 md:p-6 rounded-xl mb-3 md:mb-4 no-underline"
               style={{
-                display: 'block',
                 background: 'white',
-                padding: '1.5rem',
-                borderRadius: '12px',
-                marginBottom: '1rem',
-                textDecoration: 'none',
                 color: '#333',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
               }}
             >
-              <h3 style={{ margin: 0, fontSize: '1.25rem' }}>{trip.name}</h3>
-              <p style={{ margin: '0.5rem 0 0', color: '#666' }}>
+              <h3 className="text-lg md:text-xl m-0">{trip.name}</h3>
+              <p className="text-sm md:text-base mt-1 md:mt-2 mb-0 text-gray-600">
                 {trip.startDate} → {trip.endDate}
               </p>
-              <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: '#999' }}>
+              <div className="mt-1 md:mt-2 text-xs md:text-sm text-gray-500">
                 {trip.days?.length || 0} days · {trip.flights?.length || 0} flights · {trip.hotels?.length || 0} hotels
               </div>
             </a>
