@@ -7,8 +7,8 @@ As a traveler, I want to specify exact dates and times for activities so that I 
 - [x] Add date picker to activity form
 - [x] Add time picker (start time, end time) 
 - [x] Display time range on activity card
-- [ ] Sort activities by date/time within each day
-- [ ] Handle multi-day activities
+- [x] Sort activities by date/time within each day
+- [x] Handle multi-day activities
 
 ## Technical Notes
 - Use native date/time inputs or a lightweight library

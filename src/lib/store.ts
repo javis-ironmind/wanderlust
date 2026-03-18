@@ -202,26 +202,14 @@ export const useTripStore = create<TripStore>((set) => ({
     };
   }),
 
-  deleteActivity: (tripId, dayId, activityId) => set((state) => {
-    if (state.cloudSyncEnabled) {
-      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
-    }
-    return {
-      trips: state.trips.map((trip) =>
-        trip.id === tripId
-          ? {
-              ...trip,
-              days: trip.days.map((day) =>
-                day.id === dayId
-                  ? {
-                      ...day,
-                      activities: day.activities.filter(
-                      (activity) => activity.id !== activityId
-                    )
-                  }
-                : day
-            )
-          }
+  deleteActivity: (tripId, dayId, activityId) => set((state) => ({
+    trips: state.trips.map((trip) =>
+      trip.id === tripId
+        ? { ...trip, days: trip.days.map((day) =>
+            day.id === dayId
+              ? { ...day, activities: day.activities.filter((activity) => activity.id !== activityId) }
+              : day
+          ) }
         : trip
     )
   })),

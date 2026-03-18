@@ -17,6 +17,8 @@ type Activity = {
   category?: string;
   startTime?: string;  // ISO datetime
   endTime?: string;    // ISO datetime
+  startDate?: string;  // For multi-day activities (YYYY-MM-DD)
+  endDate?: string;    // For multi-day activities (YYYY-MM-DD)
   cost?: number;
   currency?: string;
   location?: {
@@ -31,6 +33,19 @@ type Day = {
   date: string;
   activities: Activity[];
 };
+
+// Sort activities by start time within a day
+function sortActivitiesByTime(activities: Activity[]): Activity[] {
+  return [...activities].sort((a, b) => {
+    // Activities without start time go to the end
+    if (!a.startTime && !b.startTime) return 0;
+    if (!a.startTime) return 1;
+    if (!b.startTime) return -1;
+    
+    // Compare by start time
+    return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+  });
+}
 
 type Trip = {
   id: string;
@@ -55,6 +70,8 @@ export default function TripDetailPage() {
   const [newActivityCategory, setNewActivityCategory] = useState('activity');
   const [newActivityStartTime, setNewActivityStartTime] = useState('');
   const [newActivityEndTime, setNewActivityEndTime] = useState('');
+  const [newActivityStartDate, setNewActivityStartDate] = useState(''); // For multi-day
+  const [newActivityEndDate, setNewActivityEndDate] = useState(''); // For multi-day
   const [newActivityCost, setNewActivityCost] = useState('');
   const [showShareModal, setShowShareModal] = useState(false);
 
@@ -84,6 +101,8 @@ export default function TripDetailPage() {
       category: newActivityCategory,
       startTime: newActivityStartTime || undefined,
       endTime: newActivityEndTime || undefined,
+      startDate: newActivityStartDate || undefined,
+      endDate: newActivityEndDate || undefined,
       cost: newActivityCost ? parseFloat(newActivityCost) : undefined,
       currency: 'USD',
     };
@@ -112,6 +131,8 @@ export default function TripDetailPage() {
     setNewActivityCategory('activity');
     setNewActivityStartTime('');
     setNewActivityEndTime('');
+    setNewActivityStartDate('');
+    setNewActivityEndDate('');
     setNewActivityCost('');
     setShowAddModal(false);
   };
@@ -325,7 +346,7 @@ export default function TripDetailPage() {
             </div>
           ) : (
             <div>
-              {currentDay.activities.map((activity) => (
+              {sortActivitiesByTime(currentDay.activities).map((activity) => (
                 <div key={activity.id} style={{ padding: '1rem', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div>
                     <h3 style={{ margin: 0, fontSize: '1rem', color: '#1e3a5f' }}>{activity.title}</h3>
@@ -487,6 +508,47 @@ export default function TripDetailPage() {
                 type="datetime-local"
                 value={newActivityEndTime}
                 onChange={e => setNewActivityEndTime(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            {/* Multi-day activity dates */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                Start Date (for multi-day activities)
+              </label>
+              <input
+                type="date"
+                value={newActivityStartDate}
+                onChange={e => setNewActivityStartDate(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  borderRadius: '8px',
+                  border: '2px solid #e2e8f0',
+                  fontSize: '1rem',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', fontSize: '0.875rem' }}>
+                End Date (for multi-day activities)
+              </label>
+              <input
+                type="date"
+                value={newActivityEndDate}
+                onChange={e => setNewActivityEndDate(e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
