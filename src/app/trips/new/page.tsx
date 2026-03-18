@@ -3,6 +3,18 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+// Trip categories
+const TRIP_CATEGORIES = [
+  { value: 'vacation', label: 'Vacation', icon: '🏖️', color: '#10B981' },
+  { value: 'business', label: 'Business', icon: '💼', color: '#3B82F6' },
+  { value: 'weekend', label: 'Weekend Getaway', icon: '🏙️', color: '#8B5CF6' },
+  { value: 'adventure', label: 'Adventure', icon: '🧗', color: '#F59E0B' },
+  { value: 'family', label: 'Family', icon: '👨‍👩‍👧‍👦', color: '#EC4899' },
+  { value: 'honeymoon', label: 'Honeymoon', icon: '💕', color: '#EF4444' },
+  { value: 'friends', label: 'Friends', icon: '🎉', color: '#6366F1' },
+  { value: 'solo', label: 'Solo', icon: '🎒', color: '#14B8A6' },
+];
+
 export default function NewTripPage() {
   const router = useRouter();
   const [name, setName] = useState('');
@@ -10,6 +22,8 @@ export default function NewTripPage() {
   const [endDate, setEndDate] = useState('');
   const [coverImage, setCoverImage] = useState('');
   const [collaborators, setCollaborators] = useState('');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [customTag, setCustomTag] = useState('');
   const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,6 +55,12 @@ export default function NewTripPage() {
       .map(c => c.trim())
       .filter(c => c.length > 0);
     
+    // Handle custom tags
+    let categories = [...selectedCategories];
+    if (customTag.trim()) {
+      categories.push(customTag.trim().toLowerCase());
+    }
+    
     const newTrip = {
       id: `trip-${Date.now()}`,
       name,
@@ -48,6 +68,7 @@ export default function NewTripPage() {
       endDate,
       coverImage: coverImage || null,
       collaborators: collaboratorsList,
+      categories, // AC5: Multiple tags support
       days,
       flights: [],
       hotels: [],
@@ -201,6 +222,65 @@ export default function NewTripPage() {
                   outline: 'none',
                 }}
                 placeholder="alice@example.com, bob@example.com"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+            
+            {/* AC1: Category selector */}
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
+                Categories <span style={{ color: '#9ca3af', fontWeight: '400' }}>(select all that apply)</span>
+              </label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                {TRIP_CATEGORIES.map((cat) => {
+                  const isSelected = selectedCategories.includes(cat.value);
+                  return (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedCategories(selectedCategories.filter(c => c !== cat.value));
+                        } else {
+                          setSelectedCategories([...selectedCategories, cat.value]);
+                        }
+                      }}
+                      style={{
+                        padding: '0.5rem 0.75rem',
+                        borderRadius: '8px',
+                        border: `2px solid ${isSelected ? cat.color : '#e2e8f0'}`,
+                        background: isSelected ? `${cat.color}15` : 'white',
+                        color: isSelected ? cat.color : '#374151',
+                        fontSize: '0.875rem',
+                        fontWeight: isSelected ? '600' : '400',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.375rem',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {/* Custom tag input - AC5: Multiple tags support */}
+              <input
+                type="text"
+                value={customTag}
+                onChange={(e) => setCustomTag(e.target.value)}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.75rem 1rem', 
+                  borderRadius: '12px', 
+                  border: '2px solid #e2e8f0', 
+                  fontSize: '0.875rem',
+                  outline: 'none',
+                }}
+                placeholder="Add custom tag..."
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
               />

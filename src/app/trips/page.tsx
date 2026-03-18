@@ -14,6 +14,19 @@ type Trip = {
   hotels?: any[];
   budgetTotal?: number;
   copiedFrom?: string;
+  categories?: string[]; // Trip-level categories
+};
+
+// Trip category config for display
+const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: string }> = {
+  vacation: { label: 'Vacation', icon: '🏖️', color: '#10B981' },
+  business: { label: 'Business', icon: '💼', color: '#3B82F6' },
+  weekend: { label: 'Weekend', icon: '🏙️', color: '#8B5CF6' },
+  adventure: { label: 'Adventure', icon: '🧗', color: '#F59E0B' },
+  family: { label: 'Family', icon: '👨‍👩‍👧‍👦', color: '#EC4899' },
+  honeymoon: { label: 'Honeymoon', icon: '💕', color: '#EF4444' },
+  friends: { label: 'Friends', icon: '🎉', color: '#6366F1' },
+  solo: { label: 'Solo', icon: '🎒', color: '#14B8A6' },
 };
 
 type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
@@ -27,6 +40,7 @@ export default function TripsPage() {
   const [sortBy, setSortBy] = useState<SortOption>('date-newest');
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [tripToDuplicate, setTripToDuplicate] = useState<Trip | null>(null);
+  const [categoryFilter, setCategoryFilter] = useState<string>('all'); // AC3: Category filter
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -130,11 +144,13 @@ export default function TripsPage() {
     setShowDuplicateModal(true);
   };
 
-  // Filter and sort trips
+  // Filter and sort trips - AC3: Category filter
   const filteredTrips = trips
     .filter(trip => 
-      searchQuery.trim() === '' || 
-      trip.name.toLowerCase().includes(searchQuery.toLowerCase())
+      (searchQuery.trim() === '' || 
+        trip.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
+      (categoryFilter === 'all' || 
+        (trip.categories && trip.categories.includes(categoryFilter)))
     )
     .sort((a, b) => {
       switch (sortBy) {
@@ -297,6 +313,32 @@ export default function TripsPage() {
               <option value="name-az" style={{ background: '#1e3a5f' }}>Name (A-Z)</option>
               <option value="name-za" style={{ background: '#1e3a5f' }}>Name (Z-A)</option>
             </select>
+            
+            {/* AC3: Category Filter Dropdown */}
+            <select
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+              style={{
+                padding: '0.75rem 1rem',
+                borderRadius: '10px',
+                border: '1px solid rgba(255,255,255,0.2)',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+                minWidth: '140px',
+              }}
+            >
+              <option value="all" style={{ background: '#1e3a5f' }}>All Categories</option>
+              <option value="vacation" style={{ background: '#1e3a5f' }}>🏖️ Vacation</option>
+              <option value="business" style={{ background: '#1e3a5f' }}>💼 Business</option>
+              <option value="weekend" style={{ background: '#1e3a5f' }}>🏙️ Weekend</option>
+              <option value="adventure" style={{ background: '#1e3a5f' }}>🧗 Adventure</option>
+              <option value="family" style={{ background: '#1e3a5f' }}>👨‍👩‍👧‍👦 Family</option>
+              <option value="honeymoon" style={{ background: '#1e3a5f' }}>💕 Honeymoon</option>
+              <option value="friends" style={{ background: '#1e3a5f' }}>🎉 Friends</option>
+              <option value="solo" style={{ background: '#1e3a5f' }}>🎒 Solo</option>
+            </select>
           </div>
         )}
 
@@ -403,6 +445,50 @@ export default function TripsPage() {
                 </button>
                 <div style={{ padding: '1.25rem' }}>
                   <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
+                  {/* AC2: Category badges on trip card */}
+                  {trip.categories && trip.categories.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.5rem' }}>
+                      {trip.categories.map((cat) => {
+                        const config = CATEGORY_CONFIG[cat];
+                        if (!config) {
+                          // Custom tag - show as generic badge
+                          return (
+                            <span
+                              key={cat}
+                              style={{
+                                background: '#e2e8f0',
+                                color: '#64748b',
+                                padding: '0.25rem 0.5rem',
+                                borderRadius: '6px',
+                                fontSize: '0.7rem',
+                                fontWeight: '500',
+                              }}
+                            >
+                              {cat}
+                            </span>
+                          );
+                        }
+                        return (
+                          <span
+                            key={cat}
+                            style={{
+                              background: `${config.color}15`,
+                              color: config.color,
+                              padding: '0.25rem 0.5rem',
+                              borderRadius: '6px',
+                              fontSize: '0.7rem',
+                              fontWeight: '500',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.25rem',
+                            }}
+                          >
+                            {config.icon} {config.label}
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
                   <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
                     📅 {trip.startDate} → {trip.endDate}
                   </p>
