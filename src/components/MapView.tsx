@@ -86,7 +86,6 @@ interface MapProps {
   zoom?: number;
   activities?: Activity[];
   hotels?: Hotel[];
-  selectedDayIndex?: number;
   onActivityClick?: (activityId: string) => void;
   onHotelClick?: (hotelId: string) => void;
 }
@@ -115,7 +114,6 @@ export default function MapView({
   zoom = 2,
   activities = [],
   hotels = [],
-  selectedDayIndex = 0,
   onActivityClick,
   onHotelClick
 }: MapProps) {
