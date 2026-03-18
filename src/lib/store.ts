@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
 import { Trip, Day, Activity, Flight, Hotel, PackingItem, TripTemplate, TemplateDay, TemplateActivity } from './types';
+import { saveToStorage, loadFromStorage } from './storage';
 
 interface SyncState {
   cloudSyncEnabled: boolean;
@@ -72,6 +73,8 @@ interface TripActions {
   setSyncStatus: (status: 'local' | 'syncing' | 'synced' | 'error') => void;
   syncTripToCloud: (tripId: string) => Promise<void>;
   queueForSync: (tripId: string) => void;
+  fetchTripsFromAPI: () => Promise<void>;
+  persistToLocalStorage: () => void;
 
   // Template actions
   saveTripAsTemplate: (tripId: string, name: string, description?: string, includeDates?: boolean) => void;
@@ -101,46 +104,81 @@ export const useTripStore = create<TripStore>((set, get) => ({
   pendingSyncQueue: [],
 
   // Trip actions
-  addTrip: (trip) => set((state) => {
-    // Auto-sync if cloud sync is enabled
-    if (state.cloudSyncEnabled) {
-      setTimeout(() => {
-        useTripStore.getState().syncTripToCloud(trip.id);
-      }, 1000);
-    }
-    return {
+  addTrip: async (trip) => {
+    // Optimistic update
+    set((state) => ({
       trips: [...state.trips, trip]
-    };
-  }),
+    }));
+
+    // Persist to localStorage
+    saveToStorage(useTripStore.getState().trips);
+
+    // Call API if cloud sync is enabled
+    const state = useTripStore.getState();
+    if (state.cloudSyncEnabled) {
+      try {
+        const response = await fetch('/api/trips', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(trip),
+        });
+
+        if (!response.ok) throw new Error('Failed to create trip');
+
+        const createdTrip = await response.json();
+        // Update with server response (which has the correct ID)
+        set((state) => ({
+          trips: state.trips.map((t) => t.id === trip.id ? createdTrip : t)
+        }));
+        saveToStorage(useTripStore.getState().trips);
+      } catch (error) {
+        console.error('Failed to create trip in cloud:', error);
+      }
+    }
+  },
 
   setTrips: (trips) => set({ trips }),
 
-  updateTrip: (tripId, updates) => set((state) => {
+  updateTrip: (tripId, updates) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId ? { ...trip, ...updates } : trip
+      )
+    }));
+
+    // Persist to localStorage
+    saveToStorage(useTripStore.getState().trips);
+
     // Auto-sync if cloud sync is enabled
+    const state = useTripStore.getState();
     if (state.cloudSyncEnabled) {
       setTimeout(() => {
         useTripStore.getState().syncTripToCloud(tripId);
       }, 1000); // Debounce sync
     }
-    return {
-      trips: state.trips.map((trip) =>
-        trip.id === tripId ? { ...trip, ...updates } : trip
-      )
-    };
-  }),
+  },
 
-  deleteTrip: (tripId) => set((state) => {
-    // Remove from pending queue if present
-    if (state.cloudSyncEnabled) {
-      // Optionally call delete API - for now just clear from queue
-      console.log('Trip deleted, clearing from sync queue:', tripId);
-    }
-    return {
+  deleteTrip: async (tripId) => {
+    // Optimistic update
+    set((state) => ({
       trips: state.trips.filter((trip) => trip.id !== tripId),
       currentTripId: state.currentTripId === tripId ? null : state.currentTripId,
       pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
-    };
-  }),
+    }));
+
+    // Persist to localStorage
+    saveToStorage(useTripStore.getState().trips);
+
+    // Call API if cloud sync is enabled
+    const state = useTripStore.getState();
+    if (state.cloudSyncEnabled) {
+      try {
+        await fetch(`/api/trips/${tripId}`, { method: 'DELETE' });
+      } catch (error) {
+        console.error('Failed to delete trip from cloud:', error);
+      }
+    }
+  },
 
   setCurrentTrip: (tripId) => set({ currentTripId: tripId }),
 
@@ -531,6 +569,32 @@ export const useTripStore = create<TripStore>((set, get) => ({
       ? state.pendingSyncQueue
       : [...state.pendingSyncQueue, tripId]
   })),
+
+  // Fetch trips from API (used on app load)
+  fetchTripsFromAPI: async () => {
+    set({ syncStatus: 'syncing' });
+    try {
+      const response = await fetch('/api/trips');
+      if (!response.ok) throw new Error('Failed to fetch trips');
+
+      const trips: Trip[] = await response.json();
+      set({ trips, syncStatus: 'synced', lastSyncedAt: new Date() });
+
+      // Persist to localStorage as offline cache
+      saveToStorage(trips);
+    } catch (error) {
+      console.error('Failed to fetch trips from API:', error);
+      // Fallback to localStorage
+      const localTrips = loadFromStorage();
+      set({ trips: localTrips, syncStatus: 'error' });
+    }
+  },
+
+  // Persist current trips to localStorage (offline backup)
+  persistToLocalStorage: () => {
+    const { trips } = useTripStore.getState();
+    saveToStorage(trips);
+  },
 
   // Undo actions
   undoDeleteActivity: (activity, tripId, dayId, originalIndex) => set((state) => {
