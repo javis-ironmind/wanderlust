@@ -1,7 +1,14 @@
 import { create } from 'zustand';
 import { Trip, Day, Activity, Flight, Hotel, PackingItem } from './types';
 
-interface TripState {
+interface SyncState {
+  cloudSyncEnabled: boolean;
+  syncStatus: 'local' | 'syncing' | 'synced' | 'error';
+  lastSyncedAt: Date | null;
+  pendingSyncQueue: string[]; // trip IDs pending sync
+}
+
+interface TripState extends SyncState {
   trips: Trip[];
   currentTripId: string | null;
 }
@@ -43,6 +50,12 @@ interface TripActions {
   deletePackingItem: (tripId: string, itemId: string) => void;
   togglePackingItem: (tripId: string, itemId: string) => void;
   initializePackingList: (tripId: string) => void;
+  
+  // Cloud sync actions
+  setCloudSyncEnabled: (enabled: boolean) => void;
+  setSyncStatus: (status: 'local' | 'syncing' | 'synced' | 'error') => void;
+  syncTripToCloud: (tripId: string) => Promise<void>;
+  queueForSync: (tripId: string) => void;
 }
 
 type TripStore = TripState & TripActions;
@@ -51,6 +64,12 @@ export const useTripStore = create<TripStore>((set) => ({
   // Initial state
   trips: [],
   currentTripId: null,
+  
+  // Sync state
+  cloudSyncEnabled: false,
+  syncStatus: 'local',
+  lastSyncedAt: null,
+  pendingSyncQueue: [],
   
   // Trip actions
   addTrip: (trip) => set((state) => ({ 
@@ -385,6 +404,44 @@ export const useTripStore = create<TripStore>((set) => ({
         : trip
     )
   })),
+  
+  // Cloud sync actions
+  setCloudSyncEnabled: (enabled) => set({ cloudSyncEnabled: enabled }),
+  
+  setSyncStatus: (status) => set({ syncStatus: status }),
+  
+  syncTripToCloud: async (tripId) => {
+    const state = useTripStore.getState();
+    const trip = state.trips.find((t) => t.id === tripId);
+    if (!trip || !state.cloudSyncEnabled) return;
+    
+    set({ syncStatus: 'syncing' });
+    
+    try {
+      const response = await fetch(`/api/trips/${tripId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(trip),
+      });
+      
+      if (!response.ok) throw new Error('Sync failed');
+      
+      set({ 
+        syncStatus: 'synced', 
+        lastSyncedAt: new Date(),
+        pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
+      });
+    } catch (error) {
+      console.error('Sync error:', error);
+      set({ syncStatus: 'error' });
+    }
+  },
+  
+  queueForSync: (tripId) => set((state) => ({
+    pendingSyncQueue: state.pendingSyncQueue.includes(tripId)
+      ? state.pendingSyncQueue
+      : [...state.pendingSyncQueue, tripId]
+  })),
 }));
 
 // Convenience hooks
@@ -419,4 +476,8 @@ export const useTripActions = () => useTripStore((state) => ({
   deletePackingItem: state.deletePackingItem,
   togglePackingItem: state.togglePackingItem,
   initializePackingList: state.initializePackingList,
+  setCloudSyncEnabled: state.setCloudSyncEnabled,
+  setSyncStatus: state.setSyncStatus,
+  syncTripToCloud: state.syncTripToCloud,
+  queueForSync: state.queueForSync,
 }));
