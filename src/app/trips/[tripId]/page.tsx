@@ -234,6 +234,7 @@ type Trip = {
   budgetTotal?: number;
   categories?: string[];
   notes?: TripNote[];
+  photos?: string[];
 };
 
 export default function TripDetailPage() {
@@ -302,6 +303,7 @@ export default function TripDetailPage() {
   const [draggedDayId, setDraggedDayId] = useState<string | null>(null); // F002 AC4: day being dragged
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null); // F002 AC4: drop target index
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | 'quota-exceeded'>('saved'); // F010 AC2: auto-save indicator
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null); // T019: fullscreen photo viewer
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null); // F010 AC3: debounce timer
 
   // F010 AC3/AC9: Debounced save to localStorage with quota handling
@@ -966,6 +968,64 @@ export default function TripDetailPage() {
     }
   };
 
+  // T019: Handle photo upload
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!trip || !e.target.files) return;
+    
+    const files = Array.from(e.target.files);
+    const newPhotos: string[] = [];
+    
+    for (const file of files) {
+      // Limit file size to 500KB to prevent localStorage issues
+      if (file.size > 500 * 1024) {
+        alert(`File ${file.name} is too large. Max size is 500KB.`);
+        continue;
+      }
+      
+      try {
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        newPhotos.push(base64);
+      } catch (err) {
+        console.error('Error reading file:', err);
+      }
+    }
+    
+    if (newPhotos.length > 0) {
+      const currentPhotos = trip.photos || [];
+      const updatedTrip = { ...trip, photos: [...currentPhotos, ...newPhotos] };
+      setTrip(updatedTrip);
+      
+      const saved = localStorage.getItem('wanderlust_trips');
+      if (saved) {
+        const trips: Trip[] = JSON.parse(saved);
+        const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+        localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+      }
+    }
+  };
+
+  // T019: Handle photo delete
+  const handleDeletePhoto = (index: number) => {
+    if (!trip) return;
+    
+    const currentPhotos = trip.photos || [];
+    const newPhotos = currentPhotos.filter((_, i) => i !== index);
+    const updatedTrip = { ...trip, photos: newPhotos };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+  };
+
   // T015: Handle add category
   const handleAddCategory = () => {
     if (!trip) return;
@@ -1491,6 +1551,104 @@ export default function TripDetailPage() {
             onNotesChange={handleUpdateNotes} 
           />
         </div>
+
+        {/* Photos Section (T019) */}
+        <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+          <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f' }}>📸 Photos</h2>
+          
+          {/* Photo Upload */}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={handlePhotoUpload}
+            style={{ marginBottom: '1rem' }}
+          />
+          
+          {/* Photo Grid */}
+          {trip.photos && trip.photos.length > 0 ? (
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', 
+              gap: '0.75rem',
+              marginTop: '1rem'
+            }}>
+              {trip.photos.map((photo, index) => (
+                <div 
+                  key={index}
+                  onClick={() => setSelectedPhoto(photo)}
+                  style={{
+                    aspectRatio: '1',
+                    borderRadius: '8px',
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    position: 'relative'
+                  }}
+                >
+                  <img 
+                    src={photo} 
+                    alt={`Trip photo ${index + 1}`}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePhoto(index);
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: '4px',
+                      right: '4px',
+                      background: 'rgba(0,0,0,0.6)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '50%',
+                      width: '24px',
+                      height: '24px',
+                      cursor: 'pointer',
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '0.5rem 0' }}>
+              No photos yet. Click "Choose Files" to add photos from your device.
+            </p>
+          )}
+        </div>
+
+        {/* Fullscreen Photo Modal */}
+        {selectedPhoto && (
+          <div 
+            onClick={() => setSelectedPhoto(null)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.9)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1000,
+              cursor: 'pointer'
+            }}
+          >
+            <img 
+              src={selectedPhoto} 
+              alt="Fullscreen photo"
+              style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }}
+            />
+          </div>
+        )}
 
         {/* Flights & Hotels Section (T009) */}
         <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>

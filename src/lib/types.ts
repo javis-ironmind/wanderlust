@@ -116,6 +116,7 @@ export interface Trip {
   packingList?: PackingList;
   notes?: TripNote[]; // Array of trip notes (replaces simple notes string)
   categories?: string[]; // Trip categories: Business, Vacation, Adventure, etc.
+  photos?: string[]; // Base64 encoded photos
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
   budgetTotal?: number;
