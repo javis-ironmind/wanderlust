@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>10 Days in Puglia | The Editorial Wanderer</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#7f2a12",
+              "secondary-fixed-dim": "#c4c9b1",
+              "surface-container": "#e0f0fb",
+              "tertiary-container": "#8e6f4e",
+              "surface-bright": "#f4faff",
+              "outline-variant": "#ddc0b9",
+              "on-surface": "#0e1d25",
+              "surface-tint": "#9e4127",
+              "on-tertiary-container": "#fffbff",
+              "tertiary-fixed-dim": "#e5c099",
+              "on-tertiary-fixed-variant": "#5c4224",
+              "background": "#f4faff",
+              "on-error": "#ffffff",
+              "on-secondary-fixed-variant": "#444937",
+              "surface-dim": "#ccdce7",
+              "primary-container": "#bb563b",
+              "on-tertiary-fixed": "#2b1701",
+              "error-container": "#ffdad6",
+              "inverse-surface": "#23323a",
+              "on-secondary-fixed": "#191d0e",
+              "outline": "#89726c",
+              "inverse-on-surface": "#e3f3fd",
+              "secondary-container": "#e0e5cc",
+              "tertiary-fixed": "#ffddbb",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#e7f6ff",
+              "surface": "#f4faff",
+              "secondary-fixed": "#e0e5cc",
+              "secondary": "#5c614d",
+              "on-surface-variant": "#56423d",
+              "on-secondary": "#ffffff",
+              "primary": "#9b3f25",
+              "on-background": "#0e1d25",
+              "surface-container-highest": "#d5e5ef",
+              "primary-fixed": "#ffdbd1",
+              "error": "#ba1a1a",
+              "tertiary": "#735737",
+              "primary-fixed-dim": "#ffb5a1",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#daebf5",
+              "on-secondary-container": "#626753",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#3b0800",
+              "inverse-primary": "#ffb5a1",
+              "on-primary-container": "#fffbff",
+              "surface-variant": "#d5e5ef"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .editorial-shadow {
+            box-shadow: 0 8px 24px rgba(14, 29, 37, 0.06);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f4faff;
+            color: #0e1d25;
+        }
+        h1, h2, h3, .serif {
+            font-family: 'Noto Serif', serif;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<nav class="docked full-width top-0 sticky z-50 bg-[#f4faff]/70 dark:bg-[#0e1d25]/80 backdrop-blur-md shadow-[0_8px_24px_rgba(14,29,37,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-serif italic text-[#9b3f25] dark:text-[#bb563b]">The Editorial Wanderer</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Explore</a>
+<a class="text-[#9b3f25] dark:text-[#bb563b] border-b-2 border-[#9b3f25] pb-1 font-bold" href="#">Itinerary</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Journals</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Wishlist</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search destinations..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface p-2 hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] rounded-full transition-all">notifications</button>
+<button class="material-symbols-outlined text-on-surface p-2 hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] rounded-full transition-all">settings</button>
+<img alt="User profile avatar" class="w-10 h-10 rounded-full object-cover border-2 border-primary/20" data-alt="Portrait of a smiling person with a travel-ready look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYJc2H9JUiSz6wyqbRlYCIAc1vkNNZz_Te6qr2VMIcltFqv2O3UcOS7V1G-VM2ryxKVXnqlxTkev5bse606ssGKc1rjRiTb09EYJ7ueNLriqbwAPSbWK0TJKa87_hKE7mCUJexF8lJIFSR5Ifv5UPS2oLMQCaIbIefrFRUB3_yMavGUf-OXUUVY3jPjT-dn831J8CyOfmgjk6AAIHeD_T_-riaeVQt2wR2BqqhpF2Y8P4griceBqorhrZbqv5Bj3qylgylPSqBJU4"/>
+</div>
+</div>
+</nav>
+<main class="flex-grow max-w-screen-2xl mx-auto w-full px-8 py-12">
+<!-- Trip Overview -->
+<header class="mb-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-end">
+<div class="lg:col-span-8">
+<div class="flex items-center gap-2 mb-4">
+<span class="bg-secondary-container text-on-secondary-container px-3 py-1 rounded-md text-xs font-semibold tracking-widest uppercase">Southern Italy</span>
+<span class="text-on-surface-variant text-sm">• September 14 — 24, 2024</span>
+</div>
+<h1 class="text-6xl md:text-7xl font-serif text-on-surface mb-6 tracking-tight leading-tight">10 Days in Puglia: <br/><span class="italic text-primary">The Sun-Drenched Soul</span></h1>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-3">
+<img alt="Group member" class="w-10 h-10 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Portrait of a female traveler smiling" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0zHahrCHUyhkQHevA9qNxQV_YDBsecBovdcF2UT7UF_3oEL-cVoKvjPwQwu_sz3hZLUu6Y-A5jxu2GyHzsVYLHAlhhllsn2dSssprDzdGKVKbQ218pVEMZdbl4KlTaibp9AujkyOrUri23-X-XkaW5coK9z5ZGVIH81rm2NsQFwR2MqqGt6vLWKabF9n-N1HEWGqtkX9e_Ph-C3c-XxneRg0_ub7bQcaf0zeGoJ0FUCINbhWxvOMa7Q699rNoVku98_rmZcp-Bfw"/>
+<img alt="Group member" class="w-10 h-10 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Portrait of a male traveler with glasses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBolOJANSfsAZD2Tx55J4NtBVaE1xy0ZXq8xwX9z0NNYe7pDErmfacD2F9TcxeBqNh9hGUD-DHwwgUIcsmxOzT06oyuNLtYCHJ4Zjtr3iS81H4cGDLLelhf5vINXOAal3HcXbfkxVoo9gX90UpC4UVOCYRnX0euCIOdYHEs42Kk8zYOGt0XBm9FlVrKi5HdMyfcmMoKwN4fz_UEAcwKrmpNIGnjFOBO_bG8fxWbAIw4sRznPtbKgjTUP9ajj5h75ighC2kXUv13wbg"/>
+<img alt="Group member" class="w-10 h-10 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Portrait of a young man laughing" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzNAC6YJX66aTjKMOLz8PPT-Sur8IrPO0FxphzL-ndoI-zOzFwDd8tYqC5zWL4w1kf0HF10akTGHeycJT4ZfL4mqSsFl2E2CgCneN6OG_o_x4CH7aRnGDJjiP5fvpgCzWufBlEX9JSANXqwJBns0zERR7CuYKN8BEFxhE5R6mjfundfqorHdJaSx-xgtIk4pztau6JbylzdS7g9UzQRx_ezti_bh8IXUrMLAkZDCkrgroL1wmXNsc_FSd33jt7xP-RmnrVTvZ5Icc"/>
+<div class="w-10 h-10 rounded-full border-2 border-surface-container-lowest bg-surface-container-high flex items-center justify-center text-xs font-bold text-on-surface">+2</div>
+</div>
+<span class="text-on-surface-variant font-medium">Traveling with the Valenti Group</span>
+</div>
+</div>
+<div class="lg:col-span-4 flex justify-end gap-3">
+<button class="bg-surface-container-high text-on-surface px-6 py-3 rounded-full flex items-center gap-2 hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined text-lg">share</span> Share Itinerary
+                </button>
+<button class="bg-gradient-to-br from-primary to-primary-container text-on-primary px-8 py-3 rounded-full flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-lg">edit</span> Edit Trip
+                </button>
+</div>
+</header>
+<!-- Main Content Area: Bento-inspired layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Daily Timeline Column -->
+<div class="lg:col-span-8 space-y-12">
+<!-- Day 1 Segment -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<h2 class="text-3xl font-serif">Day 01: Arrival in Bari</h2>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+<span class="text-primary font-serif italic">The Gateway</span>
+</div>
+<div class="relative pl-12 border-l-2 border-dashed border-outline-variant/50 space-y-10">
+<!-- Activity Card 1 -->
+<div class="relative group">
+<!-- Timeline Dot -->
+<div class="absolute -left-[57px] top-6 w-5 h-5 rounded-full bg-primary ring-8 ring-surface-container-low transition-all group-hover:scale-125"></div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden editorial-shadow flex flex-col md:flex-row gap-6 p-4 border border-transparent hover:border-primary/10 transition-all">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Bari Old Town" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Narrow cobblestone street in Bari Vecchia with laundry hanging above" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmgdnOVwNGtd4iYhM5-JEgable6anVsScxA2n0ZnEBg380xynJy4BkpAKCXAQuh-MnsvHsFjnrvFJ-OvglfJ7ku7Aa6KZS6TLRSjNsYvPrevJTEYFy_xMsMMkh4d-lBvWMQ5LsLRBjoXaM7R3gwECkR2fgb85nrkujBVtLRkxteSrTLfVTodcxiAdX8-Ymy5-c0HhuUhj1tre4sRlX5nGZ0dHDH0qtJdp95xWVa7SLYcm5FNmeo-Wl3sYBl6ygLFZ4xgddwJK_GmA"/>
+</div>
+<div class="flex-grow flex flex-col justify-between py-2">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-bold tracking-wider text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span> 10:30 AM
+                                            </span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<h3 class="text-xl font-serif text-on-surface mb-2">Wandering Bari Vecchia</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">Explore the maze-like streets of the old city. Witness the "Orecchiette Ladies" handmade pasta artistry on Strada delle Orecchiette.</p>
+</div>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 bg-surface-container text-on-surface text-xs px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-xs">location_on</span> Bari Center
+                                        </div>
+<div class="flex items-center gap-1 bg-secondary-container text-on-secondary-container text-xs px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-xs">restaurant</span> Local Food
+                                        </div>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Card 2 -->
+<div class="relative group">
+<div class="absolute -left-[57px] top-6 w-5 h-5 rounded-full bg-secondary ring-8 ring-surface-container-low transition-all group-hover:scale-125"></div>
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden editorial-shadow flex flex-col md:flex-row gap-6 p-4 border border-transparent hover:border-primary/10 transition-all">
+<div class="w-full md:w-64 h-48 rounded-lg overflow-hidden flex-shrink-0">
+<img alt="Polignano a Mare" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Dramatic cliffs overlooking turquoise sea in Polignano a Mare" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxk8m7SvqQND1lZPB0D1kNjOHm-WKo68viAjY3Hoz5Dp-_ZtSaKK4mL5etvOcpjabKpPGoDGsfDkxV1Mj9oClvKbVLpiOQ2DqgxVroQHgOVQpTJee9u2_Q7kObNZCQfX22kayKGT_ZErvALOTcuvkBEN1CZKAAJj7ITJeFs_I7JrmHxQgMPd5lLIZw6y_qkBPxot2fc77jQS8U_mu-U5ZhVRCvMzIgItpVuzAIf8CkYNO4Q9SKA3KD3GLaKGDvJO5Da2cXskaoMqE"/>
+</div>
+<div class="flex-grow flex flex-col justify-between py-2">
+<div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm font-bold tracking-wider text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span> 04:00 PM
+                                            </span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<h3 class="text-xl font-serif text-on-surface mb-2">Sunset over Polignano a Mare</h3>
+<p class="text-on-surface-variant text-sm leading-relaxed mb-4">A short drive to the most iconic cliff-side town. Grab an espresso at a local café and watch the waves crash against the limestone caves.</p>
+</div>
+<div class="flex items-center gap-4 mt-auto">
+<div class="flex items-center gap-1 bg-surface-container text-on-surface text-xs px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-xs">directions_car</span> 30m Drive
+                                        </div>
+<div class="flex items-center gap-1 bg-secondary-container text-on-secondary-container text-xs px-2 py-1 rounded-md">
+<span class="material-symbols-outlined text-xs">photo_camera</span> Scenic View
+                                        </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Day 2 Preview -->
+<section>
+<div class="flex items-center gap-4 mb-8">
+<h2 class="text-3xl font-serif">Day 02: The Trulli of Alberobello</h2>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+<span class="text-primary font-serif italic">Fairytale Valley</span>
+</div>
+<div class="relative pl-12 border-l-2 border-dashed border-outline-variant/50 pb-8">
+<div class="bg-surface-container-low/50 rounded-xl p-8 text-center border-2 border-dashed border-outline-variant/40 hover:bg-surface-container-low transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-4xl text-outline mb-2 group-hover:scale-110 transition-transform">add_circle</span>
+<p class="font-medium text-on-surface-variant">Drag activities here to build Day 02</p>
+</div>
+</div>
+</section>
+</div>
+<!-- Sidebars Column -->
+<div class="lg:col-span-4 space-y-8">
+<!-- Map Sidebar -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden editorial-shadow sticky top-24">
+<div class="p-5 border-b border-surface-container">
+<h4 class="font-serif text-xl">Daily Route</h4>
+<p class="text-xs text-on-surface-variant">Bari → Polignano a Mare (32 km)</p>
+</div>
+<div class="h-64 bg-surface-container-highest relative overflow-hidden group">
+<img alt="Map view of Puglia" class="w-full h-full object-cover opacity-80" data-alt="Satellite map view of the Italian coast showing Puglia region" data-location="Puglia, Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCE6qLMN_-4Zbe-FoRnR764A3LEqwUDwKIlAFlU67zQaNDfC1UuZFkwRzxqs5PZTiAep-n0lioWScAyzU0YKjO2-lcy3AJoDmxYINN2uxHkoASe6yQStMsSKTdG1UDYjOoBxO76ph8yTseHlCCFgulfD_9mmIiTWSFoJGG_O4RxIuQCJ2TAzT1ysAMJMgiWsxDp5HmEOw2_6tKRFPLrxct4HuYKmhzmhzV83GOh3vJMPXfNn1oZtnQQcigrQrHgRcnPtpQPO2d2KEA"/>
+<div class="absolute inset-0 bg-primary/5"></div>
+<!-- Decorative Map Markers -->
+<div class="absolute top-1/3 left-1/4 w-3 h-3 bg-primary rounded-full ring-4 ring-primary/20"></div>
+<div class="absolute bottom-1/4 right-1/3 w-3 h-3 bg-secondary rounded-full ring-4 ring-secondary/20"></div>
+<div class="absolute inset-0 flex items-center justify-center">
+<button class="bg-surface-container-lowest/90 backdrop-blur px-4 py-2 rounded-full text-xs font-bold shadow-sm">VIEW INTERACTIVE MAP</button>
+</div>
+</div>
+<div class="p-5 space-y-4">
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-primary">navigation</span>
+<div>
+<p class="text-xs font-bold uppercase tracking-widest text-on-surface-variant mb-1">Total Distance</p>
+<p class="text-sm font-medium">48.5 km • Estimated 1h 12m travel</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Discover More Activities -->
+<div class="bg-surface-container-low rounded-xl p-6 editorial-shadow border border-outline-variant/20">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-serif text-xl">Discover More</h4>
+<button class="text-primary text-xs font-bold hover:underline">REFRESH</button>
+</div>
+<div class="space-y-4">
+<!-- Tiny Draggable Card 1 -->
+<div class="bg-surface-container-lowest p-3 rounded-lg flex gap-3 cursor-grab hover:shadow-md transition-shadow group">
+<div class="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+<img alt="Italian Coast" class="w-full h-full object-cover" data-alt="Close up of colorful seaside houses in Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhEj0aFcftx_Nu9ApSRCV3BRopJxHTkdULUgvIjhEUp3IMTJVWvYES53Nco5dNMlRt2P-eOFRxVLF3ttzSg6zwW7G3wSj1A2hC67l8r95FmvNcr8gbBwt4oPokiyMuhJ-pGWeWztHhoxi-70S-RHrX2w_9lgobrlGPbxEIcqhtpARb6sYyPkZRf9n52nN9Ban0UbRqzznS8HJCIS27VKtztUXMUqGCWhvkyAcvQbA5-wx-SYQwf9gClB2qrahBudcfbyl02lncVtY"/>
+</div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Wine Tasting at Masseria</h5>
+<p class="text-[10px] text-on-surface-variant">Locorotondo • 2 hours</p>
+</div>
+</div>
+<!-- Tiny Draggable Card 2 -->
+<div class="bg-surface-container-lowest p-3 rounded-lg flex gap-3 cursor-grab hover:shadow-md transition-shadow group">
+<div class="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+<img alt="Alberobello" class="w-full h-full object-cover" data-alt="Whitewashed trulli stone houses with cone roofs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmTT6BEmZrcpyKnUwizonjhoBt56XqPLebbu-L_QBZ6LyuNZwkXbGNiI5-G_KKGKIMXKpexvJ-pWhVwLzFfrPb7d6VIZn-If0MtBDbaNvhSOfEBFf8M8XkpmSfobiw4XrYeB0bu0KXZiqmVDD54E_xaCn1srXjlwgWCdJ_Yad09PHvY4EU0-Q7D5E-rBxUMLCDeXr9d_zq17XAGed6yW_8FKyN5Q9rlgiVZdtSrB0S9VRdf32tQyqy5QApWU4I6b0i-Io1Xs3C4dA"/>
+</div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Evening Grotto Walk</h5>
+<p class="text-[10px] text-on-surface-variant">Castellana Grotte • 1.5 hours</p>
+</div>
+</div>
+<!-- Tiny Draggable Card 3 -->
+<div class="bg-surface-container-lowest p-3 rounded-lg flex gap-3 cursor-grab hover:shadow-md transition-shadow group">
+<div class="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+<img alt="Pasta" class="w-full h-full object-cover" data-alt="Traditional handmade Italian pasta on a wooden board" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP-8NCAk-2NfAr0e_JLjnJnHV9trQDhorMkzJDo6KdBZwGdbB1bf0ecI7RUQP2HbLdwQ4LjMFq85tneBDV0PHJm1-lOaXpV4K_wbYdtZ8k1L2CrEYido5dGCpWqvU-irwcydUd09Uksx3LJQ3Der5PTbq3IxQhOhosuuolIGMeNlNGJzozFsle7A_RMU4LuJPTSuda2ap0KsnufM39ZQK2EAXUxaEzz2RxAnp2giUaByN8D3NM5Q2dEuB3C2-x0zwV2E9Xm1rFkFY"/>
+</div>
+<div class="flex flex-col justify-center">
+<h5 class="text-sm font-bold text-on-surface group-hover:text-primary transition-colors">Cavatelli Cooking Class</h5>
+<p class="text-[10px] text-on-surface-variant">Altamura • 3 hours</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Weather Card -->
+<div class="bg-gradient-to-br from-secondary to-secondary-fixed-dim p-6 rounded-xl text-white shadow-lg overflow-hidden relative">
+<span class="material-symbols-outlined absolute -right-4 -top-4 text-8xl opacity-10" style="font-variation-settings: 'FILL' 1;">sunny</span>
+<div class="relative z-10">
+<div class="flex justify-between items-start mb-6">
+<div>
+<p class="text-xs uppercase tracking-widest opacity-80">Local Weather</p>
+<h4 class="text-2xl font-serif">Bari, IT</h4>
+</div>
+<span class="text-4xl font-serif">24°C</span>
+</div>
+<p class="text-sm opacity-90 leading-relaxed">Bright skies and a light breeze from the Adriatic. Perfect for coastal drives.</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-20 bg-[#e7f6ff] dark:bg-[#0a141a]">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full border-t border-[#ddc0b9]/20 max-w-screen-2xl mx-auto">
+<div class="mb-8 md:mb-0">
+<span class="font-serif text-lg text-[#9b3f25]">The Editorial Wanderer</span>
+<p class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] mt-2 max-w-xs">Curating slow travel experiences and sun-drenched memories for the modern explorer.</p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-6">
+<div class="flex gap-8">
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">About Us</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Press</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Privacy Policy</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Terms of Service</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Contact</a>
+</div>
+<p class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-50">© 2024 The Editorial Wanderer. All rights reserved.</p>
+</div>
+</div>
+</footer>
+<!-- Floating Action Button - Only for Trip Planning Context -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-40 group">
+<span class="material-symbols-outlined group-hover:rotate-90 transition-transform">add</span>
+<div class="absolute right-16 bg-on-surface text-surface-container-lowest px-3 py-1 rounded text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">Add Activity</div>
+</button>
+</body></html>

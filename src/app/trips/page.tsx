@@ -24,6 +24,8 @@ type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
 export default function TripsPage() {
   const trips = useTripStore((state) => state.trips);
   const setTrips = useTripStore((state) => state.setTrips);
+  const updateTrip = useTripStore((state) => state.updateTrip);
+  const deleteTrip = useTripStore((state) => state.deleteTrip);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -32,7 +34,11 @@ export default function TripsPage() {
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [tripToDuplicate, setTripToDuplicate] = useState<Trip | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [tripToDelete, setTripToDelete] = useState<Trip | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all'); // AC3: Category filter
+  const [editingTripId, setEditingTripId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
   const mountedRef = useRef(true);
@@ -141,6 +147,46 @@ export default function TripsPage() {
     e.stopPropagation();
     setTripToDuplicate(trip);
     setShowDuplicateModal(true);
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent, trip: Trip) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setTripToDelete(trip);
+    setShowDeleteModal(true);
+  };
+
+  const handleEditName = (trip: Trip) => {
+    setEditingTripId(trip.id);
+    setEditingName(trip.name);
+  };
+
+  const handleSaveName = (tripId: string) => {
+    if (editingName.trim()) {
+      updateTrip(tripId, { name: editingName.trim(), updatedAt: new Date().toISOString() });
+    }
+    setEditingTripId(null);
+    setEditingName('');
+  };
+
+  // F010 AC7: Clear all data with confirmation
+  const handleClearAllData = () => {
+    const confirmed = window.confirm('⚠️ Are you sure you want to delete ALL trips? This action cannot be undone.');
+    if (confirmed) {
+      localStorage.removeItem('wanderlust_trips');
+      setTrips([]);
+      window.location.reload();
+    }
+  };
+
+  // F010 AC8: Calculate localStorage usage
+  const getStorageUsage = () => {
+    const data = localStorage.getItem('wanderlust_trips');
+    if (!data) return '0 B';
+    const bytes = new Blob([data]).size;
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   };
 
   // Filter and sort trips - AC3: Category filter
@@ -342,6 +388,30 @@ export default function TripsPage() {
           </div>
         )}
 
+        {/* F010 AC7/AC8: Storage usage and clear data */}
+        {trips.length > 0 && (
+          <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.7rem' }}>
+              📦 {getStorageUsage()}
+            </span>
+            <button
+              onClick={handleClearAllData}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '0.75rem',
+                cursor: 'pointer',
+                padding: '0.25rem 0.5rem',
+                textDecoration: 'underline',
+              }}
+              title="Delete all trips and clear localStorage"
+            >
+              Clear all data
+            </button>
+          </div>
+        )}
+
         {/* Trip Count */}
         {trips.length > 0 && (
           <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
@@ -420,6 +490,29 @@ export default function TripsPage() {
                     ? `url(${trip.coverImage}) center/cover`
                     : `linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)`,
                 }} />
+                {/* Delete Button */}
+                <button
+                  onClick={(e) => handleDeleteClick(e, trip)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '80px',
+                    background: 'rgba(255,255,255,0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10,
+                  }}
+                  title="Delete trip"
+                >
+                  🗑️ Delete
+                </button>
                 {/* Duplicate Button */}
                 <button
                   onClick={(e) => handleDuplicateClick(e, trip)}
@@ -444,7 +537,27 @@ export default function TripsPage() {
                   📋 Duplicate
                 </button>
                 <div style={{ padding: '1.25rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
+                  {editingTripId === trip.id ? (
+                    <input
+                      autoFocus
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onBlur={() => handleSaveName(trip.id)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleSaveName(trip.id)}
+                      style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', border: '2px solid #3b82f6', borderRadius: '8px', padding: '0.25rem 0.5rem', width: '100%', outline: 'none' }}
+                    />
+                  ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600' }}>{trip.name}</h3>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleEditName(trip); }}
+                        title="Edit trip name"
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '4px 8px', fontSize: '1rem', opacity: 0.5 }}
+                      >
+                        ✏️
+                      </button>
+                    </div>
+                  )}
                   {/* AC2: Category badges on trip card */}
                   {trip.categories && trip.categories.length > 0 && (
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem', marginTop: '0.5rem' }}>
@@ -491,6 +604,12 @@ export default function TripsPage() {
                   )}
                   <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
                     📅 {trip.startDate} → {trip.endDate}
+                    {(() => {
+                      const start = new Date(trip.startDate).getTime();
+                      const end = new Date(trip.endDate).getTime();
+                      const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                      return ` · ${duration} day${duration !== 1 ? 's' : ''}`;
+                    })()}
                   </p>
                 </div>
               </div>
@@ -608,6 +727,79 @@ export default function TripsPage() {
                 }}
               >
                 ✓ Duplicate
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && tripToDelete && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.6)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}
+        onClick={() => setShowDeleteModal(false)}
+        >
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '2rem',
+            maxWidth: '400px',
+            width: '90%',
+            textAlign: 'center',
+          }}
+          onClick={(e) => e.stopPropagation()}
+          >
+            <h2 style={{ margin: '0 0 1rem', fontSize: '1.5rem', color: '#dc2626' }}>
+              Delete Trip?
+            </h2>
+            <p style={{ color: '#64748b', marginBottom: '1.5rem' }}>
+              Are you sure you want to delete "<strong>{tripToDelete.name}</strong>"?
+              <br />
+              This cannot be undone.
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  background: 'white',
+                  color: '#64748b',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  deleteTrip(tripToDelete.id);
+                  setShowDeleteModal(false);
+                  setTripToDelete(null);
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: '8px',
+                  border: 'none',
+                  background: '#dc2626',
+                  color: 'white',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                🗑️ Delete
               </button>
             </div>
           </div>

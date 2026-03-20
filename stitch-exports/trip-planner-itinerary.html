@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "tertiary": "#b61722",
+              "inverse-primary": "#adc6ff",
+              "background": "#f7f9fb",
+              "secondary-container": "#b6ccff",
+              "secondary-fixed-dim": "#b1c6f9",
+              "on-surface": "#191c1e",
+              "on-error-container": "#93000a",
+              "inverse-surface": "#2d3133",
+              "primary": "#0058be",
+              "surface-tint": "#005ac2",
+              "primary-fixed-dim": "#adc6ff",
+              "tertiary-fixed-dim": "#ffb3ad",
+              "surface-container-lowest": "#ffffff",
+              "secondary": "#495e8a",
+              "surface-variant": "#e0e3e5",
+              "on-error": "#ffffff",
+              "on-tertiary-fixed": "#410004",
+              "on-tertiary-container": "#fffbff",
+              "outline": "#727785",
+              "tertiary-fixed": "#ffdad7",
+              "on-secondary-fixed-variant": "#304671",
+              "secondary-fixed": "#d8e2ff",
+              "on-primary-fixed-variant": "#004395",
+              "on-background": "#191c1e",
+              "surface-container-high": "#e6e8ea",
+              "surface": "#f7f9fb",
+              "primary-fixed": "#d8e2ff",
+              "on-primary-fixed": "#001a42",
+              "surface-container": "#eceef0",
+              "on-surface-variant": "#424754",
+              "primary-container": "#2170e4",
+              "on-primary": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "error": "#ba1a1a",
+              "surface-container-highest": "#e0e3e5",
+              "outline-variant": "#c2c6d6",
+              "tertiary-container": "#da3437",
+              "surface-dim": "#d8dadc",
+              "on-tertiary-fixed-variant": "#930013",
+              "surface-container-low": "#f2f4f6",
+              "on-secondary-container": "#405682",
+              "inverse-on-surface": "#eff1f3",
+              "on-primary-container": "#fefcff",
+              "on-secondary": "#ffffff",
+              "surface-bright": "#f7f9fb",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed": "#001a42"
+            },
+            fontFamily: {
+              "headline": ["Be Vietnam Pro"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Be+Vietnam+Pro', sans-serif; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(25,28,30,0.06)]">
+<div class="flex justify-between items-center h-16 px-8 w-full">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tighter font-headline">Wanderlust</span>
+<nav class="hidden md:flex gap-6 items-center h-full">
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors font-headline font-bold tracking-tight" href="#">My Trips</a>
+<a class="text-blue-600 dark:text-blue-400 border-b-4 border-[#b61722] pb-1 font-headline font-bold tracking-tight" href="#">Explore</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors font-headline font-bold tracking-tight" href="#">Community</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-slate-50/50 transition-all active:scale-95">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+</button>
+<button class="p-2 hover:bg-slate-50/50 transition-all active:scale-95">
+<span class="material-symbols-outlined text-slate-600">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJqMp-S-U8iUrQGaBBNtpJcsZLh0EAxQF_jeysUrTGJoTSmxMT8xivrlue6BtQGqBvxX9MKNNvC1qbqI8ME0ke_mxvY9wTLktQByGbCn3xaQjsGAbUspeps6coxDjljn2O_HzXr-83qr8xXAHosHoKR4gaOuXLsGnFG2DV4KIjf8eYiwEaz5HVivKOYJ501n4qretsDszKaCwDM2dssRLXkfuq3oAFAeNVuqJ-sZ73dHm1j6r0srrywPKTAojD-UDN3Pr8R8S2QYv0"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Sidebar Shell -->
+<aside class="h-screen w-64 fixed left-0 top-16 bg-slate-50 dark:bg-slate-950 flex flex-col py-6 px-4 gap-2 font-['Be_Vietnam_Pro'] font-medium text-sm">
+<div class="mb-8 px-2">
+<h2 class="text-xl font-bold text-on-surface">Trip Planner</h2>
+<p class="text-xs text-slate-500">Paris Summer '24</p>
+</div>
+<nav class="flex flex-col gap-1">
+<div class="flex items-center gap-3 px-3 py-3 text-blue-600 dark:text-blue-400 font-bold border-r-4 border-[#b61722] bg-white dark:bg-slate-900 cursor-pointer transition-all hover:translate-x-1">
+<span class="material-symbols-outlined">event_note</span>
+<span>Itinerary</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-3 text-slate-500 dark:text-slate-500 hover:bg-white/50 dark:hover:bg-slate-900/50 cursor-pointer transition-all hover:translate-x-1">
+<span class="material-symbols-outlined">map</span>
+<span>Map</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-3 text-slate-500 dark:text-slate-500 hover:bg-white/50 dark:hover:bg-slate-900/50 cursor-pointer transition-all hover:translate-x-1">
+<span class="material-symbols-outlined">timeline</span>
+<span>Timeline</span>
+</div>
+<div class="flex items-center gap-3 px-3 py-3 text-slate-500 dark:text-slate-500 hover:bg-white/50 dark:hover:bg-slate-900/50 cursor-pointer transition-all hover:translate-x-1">
+<span class="material-symbols-outlined">payments</span>
+<span>Budget</span>
+</div>
+</nav>
+<div class="mt-auto px-2">
+<button class="w-full py-3 bg-primary text-on-primary rounded-lg font-bold flex items-center justify-center gap-2 active:scale-95 transition-transform">
+<span class="material-symbols-outlined">add</span>
+<span>Add Activity</span>
+</button>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="max-w-5xl mx-auto px-12 py-12">
+<!-- Hero Header -->
+<div class="mb-16">
+<span class="label-md font-label uppercase tracking-widest text-slate-500 mb-2 block">UPCOMING TRIP</span>
+<h1 class="text-7xl font-headline font-black tracking-tight text-on-surface -ml-1">Paris Summer '24</h1>
+<div class="flex gap-4 mt-6">
+<div class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="text-sm font-medium">July 12 — July 20</span>
+</div>
+<div class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full">
+<span class="material-symbols-outlined text-sm">group</span>
+<span class="text-sm font-medium">2 Travelers</span>
+</div>
+</div>
+</div>
+<!-- Content Grid: Itinerary Sections -->
+<div class="space-y-16">
+<!-- Day 1 Section -->
+<section>
+<div class="flex items-center justify-between mb-8 group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-primary flex items-center justify-center rounded-xl text-on-primary font-headline font-black text-xl">01</div>
+<h2 class="text-2xl font-headline font-bold">Day 1: Arrival &amp; Unwinding</h2>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">expand_more</span>
+</div>
+<div class="space-y-6 ml-6 border-l-2 border-slate-100 pl-10 pb-4">
+<!-- Flight Card -->
+<div class="relative bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(25,28,30,0.06)] group">
+<div class="absolute -left-[51px] top-8 w-4 h-4 rounded-full bg-primary border-4 border-white"></div>
+<div class="flex justify-between items-start mb-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-slate-100 rounded-lg flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Air France Airline Logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQloJmJkf2KG0SI-_0LTKADrvncUWyCXPW7Jg8ZKsk8oQsgBYfvFVntJV32271BA0EFhoNEP3lEiuVowyVRv7uhsugcuG8WWer0BsR4Fb36mmeYMGelKpRH5UhEKTYbvFTrUoYkVwCWLDpF687sGQ1JvsZWLRfw6QV2VOgS6GL-ZYbw6EwG1qCqugTV8SFipHkyYn4ht9xsEsDS4Wxt19TxlJeNh8bcrkBrL8vl08KrtMS6ixMkRLfaRWpYkJE77FFWlcrOrt8DfF4"/>
+</div>
+<div>
+<span class="label-md block font-label text-slate-500 uppercase tracking-tighter">FLIGHT • AF123</span>
+<h3 class="text-lg font-bold">Paris Charles de Gaulle</h3>
+</div>
+</div>
+<div class="text-right">
+<span class="label-md block font-label text-slate-500">CONFIRMATION</span>
+<span class="font-mono font-bold text-primary">ABC123</span>
+</div>
+</div>
+<div class="grid grid-cols-3 gap-8 p-4 bg-surface-container-low rounded-lg">
+<div>
+<span class="label-md block font-label text-slate-500 mb-1">DEPARTURE</span>
+<span class="text-lg font-bold">10:00 AM</span>
+</div>
+<div class="flex flex-col items-center justify-center px-4 border-x border-slate-200/50">
+<span class="material-symbols-outlined text-primary">flight_takeoff</span>
+<div class="w-full h-px bg-slate-200 my-1"></div>
+<span class="text-[10px] font-bold text-slate-400 uppercase">3H 00M</span>
+</div>
+<div class="text-right">
+<span class="label-md block font-label text-slate-500 mb-1">ARRIVAL</span>
+<span class="text-lg font-bold">1:00 PM</span>
+</div>
+</div>
+<div class="flex justify-between items-center mt-4 px-1">
+<div class="flex gap-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">meeting_room</span>
+<span class="text-sm font-medium">Term 2E, Gate K32</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-slate-400 text-lg">airline_seat_recline_extra</span>
+<span class="text-sm font-medium">Seat 12A</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">drag_indicator</span>
+</div>
+</div>
+<!-- Hotel Card -->
+<div class="relative bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(25,28,30,0.06)] group">
+<div class="absolute -left-[51px] top-8 w-4 h-4 rounded-full bg-slate-200 border-4 border-white"></div>
+<div class="flex gap-6">
+<div class="w-32 h-32 rounded-lg overflow-hidden shrink-0">
+<img class="w-full h-full object-cover" data-alt="Hotel Le Meurice Interior" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmNwPlyJMscNg7TSbMw9R30L8fobwx-n7WygCHx9kmRFqLDf9-1aivM9cel2c9mVpez93p-4iN6qpH7-udmHRFD3aeUFmZGtaaIakOdGX5Btp7JrEwQxFqGkF_W9-tAmjKBCwdK4wus02WyD92jnUB2Hf-GGKbw1AafSAo0AViLRT4TuRaS1w3Q7n9wGlsO0s6hVH5XkeG3xxDF9ScifW8GqNMkeOgLxNy2RCE_cxJVGu2PGhs96tqZ8R-EwkfVYQ2wLj1-PHo9z3x"/>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="label-md block font-label text-slate-500 uppercase tracking-tighter">STAY • HOTEL</span>
+<h3 class="text-xl font-bold">Hotel Le Meurice</h3>
+</div>
+<div class="text-right">
+<span class="label-md block font-label text-slate-500">CONFIRMATION</span>
+<span class="font-mono font-bold text-primary">XYZ789</span>
+</div>
+</div>
+<p class="text-sm text-slate-600 mb-4">228 Rue de Rivoli, 75001 Paris, France</p>
+<div class="flex gap-4">
+<div class="px-3 py-1.5 bg-surface-container-high rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">login</span>
+<span class="text-xs font-bold">CHECK-IN: 3:00 PM</span>
+</div>
+<div class="px-3 py-1.5 bg-surface-container-high rounded-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">wifi</span>
+<span class="text-xs font-bold">WIFI INCLUDED</span>
+</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab self-center">drag_indicator</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Day 2 Section -->
+<section>
+<div class="flex items-center justify-between mb-8 group cursor-pointer">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-slate-100 flex items-center justify-center rounded-xl text-slate-400 font-headline font-black text-xl">02</div>
+<h2 class="text-2xl font-headline font-bold">Day 2: Museums &amp; Mastery</h2>
+</div>
+<span class="material-symbols-outlined text-slate-400 group-hover:text-primary transition-colors">expand_less</span>
+</div>
+<div class="space-y-6 ml-6 border-l-2 border-slate-100 pl-10 pb-4">
+<!-- Activity Card: Louvre -->
+<div class="relative bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(25,28,30,0.06)] group">
+<div class="absolute -left-[51px] top-8 w-4 h-4 rounded-full bg-slate-200 border-4 border-white"></div>
+<div class="flex items-center gap-6">
+<div class="text-center w-16">
+<span class="text-sm font-black block">10:00</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase">AM</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">museum</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h3 class="text-lg font-bold">Louvre Museum</h3>
+<span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">drag_indicator</span>
+</div>
+<p class="text-sm text-slate-500 italic mt-1">"Focus on the Denon wing to see the Mona Lisa first."</p>
+</div>
+</div>
+</div>
+<!-- Activity Card: Lunch -->
+<div class="relative bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(25,28,30,0.06)] group">
+<div class="absolute -left-[51px] top-8 w-4 h-4 rounded-full bg-slate-200 border-4 border-white"></div>
+<div class="flex items-center gap-6">
+<div class="text-center w-16">
+<span class="text-sm font-black block">1:30</span>
+<span class="text-[10px] font-bold text-slate-400 uppercase">PM</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center text-orange-600">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-center">
+<h3 class="text-lg font-bold">Le Comptoir de La Gastronomie</h3>
+<span class="material-symbols-outlined text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab">drag_indicator</span>
+</div>
+<p class="text-sm text-slate-500 italic mt-1">Reservation confirmed for 2 people.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- Contextual FAB -->
+<button class="fixed bottom-10 right-10 w-16 h-16 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- Glassmorphism Preview Panel (Asymmetric Placement) -->
+<div class="fixed top-24 right-10 w-80 bg-white/40 backdrop-blur-xl rounded-xl p-6 border border-white/20 shadow-xl hidden xl:block">
+<h4 class="font-headline font-bold text-lg mb-4">Live Updates</h4>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="w-2 h-2 rounded-full bg-green-500 mt-2 shrink-0"></div>
+<div>
+<p class="text-sm font-bold">Flight On Time</p>
+<p class="text-xs text-slate-600">AF123 is currently scheduled for 10:00 AM departure.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-2 h-2 rounded-full bg-primary mt-2 shrink-0"></div>
+<div>
+<p class="text-sm font-bold">Weather: 24°C</p>
+<p class="text-xs text-slate-600">Sunny in Paris. Perfect for a walk in the Tuileries Gardens.</p>
+</div>
+</div>
+</div>
+<div class="mt-6 pt-6 border-t border-slate-200/20">
+<div class="rounded-lg overflow-hidden h-32 relative">
+<img class="w-full h-full object-cover grayscale opacity-50" data-alt="Small map of Paris city center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEk-iCjmWQb4Y1lLDSxSyy_D6mhIsnHQXQYJm3qTfObe9X5v8tmZ2u3PcSJrpAvHW_uovofJlzXjTBmCpo31dq_CG3aGyW45sYjf3Tp2MOW9_nLd25Elb3UfIeuve7aqR0ETFtnT5Sp5dURtKeRShr-3dDTK_c8t95RITV5EhliRyHNAyo1PuyJhS-yQl660_riWx-dhUATLYQO0GcnAlLm4rOQIIqWXwJ2cUB4TURnpxrs32t8smq_QciTw2ibob17BIHW2JH_Cp4"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="bg-primary text-on-primary text-[10px] font-bold px-2 py-1 rounded">VIEW MAP</span>
+</div>
+</div>
+</div>
+</div>
+</body></html>

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Wanderlust - My Trips</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800;900&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "tertiary": "#b61722",
+                "inverse-primary": "#adc6ff",
+                "background": "#f7f9fb",
+                "secondary-container": "#b6ccff",
+                "secondary-fixed-dim": "#b1c6f9",
+                "on-surface": "#191c1e",
+                "on-error-container": "#93000a",
+                "inverse-surface": "#2d3133",
+                "primary": "#0058be",
+                "surface-tint": "#005ac2",
+                "primary-fixed-dim": "#adc6ff",
+                "tertiary-fixed-dim": "#ffb3ad",
+                "surface-container-lowest": "#ffffff",
+                "secondary": "#495e8a",
+                "surface-variant": "#e0e3e5",
+                "on-error": "#ffffff",
+                "on-tertiary-fixed": "#410004",
+                "on-tertiary-container": "#fffbff",
+                "outline": "#727785",
+                "tertiary-fixed": "#ffdad7",
+                "on-secondary-fixed-variant": "#304671",
+                "secondary-fixed": "#d8e2ff",
+                "on-primary-fixed-variant": "#004395",
+                "on-background": "#191c1e",
+                "surface-container-high": "#e6e8ea",
+                "surface": "#f7f9fb",
+                "primary-fixed": "#d8e2ff",
+                "on-primary-fixed": "#001a42",
+                "surface-container": "#eceef0",
+                "on-surface-variant": "#424754",
+                "primary-container": "#2170e4",
+                "on-primary": "#ffffff",
+                "on-tertiary": "#ffffff",
+                "error": "#ba1a1a",
+                "surface-container-highest": "#e0e3e5",
+                "outline-variant": "#c2c6d6",
+                "tertiary-container": "#da3437",
+                "surface-dim": "#d8dadc",
+                "on-tertiary-fixed-variant": "#930013",
+                "surface-container-low": "#f2f4f6",
+                "on-secondary-container": "#405682",
+                "inverse-on-surface": "#eff1f3",
+                "on-primary-container": "#fefcff",
+                "on-secondary": "#ffffff",
+                "surface-bright": "#f7f9fb",
+                "error-container": "#ffdad6",
+                "on-secondary-fixed": "#001a42"
+              },
+              fontFamily: {
+                "headline": ["Be Vietnam Pro"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #191c1e;
+        }
+        .editorial-shadow {
+            box-shadow: 0 12px 40px rgba(25, 28, 30, 0.06);
+        }
+    </style>
+</head>
+<body class="bg-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(25,28,30,0.06)]">
+<div class="flex justify-between items-center h-16 px-8 w-full max-w-screen-2xl mx-auto">
+<!-- Brand & Search -->
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-blue-600 dark:text-blue-400 tracking-tighter font-['Be_Vietnam_Pro']">Wanderlust</span>
+<div class="hidden md:flex items-center bg-surface-container-low px-4 py-2 rounded-full w-64 group focus-within:ring-2 ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-outline text-lg" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-full placeholder:text-outline-variant font-body" placeholder="Search destinations..." type="text"/>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="hidden md:flex items-center gap-8 h-full">
+<a class="font-['Be_Vietnam_Pro'] font-bold tracking-tight text-blue-600 dark:text-blue-400 border-b-4 border-[#b61722] pb-1 h-full flex items-center" href="#">My Trips</a>
+<a class="font-['Be_Vietnam_Pro'] font-bold tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors h-full flex items-center" href="#">Explore</a>
+<a class="font-['Be_Vietnam_Pro'] font-bold tracking-tight text-slate-600 dark:text-slate-400 hover:text-blue-600 transition-colors h-full flex items-center" href="#">Community</a>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="p-2 text-on-surface-variant hover:bg-slate-50/50 rounded-full transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-on-surface-variant hover:bg-slate-50/50 rounded-full transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="User profile avatar close up" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBN62_RE4zB5a4bmr0Szx8VRA2JJSCFnRnKXaeY1jm1kVLyvuHFyWDSj3PrycZAvOs5EF6N3cKmYc11LYQR_lvqqwHGkcBstFWhRavwdTN_pbjdk0ET_uJi7LhLGO6xcE9AoHiy-D9KyuoIwjcIXBWg7iYM_GzciCsV1RysopfE_2IhM0GDZ0RYT68-hE1RScTeLSz1COzDyFfvMaYBKdU0zQKSM6fg20dG_itwbKcabytYBx2Sn-qxRfaFPQH-3PJ3HjEPzwHaIMdK"/>
+</div>
+</div>
+</div>
+</nav>
+<!-- Content Canvas -->
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto min-h-screen">
+<!-- Header Section -->
+<header class="mb-16">
+<h1 class="font-headline font-black text-5xl md:text-6xl text-on-surface tracking-tighter mb-4">My Trips</h1>
+<p class="font-body text-lg text-on-surface-variant max-w-xl leading-relaxed">
+                Revisit your favorite memories and upcoming adventures. Every journey starts with a single step and a well-curated plan.
+            </p>
+</header>
+<!-- Trips Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
+<!-- Trip Card 1: Paris -->
+<div class="group flex flex-col gap-6">
+<div class="relative aspect-[4/5] overflow-hidden rounded-lg editorial-shadow">
+<img alt="Paris city view" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="The Eiffel Tower at sunset in Paris" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYZuT_q__CBheavUO4oiAFeDw3Z_Zt1ivyJ00M8AET6OdeQ7Pz8EqxznUL_zG6Sv1x9wMCnjS1qcgYqgRCep_ymR4Z3AoGAzUNTjoUwTSiIz6weFAyEpVI6PkbgusvELeHz4BiW61dRYy37COzPoZ0et1NBXOG4JWlBqa7TIuZejELYaR81RYZce7uz-FaOd17GATmqmDW_j4bZNO9PJZ42tZUlxQm5HhjMbS1oVGuJeYFXluPvG_DZxmTKCUiUpukZ_T-XC_8G_VA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="absolute top-6 right-6">
+<button class="bg-white/90 backdrop-blur p-2 rounded-full text-on-surface shadow-sm hover:bg-white transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<div class="px-2">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label text-[10px] uppercase tracking-widest text-primary font-bold">UPCOMING</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<h3 class="font-headline font-bold text-2xl mb-1 group-hover:text-primary transition-colors">Paris, France</h3>
+<p class="font-body text-on-surface-variant text-sm">Jun 12 - 20, 2024</p>
+</div>
+</div>
+<!-- Trip Card 2: Tokyo -->
+<div class="group flex flex-col gap-6 lg:mt-12">
+<div class="relative aspect-[4/5] overflow-hidden rounded-lg editorial-shadow">
+<img alt="Tokyo neon streets" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Tokyo Shinjuku district at night with neon lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBHga2qQ3JLbsGpDMZH-vFGCoxy2S48KrQ-wjkV1Q-TmDWAwCx4n4B2IqsKW4KnGUdOUTprGnfEDgctqNrBjKwgMTP-BVXtGRxiK7jp14Uy7KOP0o74wnieBgvShlUuwQ2iHoq7wfujmhqsMUjr1-QE5jH3NrQ5ycTSFWhB3HhmqInsVZ0y3gqhQ_6DgxZ5ScpNUUfQCNS4VbHEd-OLN_l4SlsiHNUEggM4I17fYOSR4oHtm6IHF4fqsrO65gYZroMALCzmMr1Md92B"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="absolute top-6 right-6">
+<button class="bg-white/90 backdrop-blur p-2 rounded-full text-on-surface shadow-sm hover:bg-white transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<div class="px-2">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label text-[10px] uppercase tracking-widest text-tertiary font-bold">CURRENT</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<h3 class="font-headline font-bold text-2xl mb-1 group-hover:text-primary transition-colors">Tokyo, Japan</h3>
+<p class="font-body text-on-surface-variant text-sm">Sep 05 - 18, 2024</p>
+</div>
+</div>
+<!-- Trip Card 3: New York -->
+<div class="group flex flex-col gap-6">
+<div class="relative aspect-[4/5] overflow-hidden rounded-lg editorial-shadow">
+<img alt="New York skyline" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Empire State Building and Manhattan skyline view" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUfRIxYBUjf1gSu1LXRwCfuuBepvCC1VjkRk4NlaYxh4fuyYTQuIOnzfLsMKvzVTJRpRzmYt1Q1LdPC02e-2uwCxB7l40tyd-i7Zs_f4EWxE9a0N-LjOIP5XtgtGGi8Bt3Zng_SVlukRp1yzPd9kvb4e98wuNSPN-ZJpescaY3UzQfCGEx4JuDshDSNzAjQlwgmVEPtvjfDHJjPunPGOkccZk5iyDR6ASM0WRrM8cl7YR4DRaoTZI-8XG8y4Et6GH-swNuyNXA8Mn7"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="absolute top-6 right-6">
+<button class="bg-white/90 backdrop-blur p-2 rounded-full text-on-surface shadow-sm hover:bg-white transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<div class="px-2">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">PAST</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<h3 class="font-headline font-bold text-2xl mb-1 group-hover:text-primary transition-colors">New York, USA</h3>
+<p class="font-body text-on-surface-variant text-sm">Dec 20 - 28, 2023</p>
+</div>
+</div>
+<!-- Trip Card 4: Rome (Asymmetric placement example) -->
+<div class="group flex flex-col gap-6 lg:mt-12">
+<div class="relative aspect-[4/5] overflow-hidden rounded-lg editorial-shadow">
+<img alt="Rome Colosseum" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="The Roman Colosseum under clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjHgbIOfy-xHn_QlWH07dLMDI7A-0Vf_vILdcd1lrdtoQrTdzX6WoW690KO9_yz_GFfzva-81NeiBFxMiyDFalZNNl0lRk5r4o3YrnpTUJXFLvgqHdA7azW-lx3pD0qjrP9TxjNJp-nU2DKEY05RC0waVOPGKrwgAjndo0DmLFy075kmjyKQB2MSjX1vaDsW4oZqCgbbI36drzUzSz7JIKdsMsi99eAYoGYwn4ujxo3dNX9BVNKp9C4Lr01hDW6ujbOuGQgkvcYnmr"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<div class="absolute top-6 right-6">
+<button class="bg-white/90 backdrop-blur p-2 rounded-full text-on-surface shadow-sm hover:bg-white transition-colors active:scale-90">
+<span class="material-symbols-outlined text-xl" data-icon="share">share</span>
+</button>
+</div>
+</div>
+<div class="px-2">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">PAST</span>
+<div class="h-[1px] flex-grow bg-outline-variant/30"></div>
+</div>
+<h3 class="font-headline font-bold text-2xl mb-1 group-hover:text-primary transition-colors">Rome, Italy</h3>
+<p class="font-body text-on-surface-variant text-sm">May 14 - 21, 2023</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-12 right-12 flex items-center gap-3 bg-gradient-to-br from-primary to-primary-container text-on-primary px-6 py-4 rounded-full editorial-shadow hover:scale-105 transition-all active:scale-95 group z-[100]">
+<span class="material-symbols-outlined text-2xl" data-icon="add">add</span>
+<span class="font-headline font-bold tracking-tight">Create Trip</span>
+</button>
+<!-- Bottom Navigation (Mobile Only) -->
+<div class="md:hidden fixed bottom-0 w-full bg-white/95 backdrop-blur-lg px-8 py-3 flex justify-between items-center z-[90]">
+<button class="flex flex-col items-center gap-1 text-primary">
+<span class="material-symbols-outlined" data-icon="travel_explore" style="font-variation-settings: 'FILL' 1;">travel_explore</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">My Trips</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Explore</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Community</span>
+</button>
+<button class="flex flex-col items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter">Profile</span>
+</button>
+</div>
+</body></html>

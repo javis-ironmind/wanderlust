@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Travel Journals | The Editorial Wanderer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#7f2a12",
+              "secondary-fixed-dim": "#c4c9b1",
+              "surface-container": "#e0f0fb",
+              "tertiary-container": "#8e6f4e",
+              "surface-bright": "#f4faff",
+              "outline-variant": "#ddc0b9",
+              "on-surface": "#0e1d25",
+              "surface-tint": "#9e4127",
+              "on-tertiary-container": "#fffbff",
+              "tertiary-fixed-dim": "#e5c099",
+              "on-tertiary-fixed-variant": "#5c4224",
+              "background": "#f4faff",
+              "on-error": "#ffffff",
+              "on-secondary-fixed-variant": "#444937",
+              "surface-dim": "#ccdce7",
+              "primary-container": "#bb563b",
+              "on-tertiary-fixed": "#2b1701",
+              "error-container": "#ffdad6",
+              "inverse-surface": "#23323a",
+              "on-secondary-fixed": "#191d0e",
+              "outline": "#89726c",
+              "inverse-on-surface": "#e3f3fd",
+              "secondary-container": "#e0e5cc",
+              "tertiary-fixed": "#ffddbb",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#e7f6ff",
+              "surface": "#f4faff",
+              "secondary-fixed": "#e0e5cc",
+              "secondary": "#5c614d",
+              "on-surface-variant": "#56423d",
+              "on-secondary": "#ffffff",
+              "primary": "#9b3f25",
+              "on-background": "#0e1d25",
+              "surface-container-highest": "#d5e5ef",
+              "primary-fixed": "#ffdbd1",
+              "error": "#ba1a1a",
+              "tertiary": "#735737",
+              "primary-fixed-dim": "#ffb5a1",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#daebf5",
+              "on-secondary-container": "#626753",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#3b0800",
+              "inverse-primary": "#ffb5a1",
+              "on-primary-container": "#fffbff",
+              "surface-variant": "#d5e5ef"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .masonry-grid {
+            column-count: 1;
+            column-gap: 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+        @media (min-width: 1024px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body selection:bg-primary-fixed selection:text-on-primary-fixed">
+<!-- Shared TopNavBar -->
+<header class="bg-[#f4faff]/70 dark:bg-[#0e1d25]/80 backdrop-blur-md docked full-width top-0 sticky z-50 shadow-[0_8px_24px_rgba(14,29,37,0.06)]">
+<nav class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-serif italic text-[#9b3f25] dark:text-[#bb563b]">The Editorial Wanderer</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors font-sans" href="#">Explore</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors font-sans" href="#">Itinerary</a>
+<a class="text-[#9b3f25] dark:text-[#bb563b] border-b-2 border-[#9b3f25] pb-1 font-bold font-sans" href="#">Journals</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors font-sans" href="#">Wishlist</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-[#e7f6ff]/40 dark:bg-[#1a2b36]/40 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48 font-sans" placeholder="Search stories..." type="text"/>
+</div>
+<button class="p-2 hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] rounded-full transition-all duration-300">
+<span class="material-symbols-outlined text-[#9b3f25]" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] rounded-full transition-all duration-300">
+<span class="material-symbols-outlined text-[#9b3f25]" data-icon="settings">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full bg-surface-container overflow-hidden ml-2 border-2 border-primary-fixed cursor-pointer">
+<img alt="User profile avatar" data-alt="Close up portrait of a smiling person with short hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjUTo_bZLzbyvBExNEGcwIyyBCh_Dms42QFa3_7FaCZPgNJZPKjv1tOHWSGKt_fjLPR-7tIt9uWJI0aOYBavxR0LUH5b2vhQQBS43aUc2fgJBBlpyN7Q-vPmm5g6dxLeq7FL6Z_3oxvoIyBo7RTnTb6n0jqjZNBZf2TY3p4OGZEg1me1wJRPaC3mjo5XlMV0M8g03G89xOPEUUr8Y23Q1boT9c8oHyQCgO7Vru7Pqk9Sfl8R-ZujiR6tzAut6JcRQdOQyBnF2YIBc"/>
+</div>
+</div>
+</nav>
+</header>
+<main class="max-w-screen-2xl mx-auto px-8 pt-12 pb-24">
+<!-- Editorial Header Section -->
+<section class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="max-w-2xl">
+<span class="text-primary font-bold tracking-[0.2em] text-xs uppercase mb-4 block">Shared Journeys</span>
+<h1 class="font-headline text-5xl md:text-6xl text-on-surface leading-tight">The Collective <span class="italic text-primary font-normal">Journal</span></h1>
+<p class="mt-6 text-lg text-on-surface-variant leading-relaxed font-body max-w-xl">
+                    Quiet observations, accidental detours, and the small magic of moving through the world. Read stories from fellow wanderers.
+                </p>
+</div>
+<div class="flex-shrink-0">
+<button class="group bg-gradient-to-br from-primary to-primary-container text-on-primary px-8 py-4 rounded-full font-semibold shadow-[0_8px_24px_rgba(155,63,37,0.15)] flex items-center gap-3 transition-transform active:scale-95">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+<span>Write a New Journal</span>
+</button>
+</div>
+</section>
+<!-- Masonry Journal Feed -->
+<div class="masonry-grid">
+<!-- Journal Card 1: Large Featured -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group transition-all duration-300 hover:shadow-[0_12px_32px_rgba(14,29,37,0.08)]">
+<div class="relative overflow-hidden aspect-[4/5]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Traditional market in Marrakech with hanging lanterns and colorful rugs" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbfIIl_3J6WmN0aK-R8Mesjbk_WugBTuv4CsDdQXqKem6wst4pAwUO4LTHUDSVFPtpfWKiIr4zG18E_2a1ErUMMImqqUtmg88GhRrXedCY7RYiX4R-7v1R-gfjWD814yg5y5NCGVwYkUop8LABVJcRD_DR482iv9CyoX2mHyTPOKtihsmsEtiE1T9veCsRcXmouXlEpooMChtwKqRSByBTCM67fLAzaYjZugQCTfXvtiNSsclV_hDNYx-UMjNDFW0eu8iziFNBx1g"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/70 backdrop-blur-md text-on-surface px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Marrakech</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-2xl mb-3 leading-snug group-hover:text-primary transition-colors">Lost in the Souks of Marrakech</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3 mb-6">
+                        The air was thick with the scent of cumin and tanned leather. I turned a corner, then another, until the map in my hand became irrelevant and the city began to speak...
+                    </p>
+<div class="flex items-center justify-between border-t border-outline-variant/20 pt-6">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full" data-alt="Woman with blonde hair smiling softly" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCql0G-byCB46eNgfVEah6eD_8R6TXxKfTQlwgJsQEJJvqEO7obp1a-6luY9c4pclXqpJ6mpkupaHBdmANEk4qk2AKE8Bw5tyZjAx_HIW9PRmQL-K7a6D3KlLZzlV7nBbnr5gj9YfTuYYu6VzaICLhKDZNSxzXzMau5ZnDx7UcpRe_72q6bjfbVm9sbiJ87b49pmNDdnwKTzyv4hVASdwMnie9QDZOlG5hMkW6UinepYhVIkap3X68WyRhoDdvWs-6RUm4E5koCm9A"/>
+<span class="text-xs font-semibold text-on-surface">Elena Vance</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-primary hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-xs font-medium">1.2k</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Journal Card 2: Nature/Quiet -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group">
+<div class="relative overflow-hidden aspect-square">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Distant snow-capped mountains under a clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZto_hScfRUlHnuqHa3VOken7sVD6RZYSZkW9FEILvH48jW0Zv5AjMJ20mkhe7Wv2GJ_BRljynPqzz5H5PLetm4aEVqmH2PNBvbm26JY7gY2V0wH4kjwawjRTy9lYfYPIdVSmxXdlkn5vFovwbwxjxwM1PQ_dENL5near22RtyWlyrif4XBUURyzvgc3MkOJXzpT9LI0c2Vt9NTGQxjg1sAQmQB906qAtkbzo4q0ArJQRc24w2atVw0p13b3fhp5s3PuhySaMAcbs"/>
+<div class="absolute top-4 left-4">
+<span class="bg-secondary-container/80 backdrop-blur-md text-on-secondary-container px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Alps</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-xl mb-3 leading-snug">Morning Mist in the Bernese Highlands</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2 mb-6">
+                        There is a specific kind of silence that only exists at 2,000 meters. 
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full" data-alt="Man with a beard looking thoughtfully away" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4LRs_xmUz4F81CxvrsFpEN6-tc67mLZUkIlLqzjX7lbIbJxOX9YAKR01TwEu_LFDYoNm5DgpFFPiW1FBK9ZOGlvVjNuZk-7CrUE0GcMEA4dDVznol30cqP1wKIhMs_OLBndm67i8imzj4OGoGPPyyV_tX7mptLPV3uph8IhHoRKnAgvM7D3P72eoTkOKfSAxqmuC93St8R8D_uTugsNHWZqDqoNvtZO61NXqsbZWt3VyBmSsQv8zNXMu5l__TyTjHC-e2qqemcoM"/>
+<span class="text-xs font-semibold text-on-surface">Julian Thorne</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-xs">482</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark" style="font-variation-settings: 'FILL' 1;">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Journal Card 3: Urban/Street -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group">
+<div class="relative overflow-hidden aspect-[3/4]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Bustling neon-lit street in Tokyo at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB40XEkvRi8xk4y3W-tOJvkLdXuQIWfwnOda_j8cJTsuSq2FnB_PidkNRIE6f2B1pLummmLXoczU27Mjvk0kMqdwD5TM9ofe6otM4VYinjHZ75PEFd_87fD0jH4QI5M0I5pjYu8JRXQ_d3P77FbPyH80Kk4ezXBG3S5YVp3lnR0LypncYeQCM4_A_Py9JGm16fE84xEJdJxa6sSGJii0O07OsVbfvcTJ6wDXIoxQFccmoU8jLZYDJ8NCt1rJYDa-hEt4275_C2eqxI"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/70 backdrop-blur-md text-on-surface px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Tokyo</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-2xl mb-3 leading-snug">Neon Reverie: Tokyo After Midnight</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3 mb-6">
+                        When the trains stop, the city exhales. I found a small six-seat bar in Golden Gai where the music was exclusively 1970s jazz and the whiskey was served with a single, perfectly carved sphere of ice.
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-xs font-bold text-on-tertiary-fixed">MS</div>
+<span class="text-xs font-semibold text-on-surface">Mika Sato</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-primary transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="favorite" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-xs">2.4k</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Journal Card 4: Coastal -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group">
+<div class="relative overflow-hidden aspect-[4/3]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="A lonely beach with white sand and azure water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmKtOkvZdhYn1xoTLeFwvesINl0N2DfeFr_jYSsKNOfbc5kkwvrAmgzz5rNkP9MfwcEjTIPeMzP_moDIw_KCPn0kbYQH7Y3sLa9IyT8MdqhW6MePN26dJi_uHGGLHL_tTsDKUCrsRaIEXRaCahN_IWLFejcAvwB2G4FeNFqcOGyBVyhb4Vg8arfXC04Upbog77E-q110zrxc5Iuxnl_QwLuhfajDCgI2UZq_URV3pZ0LybBObYF0WQ-58x_gH0EjSvohE4UoXbd7Y"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/70 backdrop-blur-md text-on-surface px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Crete</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-xl mb-3 leading-snug">Finding the Edge of the World</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-2 mb-6">
+                        Walking the southern coast of Crete, where the Libyan Sea meets the cliffs in a violent, beautiful embrace.
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full" data-alt="Woman with dark hair looking confident" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD09OIwDQ1uE2SzCkNaAvwJnvtC9QiIsGAZ_TfwVr6lUyuNRc2aXD_F0QjZi2GZ1gJYIVyoKk4ahpM-QKmM9DBJwlXgTKu-nkI8uJqsB2CZMpd2RV0NYFwMkC2fUZkWRsr3TsZUNmBtLH_LWZSjFabywIqkTpx1e9oJvbzKl01yCHIiF7XMTNz-elqt27P27lmAFw4-8NrIn6fgSeZP2lg6FaKXflICWBclYphSMWxe97kPReVzge2kAfY5Cs5UrzJvTEjwX3bbCts"/>
+<span class="text-xs font-semibold text-on-surface">Sarah Jenkins</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-xs">315</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Journal Card 5: Lifestyle/Food -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group">
+<div class="relative overflow-hidden aspect-video">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Rustic dinner table with pasta, wine, and candles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDExH5kJJM3nEkTmT4uy1Kd6aNr2KYpHYLW6RpOVBMqB2T0lolER7frAFC7xSHaTDrkelshXruRhFK5SxA3mdVl5VPgK3Zj6wruQSN9Op3bIOZJWXf22T41Z8JcjMYHAqAOKBCe8541OVgpGjr--imsXZ0WaFIyr1nTNOPxMjbJfrJDHYo--y_Fffughu1IRSpEUzAlf6P95IXxpNrcarn38gXcIR4ZSfG_zaIvGXRpvotEaw8S0_MCPShBLL8zG_T7LiKfVm1ruMo"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/70 backdrop-blur-md text-on-surface px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Tuscany</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-xl mb-3 leading-snug">The Ritual of the Long Sunday Lunch</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3 mb-6">
+                        Four hours. Six courses. Three generations of the Conti family. This is how Tuscany taught me to stop rushing through my life.
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full" data-alt="Smiling woman with long brown hair" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMFlw8ZQqbS0sRuUP4sLONJkbo5mYHvwnGv8FSL1ociOkvfzMQMbvR7xGlfXC-VFO69KOQ9FiX53e7zrp_Kw0prYGdQTUom1iZfrVHuK-Xdr3-6wojCr1LV3wDkxXsgmmcIkBnwaOeuBVHr-flE1HtujzFO245C_wFgjEHxsUpc4IkZxRkjaWEDd4Re-SIgz0KRRik02GgEHjlualyCCF--lTJ0-XLW2x64pBatHnpTTT4VQIH3g5e33GX64ZrfLnRh3DsrPJ0YR8"/>
+<span class="text-xs font-semibold text-on-surface">Clara Rossi</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-xs">921</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Journal Card 6: Desert -->
+<article class="masonry-item bg-surface-container-lowest rounded-xl overflow-hidden shadow-[0_8px_24px_rgba(14,29,37,0.04)] group">
+<div class="relative overflow-hidden aspect-[4/5]">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Desert sand dunes under a golden sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVGGbe1o9o5jEuDD5b2PK7tCZ1WPQ_gazg9EuUwftyRBFvVO5z3jdEsntYbYKz15xDA1q__4uZf8c4qLlx5uXAPBH6mlaL2S4n5pTjspnlfjq2nk6XKp7cihoPeSMLI3eXpF6oqC1OKu8YT0oCd2p4VCg_WSGUZ0BpjZV34lR9EIc_dwpJtTwBZkPkvXThuAfqXWZCkE5f4mCYrX7Wdt967WdLUEUdpVWgj5hzMn8AEqMD--BK9O_LIH-lUSAcApaQ-Nk4e707QW8"/>
+<div class="absolute top-4 left-4">
+<span class="bg-surface/70 backdrop-blur-md text-on-surface px-3 py-1 rounded-full text-xs font-medium uppercase tracking-wider">Wadi Rum</span>
+</div>
+</div>
+<div class="p-6">
+<h2 class="font-headline text-2xl mb-3 leading-snug">Red Sands and Starlit Skies</h2>
+<p class="text-on-surface-variant text-sm leading-relaxed line-clamp-3 mb-6">
+                        Sleeping in a Bedouin camp changed my perspective on "necessity." When the stars are that bright, you don't need electricity.
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<img class="w-8 h-8 rounded-full" data-alt="Man with a friendly smile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBs07YaKnTvzZbNC8Yo7LnGn-Hk1JWGBaaqreetWAi6SCZF5Uk0UAj5ewkQ-Br3gMjtZhBsvmMvy-ZIucWf55X1n1C0D6ATC0i1oB1fNHLVSiNNnNl5ZNNfwFKS3ltG1vMBNlf_7lRrCTcS5gZMj7d74k5nwy9k24X-K2CkUpuQWH2xcuI8yqS-KGQqo_fjqByNtNpec5xPshyRS42zngJ32tiVXgQWxoxFXy86bxq68oUbTq5tmrDB-pqTlEorE7LDT3YTANR1AxY"/>
+<span class="text-xs font-semibold text-on-surface">David Chen</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="favorite">favorite</span>
+<span class="text-xs">1.8k</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-sm" data-icon="bookmark">bookmark</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Load More Section -->
+<div class="mt-16 text-center">
+<button class="bg-surface-container-low text-secondary font-semibold px-10 py-4 rounded-full hover:bg-secondary-container transition-colors duration-300">
+                Turn the Page
+            </button>
+</div>
+</main>
+<!-- Floating Action Button (FAB) -->
+<button class="fixed bottom-8 right-8 md:hidden w-14 h-14 bg-primary text-on-primary rounded-full shadow-xl flex items-center justify-center transition-transform active:scale-90 z-50">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+</button>
+<!-- Footer -->
+<footer class="w-full mt-20 bg-[#e7f6ff] dark:bg-[#0a141a]">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full border-t border-[#ddc0b9]/20 max-w-screen-2xl mx-auto">
+<div class="mb-8 md:mb-0">
+<span class="font-serif text-lg text-[#9b3f25] block mb-2">The Editorial Wanderer</span>
+<p class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d]">© 2024 The Editorial Wanderer. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all" href="#">About Us</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all" href="#">Press</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all" href="#">Privacy Policy</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all" href="#">Terms of Service</a>
+<a class="font-sans text-sm tracking-wide text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all" href="#">Contact</a>
+</div>
+<div class="flex gap-4 mt-8 md:mt-0">
+<a class="text-secondary hover:text-primary transition-colors" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"></path></svg>
+</a>
+<a class="text-secondary hover:text-primary transition-colors" href="#">
+<svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"></path></svg>
+</a>
+</div>
+</div>
+</footer>
+</body></html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#7f2a12",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#ddc0b9",
+              "on-tertiary-fixed": "#2b1701",
+              "surface-container-low": "#e7f6ff",
+              "on-secondary-fixed": "#191d0e",
+              "error": "#ba1a1a",
+              "on-secondary-fixed-variant": "#444937",
+              "surface-bright": "#f4faff",
+              "inverse-surface": "#23323a",
+              "error-container": "#ffdad6",
+              "surface-variant": "#d5e5ef",
+              "on-secondary-container": "#626753",
+              "on-primary-fixed": "#3b0800",
+              "tertiary-container": "#8e6f4e",
+              "surface-dim": "#ccdce7",
+              "surface-container-highest": "#d5e5ef",
+              "on-tertiary-container": "#fffbff",
+              "surface-container-high": "#daebf5",
+              "primary-container": "#bb563b",
+              "on-surface": "#0e1d25",
+              "on-background": "#0e1d25",
+              "on-surface-variant": "#56423d",
+              "tertiary-fixed": "#ffddbb",
+              "surface-container": "#e0f0fb",
+              "surface": "#f4faff",
+              "primary-fixed-dim": "#ffb5a1",
+              "secondary-container": "#e0e5cc",
+              "primary-fixed": "#ffdbd1",
+              "on-tertiary": "#ffffff",
+              "on-error": "#ffffff",
+              "tertiary": "#735737",
+              "on-error-container": "#93000a",
+              "background": "#f4faff",
+              "on-primary-container": "#fffbff",
+              "surface-tint": "#9e4127",
+              "on-primary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#89726c",
+              "on-tertiary-fixed-variant": "#5c4224",
+              "tertiary-fixed-dim": "#e5c099",
+              "inverse-primary": "#ffb5a1",
+              "inverse-on-surface": "#e3f3fd",
+              "secondary-fixed": "#e0e5cc",
+              "secondary-fixed-dim": "#c4c9b1",
+              "secondary": "#5c614d",
+              "primary": "#9b3f25"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-primary-fixed-dim selection:text-on-primary-fixed">
+<!-- TopAppBar -->
+<header class="bg-slate-50/70 backdrop-blur-md docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-serif italic text-orange-900">Wanderer</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-orange-900 border-b-2 border-orange-800 pb-1 font-semibold" href="#">Explore</a>
+<a class="text-slate-600 hover:text-orange-800 transition-colors" href="#">Journal</a>
+<a class="text-slate-600 hover:text-orange-800 transition-colors" href="#">Plan</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-slate-100/50 border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-sm w-64" placeholder="Search destinations..." type="text"/>
+</div>
+<button class="p-2 hover:bg-slate-100/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-600" data-icon="notifications">notifications</span>
+</button>
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover border-2 border-surface shadow-sm" data-alt="User traveler profile avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAly0z1WDXoNgc3_6cFMvrqOiLbexcdcsF755pWvxIsIy1ZUP6sgKT5i-Z3mXZd_Rlq59fnjQcZ0r52T7oe_YbCAeMBJAJ4BmwODfFPsL8CFiUiMY4ohvx0lJI8m4peYOVvxpKM6aHeQxq0g7jNs-B4jE9bp4lrMxYNiFaCGPfBRd9PzFmF2PP3VnIgNaW-Ct6NZd617cGV31G76BH0Rm4WhnNGaX-nvHW7xULZjYKnAEBla_PBbtZvSjMb9n0IB1aQEkbOtV1z93E"/>
+</div>
+</div>
+<div class="bg-slate-200/50 h-[1px] w-full"></div>
+</header>
+<main class="max-w-screen-2xl mx-auto px-6 py-12 pb-32">
+<!-- Hero / Welcome Section -->
+<section class="mb-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="max-w-2xl">
+<h1 class="font-headline text-5xl md:text-6xl text-on-surface leading-tight mb-4">Your Curated <span class="italic text-primary">Journeys</span></h1>
+<p class="text-lg text-on-surface-variant leading-relaxed opacity-80">Welcome back, wanderer. Your upcoming adventures and past memories, organized in one beautiful journal.</p>
+</div>
+<div class="hidden lg:block bg-secondary-container p-6 rounded-xl rotate-3 shadow-sm border border-white/20">
+<div class="flex items-center gap-3 mb-2">
+<span class="material-symbols-outlined text-secondary" data-icon="lightbulb">lightbulb</span>
+<span class="font-semibold text-on-secondary-container">Travel Tip</span>
+</div>
+<p class="text-sm text-on-secondary-container max-w-[200px]">The Amalfi Coast is best explored by boat during sunset hours.</p>
+</div>
+</div>
+</section>
+<!-- Trips Bento-inspired Grid -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Trip Card 1: Large Featured -->
+<div class="group relative md:col-span-2 overflow-hidden rounded-xl bg-surface-container-lowest shadow-sm transition-transform duration-300 hover:-translate-y-1">
+<div class="aspect-[16/9] md:aspect-[21/9] overflow-hidden">
+<img alt="Amalfi Coast" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Stunning aerial view of Amalfi Coast colorful houses" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQUW7JTaAJiru8IgoKX9tSCgwaZ5wfLxZG6XTYcWvUtlsy2cP0vrF59WMTxF_PVu1dPyQnAGncmWem8bcyevPQYEPkkc3TP3IigyZrpdyYXAMkiPU9W6Ygobu6ISm_nhbmWUPQis3k5EUGiPqWa9mfl-ZGEKnwJaw2ydVmIEw09W-pgacYzsh0aNlimAyiQgoQrnegD2SPupkOJWkFYhXjm_VOTFGhtE7-ZsWSwtfbNXdtsWFRq5U1aO29m286waKtnA4Yu1lg5R0"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 via-transparent to-transparent"></div>
+</div>
+<div class="absolute bottom-0 left-0 p-8 text-white w-full flex justify-between items-end">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="bg-white/20 backdrop-blur-md px-3 py-1 rounded-full text-xs font-medium uppercase tracking-widest">Upcoming</span>
+</div>
+<h2 class="font-headline text-4xl mb-1">Amalfi Coast</h2>
+<p class="text-white/80 font-medium">Sept 12 - 22, 2024</p>
+</div>
+<div class="flex -space-x-3">
+<img class="w-10 h-10 rounded-full border-2 border-white object-cover" data-alt="Friend avatar male" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhSmKNfZafLbPvzAtlpRbfnthBlGa8QgDJTizJ9hJF3Tff0uao6ojN1v9zUl4VcrmTNSGGW8CFxbfcf3_gAlxpAs_gZ-rhLePFMjfmYi2wrEdKdtG0piV8xlnrUwxVZFrVqMW_-DhzX6OzE9rZLnXE1RxX6GE10fgperpQBideTZgmeHPrJPxcPzYo9QbcmZ-taYbVtQdqSlYJKtl6C8H6o_ui1IogaxPsn_DxUtXGF6eWyRtdeTd20xnzCXpZzsupackmgNI9Ub0"/>
+<img class="w-10 h-10 rounded-full border-2 border-white object-cover" data-alt="Friend avatar female" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzi1_wGl-9CHEG2LADyPIGl9yY3qN6n0na-QqlWU-BEdT8N-F2bhw73Rc7gP9igS7hMYewEP_OHdOMLuNvslEgChXOw5BerIkbq81RXQcCAM8J8o6kR0YfavwWi2VskyYs3XCUXqs1CQj0FQvI5BxyXLRumRYha_hljhLUe2jmf-TzRhiU14QrVClwyhdhhg5pACOjd1TqIZe5viG8mLckjLJ93jN_EpAeZjUXUDUtluNn5bhjlk2m044KceFRpUsbLjPTCphl3Y4"/>
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center border-2 border-white text-xs font-bold">+2</div>
+</div>
+</div>
+</div>
+<!-- Trip Card 2 -->
+<div class="group flex flex-col rounded-xl bg-surface-container-lowest shadow-sm transition-transform duration-300 hover:-translate-y-1">
+<div class="aspect-square overflow-hidden rounded-t-xl">
+<img alt="Kyoto Temples" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Golden Pavilion temple in Kyoto Japan surrounded by autumn leaves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkE_K5A4nwbTcGaJo8s0IMdb6gjzZCRGvgkR70qfuTGMgP3hytEniH-27jNekz0j58fm-qImj9ebh5l8rmo4NdAPSO6jYeZOBjrK39YUSJuYQtXrIEIWsiD_PAKErsFn0YFj47-YJK9IPzSX1y01n54-m9HW-T72Fvi67aFUVKF3mjGoEZ4imy_QrAGaN_1Dm4242Byk9fxkGMaQVx1C1PKIXGjMq6q4sDQ4OcdyTB60r-WTQ3VdRYhhZnPliGRC0XlsDy3pPmnM4"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-2xl text-on-surface mb-1">Kyoto Temples</h3>
+<p class="text-sm text-on-surface-variant">Oct 05 - 15, 2024</p>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Travel partner avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2yRz-yIeQ_fr3xmxESMzo10rJmrbFCjdffxJrlBlS-0U9lZ18URFIzI8Q0Ml7xb0iF9XKq8Ru1KPwHKJI-gfuBaB6cJ6wa4iHsNArNJO2XirT0HBrAfp-ua4nJ2NVJYlsAAg3KkGjrAOcoumx_8pjk61wzGHT-W4wglg-AdgyfGUc0fW4Lgna_h6rSWgtv9IVL4045ZH6VXtnOoGxV7ZjNlKQv4IK6KUKpuThpxDG8lhb4HP6JD1xkE6OBgIfTkfP4xN0nd49eUs"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-secondary-container text-on-secondary-container text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-tighter">Culture</span>
+<span class="bg-surface-container text-on-surface-variant text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-tighter">Planned</span>
+</div>
+</div>
+</div>
+<!-- Trip Card 3 -->
+<div class="group flex flex-col rounded-xl bg-surface-container-lowest shadow-sm transition-transform duration-300 hover:-translate-y-1">
+<div class="aspect-square overflow-hidden rounded-t-xl">
+<img alt="Icelandic Roadtrip" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Rugged Icelandic landscape with a road leading to mountains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBcpLa9Aw3mhhu7Xa0EUFx8c0h0LTs2TJ2rZARQkX8NUfCXia6vt2-qZwhKzSsX_robKUrZTJSIEUmgSVRUXsBL_ri9iq1kdKE-A-Sho4tuBGHYR8kC9smX9nimBk0iMfs1EC9XkcF0v7nk_HHfW4lCRuBfWQ3rlTdwPgw5q7ZYP7XlEl9IFKqrKQW2fInwEDv0CJGE59Xap1HeB1wBEvQeliok1zjV0YnmEEJJ5jhT9MnoTg0-AmwvOzqfG_mKq1J0UP3hchgP0Hs"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-2xl text-on-surface mb-1">Icelandic Roadtrip</h3>
+<p class="text-sm text-on-surface-variant">Nov 20 - 28, 2024</p>
+</div>
+<div class="flex -space-x-2">
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Travel partner avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaCGFGKy1UPRzBtoC1VocFEuQmXI2dyJ5bcxJDEw_WUD2PdZ6m_DYRV-IaARf1j2R6zsi_KOd8D4Za1daSopbyqH5T6iOimZrXJ7hXBhwpYRTzCawIaxZdGLP4t9qKYxvvqQHkBfutNv0yKdVj8BE_n9-kHUn0nBVpajUGPA4L1vTUoN7Gq_16fweXlVBfuPxNMUkg63qpb174mIkrXAVQMwfZeeRkuHF0NpDQFADjVHDrSkXA2KBaPUHBAExBJtlHOi3MXEmtSTs"/>
+<img class="w-8 h-8 rounded-full border-2 border-surface-container-lowest object-cover" data-alt="Travel partner avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9X2vrYaOXl6LzjO5i_y_gKjg7dek_sXXvYt3kdb92D2xaHXcfPajw7n2Oo80axX-w-kBXnEPfiAj1h8kP0I9Cyh83i3uan-3aNqXR_tZipOrFEjfBzSPZc92CQP5wg_0jfIHoLGjlwr7ynClAd9mZ5WtKvmMKjmeH71YvDy38ys2zQuFvL-SqKh6i7ujxerwBAFNZIOs5AnkXXc4LlayjSt6EJHB3N0kF7g1cNa_nTLoyYLQjDG0LifJLXENUtOHjk4TriPeNnEM"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-tighter">Adventure</span>
+<span class="bg-surface-container text-on-surface-variant text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-tighter">Drafting</span>
+</div>
+</div>
+</div>
+<!-- Trip Card 4 (Small/Minimal) -->
+<div class="group relative flex flex-col justify-center items-center p-8 rounded-xl bg-surface-container border-2 border-dashed border-outline-variant/30 hover:bg-surface-container-high transition-colors text-center cursor-pointer">
+<div class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="add">add</span>
+</div>
+<h3 class="font-headline text-xl text-on-surface">Start a new journal</h3>
+<p class="text-sm text-on-surface-variant mt-2">Where will your next story begin?</p>
+</div>
+<!-- Trip Card 5 -->
+<div class="group flex flex-col rounded-xl bg-surface-container-lowest shadow-sm transition-transform duration-300 hover:-translate-y-1">
+<div class="aspect-square overflow-hidden rounded-t-xl">
+<img alt="Parisian Weekend" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="View of Eiffel Tower through Parisian street" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt4eD0cCWgsM5wtyzqpJeWMsAQsKLKByWLH7nxVNxpvFOrvfudn3PavERoUuymST9OttnSIcIA6TgUf-RiIQEU3JDG7GKsqZCVVAD8qEN0g5udATxz8FjDZzq9WpyxFsMnSS57sP3YyUilcIMkZtibc3d60QEUgBE38QKGHibDOMOYt-vfEqLe3Dob63mi3q9gTS8IerxRvorS51mFaEtKKTF_w7GwfjTI-Cn2T-LZaEqPsjBmW7D9hfVrvvopG5sAfdpXrQdn2nk"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-2xl text-on-surface mb-1">Parisian Weekend</h3>
+<p class="text-sm text-on-surface-variant">Dec 14 - 17, 2024</p>
+</div>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border-2 border-surface-container-lowest">
+<span class="material-symbols-outlined text-xs" data-icon="person_add">person_add</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-tighter">Solo</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-6 md:bottom-10 md:right-10 z-50 flex items-center gap-3 pl-5 pr-7 py-4 rounded-full bg-gradient-to-br from-primary to-primary-container text-white shadow-[0_8px_24px_rgba(14,29,37,0.06)] hover:scale-105 transition-transform duration-200">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+<span class="font-semibold tracking-wide">Create New Trip</span>
+</button>
+<!-- Bottom Navigation (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-t-3xl border-t dark:border-slate-800 z-50 shadow-[0_-8px_24px_rgba(14,29,37,0.06)]">
+<a class="flex flex-col items-center justify-center bg-orange-100 text-orange-900 rounded-2xl px-5 py-2 scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="luggage" style="font-variation-settings: 'FILL' 1;">luggage</span>
+<span class="text-[10px] font-medium tracking-wide">Trips</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-orange-700" href="#">
+<span class="material-symbols-outlined" data-icon="explore_neighbor">explore_nearby</span>
+<span class="text-[10px] font-medium tracking-wide">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-orange-700" href="#">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="text-[10px] font-medium tracking-wide">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 px-5 py-2 hover:text-orange-700" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-medium tracking-wide">Settings</span>
+</a>
+</nav>
+</body></html>

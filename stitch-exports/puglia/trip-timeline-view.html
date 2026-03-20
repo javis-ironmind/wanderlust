@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-primary-fixed-variant": "#7f2a12",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#ddc0b9",
+                        "on-tertiary-fixed": "#2b1701",
+                        "surface-container-low": "#e7f6ff",
+                        "on-secondary-fixed": "#191d0e",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#444937",
+                        "surface-bright": "#f4faff",
+                        "inverse-surface": "#23323a",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#d5e5ef",
+                        "on-secondary-container": "#626753",
+                        "on-primary-fixed": "#3b0800",
+                        "tertiary-container": "#8e6f4e",
+                        "surface-dim": "#ccdce7",
+                        "surface-container-highest": "#d5e5ef",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-container-high": "#daebf5",
+                        "primary-container": "#bb563b",
+                        "on-surface": "#0e1d25",
+                        "on-background": "#0e1d25",
+                        "on-surface-variant": "#56423d",
+                        "tertiary-fixed": "#ffddbb",
+                        "surface-container": "#e0f0fb",
+                        "surface": "#f4faff",
+                        "primary-fixed-dim": "#ffb5a1",
+                        "secondary-container": "#e0e5cc",
+                        "primary-fixed": "#ffdbd1",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary": "#735737",
+                        "on-error-container": "#93000a",
+                        "background": "#f4faff",
+                        "on-primary-container": "#fffbff",
+                        "surface-tint": "#9e4127",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#89726c",
+                        "on-tertiary-fixed-variant": "#5c4224",
+                        "tertiary-fixed-dim": "#e5c099",
+                        "inverse-primary": "#ffb5a1",
+                        "inverse-on-surface": "#e3f3fd",
+                        "secondary-fixed": "#e0e5cc",
+                        "secondary-fixed-dim": "#c4c9b1",
+                        "secondary": "#5c614d",
+                        "primary": "#9b3f25"
+                    },
+                    fontFamily: {
+                        "headline": ["Noto Serif"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        h1, h2, h3, .font-serif { font-family: 'Noto Serif', serif; }
+        .glass-nav { backdrop-filter: blur(12px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopAppBar -->
+<header class="bg-slate-50/70 dark:bg-slate-900/70 backdrop-blur-md docked full-width top-0 sticky z-50">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-serif italic text-orange-900 dark:text-orange-400">Wanderer</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors" href="#">Explore</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-orange-800 dark:hover:text-orange-300 transition-colors" href="#">Journal</a>
+<a class="text-orange-900 dark:text-orange-400 border-b-2 border-orange-800 dark:border-orange-500 pb-1 font-semibold" href="#">Plan</a>
+</nav>
+<div class="flex items-center space-x-4">
+<div class="relative group hidden sm:block">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="bg-surface-container-low border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search destinations..." type="text"/>
+</div>
+<button class="hover:bg-slate-100/50 dark:hover:bg-slate-800/50 rounded-lg p-2 transition-all active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-600 dark:text-slate-400" data-icon="notifications">notifications</span>
+</button>
+<img alt="User profile" class="w-10 h-10 rounded-full object-cover" data-alt="Close up portrait of a young traveler" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx97YKZTy6P0ywmTNABVt4f-x1a8Y0vVC3iw-N3UfXSVBZok6uUKCZR_yPxlAdpDzJn2nZSAWla71xwv4sEIggYh1BByWGfP4x1d6aIBUGNqWTCT_s7zvv8pm4E9RfIdAlo7VohH6VJ0xpKVTqqu7Nbm84N0t4I8Bd1MzJaFC4CzITn8ScpJoyLtlsU9XKoVb5o5lR3pw77Bhx8gUpmZ_yAzGkrJ7H9sa4vandgGEiPGbcqYoeeqzHFoWYQNv6vLJsOLdlWEaex-g"/>
+</div>
+</div>
+<div class="bg-slate-200/50 dark:bg-slate-800/50 h-[1px]"></div>
+</header>
+<main class="max-w-screen-2xl mx-auto px-6 py-12">
+<!-- Hero & Search Section -->
+<section class="mb-16">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="max-w-2xl">
+<span class="text-primary font-semibold tracking-widest uppercase text-sm mb-2 block">10-Day Journey</span>
+<h1 class="text-5xl md:text-7xl font-headline font-bold text-on-surface leading-tight">Wanderlust in Tuscany</h1>
+<p class="text-lg text-on-surface-variant mt-4 font-body leading-relaxed">A curated rhythm of rolling hills, ancient vineyards, and quiet moments in the heart of Italy.</p>
+</div>
+<div class="w-full md:w-96">
+<div class="bg-surface-container-low p-2 rounded-2xl flex items-center shadow-sm">
+<span class="material-symbols-outlined ml-3 text-secondary" data-icon="location_on">location_on</span>
+<input class="bg-transparent border-none focus:ring-0 text-on-surface font-medium w-full" placeholder="Add a milestone..." type="text" value="Florence, Italy"/>
+<button class="bg-primary text-on-primary rounded-xl px-4 py-2 text-sm font-semibold hover:opacity-90 transition-opacity">Update</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline Container -->
+<div class="relative">
+<!-- Central Line (Desktop) -->
+<div class="absolute left-1/2 top-0 bottom-0 w-px bg-outline-variant/30 hidden lg:block"></div>
+<!-- Timeline Items -->
+<div class="space-y-24 relative">
+<!-- Day 1: Arrival -->
+<div class="relative flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
+<div class="lg:w-1/2 lg:pr-16 lg:text-right order-2 lg:order-1">
+<div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold mb-4">DAY 01</div>
+<h2 class="text-3xl font-headline mb-4">Arrival in the Renaissance</h2>
+<p class="text-on-surface-variant leading-relaxed max-w-md lg:ml-auto">Touchdown at Peretola Airport. The journey begins with a private transfer through the cypress-lined avenues of Florence.</p>
+<div class="flex gap-4 mt-6 justify-start lg:justify-end">
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="flight">flight</span> FL-402
+                            </div>
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="schedule">schedule</span> 10:30 AM
+                            </div>
+</div>
+</div>
+<!-- Node -->
+<div class="z-10 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-lg order-1 lg:order-2">
+<span class="material-symbols-outlined" data-icon="airplane_ticket">airplane_ticket</span>
+</div>
+<div class="lg:w-1/2 lg:pl-16 order-3">
+<div class="relative group">
+<div class="absolute -inset-2 bg-primary/5 rounded-3xl blur-xl transition-all group-hover:bg-primary/10"></div>
+<img alt="Florence View" class="relative rounded-2xl w-full h-64 object-cover shadow-sm" data-alt="Panoramic view of Florence cathedral dome at sunset" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0Aga-p3UhKdmFDF3tEl97H586FDa1glitgUFYjSv0-UyaGAUJRO9VmxjfcrhXIodF80U-6kVyKTrsh9iCbK8c9UKV73TQKlNlP4vvbMRPcLm3GrQzu5fIcqq24FiwOOiGgxeNoSr8-_rZ2QCjyTWl2Q56ScbXsgIMeMoQ5V6Q4L83SEH941REbumCrK5671iY2W5Zm_UY2EUVf-ejMp0GTEpGjl0oi0hp2S__XZtilBTuzwWY4EdqmtA1_hy7IEETYN8ZTBg9zWA"/>
+</div>
+</div>
+</div>
+<!-- Day 3: Vineyard Milestone -->
+<div class="relative flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
+<div class="lg:w-1/2 lg:pr-16 order-2 lg:order-1">
+<div class="relative group">
+<div class="absolute -inset-2 bg-secondary/5 rounded-3xl blur-xl transition-all group-hover:bg-secondary/10"></div>
+<img alt="Vineyard" class="relative rounded-2xl w-full h-64 object-cover shadow-sm" data-alt="Golden vineyards in Tuscany during harvest season" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVR4m0S2sOBbfMd4-Wxr2wZtMR56Abt1l8Nwqut3DtnIMHVMCbM35Z2BHz4OqyiloO-DHFqD3EVozCmSGsa1m6cZkhDJ03YmXDKaooJFAz4Hi90qYAJEX7uSiftnkkIrMu8ZkwCAMIPL185HFvR__BVn-ImGJg2MmjHfYfaQZvxV_TwatyQKa8qstYJwKlez3BcLlGDpi3GO7HHdBP2MayJ7MEnaITLfaM_pPleNKkhD-gikUv2iZanJzWUTJ7H1Jfxxj0CO_r3So"/>
+</div>
+</div>
+<!-- Node -->
+<div class="z-10 w-12 h-12 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-lg order-1 lg:order-2">
+<span class="material-symbols-outlined" data-icon="wine_bar">wine_bar</span>
+</div>
+<div class="lg:w-1/2 lg:pl-16 order-3">
+<div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold mb-4">DAY 03</div>
+<h2 class="text-3xl font-headline mb-4">Chianti’s Golden Hour</h2>
+<p class="text-on-surface-variant leading-relaxed max-w-md">Private tasting at a family-owned estate. The aroma of aged oak and Sangiovese grapes defines the afternoon.</p>
+<div class="flex gap-4 mt-6">
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="restaurant">restaurant</span> Villa La Massa
+                            </div>
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="star" data-weight="fill" style="font-variation-settings: 'FILL' 1;">star</span> 4.9/5
+                            </div>
+</div>
+</div>
+</div>
+<!-- Day 7: Coastal Retreat -->
+<div class="relative flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0">
+<div class="lg:w-1/2 lg:pr-16 lg:text-right order-2 lg:order-1">
+<div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold mb-4">DAY 07</div>
+<h2 class="text-3xl font-headline mb-4">Maremma Shores</h2>
+<p class="text-on-surface-variant leading-relaxed max-w-md lg:ml-auto">Transitioning from the hills to the silver-blue Tyrrhenian coast. A day for salt air and pine forests.</p>
+<div class="flex gap-4 mt-6 justify-start lg:justify-end">
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="directions_car">directions_car</span> 2h 15m Drive
+                            </div>
+<div class="flex items-center gap-2 text-sm font-medium text-tertiary">
+<span class="material-symbols-outlined text-base" data-icon="hotel">hotel</span> Il Pellicano
+                            </div>
+</div>
+</div>
+<!-- Node -->
+<div class="z-10 w-12 h-12 rounded-full bg-tertiary flex items-center justify-center text-on-tertiary shadow-lg order-1 lg:order-2">
+<span class="material-symbols-outlined" data-icon="waves">waves</span>
+</div>
+<div class="lg:w-1/2 lg:pl-16 order-3">
+<div class="relative group">
+<div class="absolute -inset-2 bg-tertiary/5 rounded-3xl blur-xl transition-all group-hover:bg-tertiary/10"></div>
+<img alt="Coastal view" class="relative rounded-2xl w-full h-64 object-cover shadow-sm" data-alt="A rocky mediterranean coastline with crystal blue water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhQwKijuE9_3C0YL5kz5bnPG3KFzCBc303W3JY8Eu7fwiWm3EkGEI2qc0Gn7a_ETap_8OwE-E4WAUyQLF3OY67gB59-R81NSpUN6TAHsWSWEfigBP_PKgFLo4ab9pp6a7x1v3SK8YdM_km1Vlhr2tjZI_UuQ118gpTjZJNIfiDuKkdZyUBCRk83X4oNU7In3IF52TiM4Ymm96zJs52ihuyoanRaiuWhKrwbY6jc9YbwlTodQw7K5gCJK529H77cGd4SLibkiKBdIA"/>
+</div>
+</div>
+</div>
+<!-- Day 10: Departure -->
+<div class="relative flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-0 pb-24">
+<div class="lg:w-1/2 lg:pr-16 order-2 lg:order-1">
+<div class="bg-surface-container-high rounded-3xl p-8 border border-outline-variant/20">
+<h3 class="font-headline text-2xl mb-4">Final Journal Entry</h3>
+<p class="italic text-on-surface-variant">"The light in Tuscany doesn't just illuminate; it transforms. We leave as different people than when we arrived..."</p>
+<div class="mt-6 flex items-center gap-3">
+<img alt="Avatar" class="w-8 h-8 rounded-full" data-alt="Small thumbnail of the user" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBysCT335FCteQ0jDVj9SmrQaZHLV0uGChfj_hNZfLQt-yO8pd5zahjGTzOZuPjb_DGaQ1uOwZQm_9V05cDkA6UfUvMUvjY8MfXH5Ky70Y2Q_RXkMI3UhVRbsVecPcrazfwSKNQoF19PYPdTsiig5QH2INwVMXcAUwKDPAhF6Xv0w7mmhn5RrMZlUy-rMSie3rbFSsjKfrhp6288Avxz9KH7VNDLjyM392XJJHav8O5_4Xqj8okhsxxfH1rOeZ7dv5NftaQY0NJemM"/>
+<span class="text-xs font-bold uppercase tracking-widest text-secondary">Journaled by Sarah</span>
+</div>
+</div>
+</div>
+<!-- Node -->
+<div class="z-10 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-on-primary shadow-lg order-1 lg:order-2">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+</div>
+<div class="lg:w-1/2 lg:pl-16 order-3">
+<div class="inline-block px-4 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold mb-4">DAY 10</div>
+<h2 class="text-3xl font-headline mb-4">Arrivederci</h2>
+<p class="text-on-surface-variant leading-relaxed max-w-md">Final morning espresso in Rome before the afternoon flight back home.</p>
+<div class="mt-8">
+<button class="flex items-center gap-2 text-primary font-bold hover:gap-4 transition-all">
+                                View Full Archive <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 md:hidden bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-t-3xl shadow-[0_-8px_24px_rgba(14,29,37,0.06)] z-50">
+<a class="flex flex-col items-center justify-center bg-orange-100 dark:bg-orange-900/40 text-orange-900 dark:text-orange-200 rounded-2xl px-5 py-2 scale-90 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="luggage">luggage</span>
+<span class="text-[10px] font-medium tracking-wide Plus Jakarta Sans mt-1">Trips</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-300" href="#">
+<span class="material-symbols-outlined" data-icon="explore_neighbor">explore_nearby</span>
+<span class="text-[10px] font-medium tracking-wide Plus Jakarta Sans mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-300" href="#">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+<span class="text-[10px] font-medium tracking-wide Plus Jakarta Sans mt-1">Saved</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-orange-700 dark:hover:text-orange-300" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-[10px] font-medium tracking-wide Plus Jakarta Sans mt-1">Settings</span>
+</a>
+</nav>
+<!-- Map View floating button -->
+<button class="fixed right-6 bottom-24 md:bottom-8 bg-primary text-on-primary p-4 rounded-full shadow-lg z-40 hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+</button>
+</body></html>

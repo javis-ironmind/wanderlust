@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline } from 'react-leaflet';
+import { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { CATEGORY_COLORS } from '@/lib/map-colors';
@@ -19,6 +19,36 @@ interface TripMapProps {
   markers?: MapMarker[];
   route?: [number, number][]; // AC3: Route line positions
   className?: string;
+}
+
+// Component to handle smooth flyTo when markers/center changes
+function MapAnimator({ markers, route }: { markers: MapMarker[], route?: [number, number][] }) {
+  const map = useMap();
+  const prevCenterRef = useRef<[number, number] | null>(null);
+  
+  useEffect(() => {
+    if (markers && markers.length > 0) {
+      const validMarkers = markers.filter(m => m.position[0] && m.position[1]);
+      if (validMarkers.length > 0) {
+        const avgLat = validMarkers.reduce((sum, m) => sum + m.position[0], 0) / validMarkers.length;
+        const avgLng = validMarkers.reduce((sum, m) => sum + m.position[1], 0) / validMarkers.length;
+        const newCenter: [number, number] = [avgLat, avgLng];
+        
+        // AC7: Smooth transition - only fly if center actually changed significantly
+        if (!prevCenterRef.current || 
+            Math.abs(prevCenterRef.current[0] - newCenter[0]) > 0.001 ||
+            Math.abs(prevCenterRef.current[1] - newCenter[1]) > 0.001) {
+          map.flyTo(newCenter, map.getZoom(), {
+            animate: true,
+            duration: 0.5,
+          });
+          prevCenterRef.current = newCenter;
+        }
+      }
+    }
+  }, [markers, map]);
+  
+  return null;
 }
 
 function createMarkerIcon(color: string = '#3b82f6') {
@@ -82,6 +112,7 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], route, class
       style={{ minHeight: '400px', height: '100%', width: '100%' }}
       zoomControl={false}
     >
+      <MapAnimator markers={validMarkers} route={route} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

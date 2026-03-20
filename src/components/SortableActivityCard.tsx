@@ -25,10 +25,10 @@ export function SortableActivityCard({
     isDragging,
   } = useSortable({ id: activity.id });
 
-  const style = {
-    transform: CSS.Transform.toString(transform),
+  const style: React.CSSProperties = {
+    transform: `${CSS.Transform.toString(transform)}${isDragging ? ' scale(1.03)' : ''}`,
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    touchAction: 'none',
   };
 
   return (

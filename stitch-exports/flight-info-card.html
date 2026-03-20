@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;700;900&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface": "#f7f9fb",
+              "inverse-primary": "#adc6ff",
+              "on-primary-container": "#fefcff",
+              "error-container": "#ffdad6",
+              "surface-bright": "#f7f9fb",
+              "secondary-fixed-dim": "#b1c6f9",
+              "on-primary-fixed-variant": "#004395",
+              "tertiary-fixed-dim": "#ffb3ad",
+              "surface-container-highest": "#e0e3e5",
+              "primary": "#0058be",
+              "on-secondary-fixed-variant": "#304671",
+              "tertiary": "#b61722",
+              "on-surface": "#191c1e",
+              "surface-container-high": "#e6e8ea",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-low": "#f2f4f6",
+              "on-primary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Be Vietnam Pro"],
+              "body": ["Inter"],
+              "label": ["Inter"],
+              "mono": ["JetBrains Mono"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .flight-path-dotted {
+        background-image: radial-gradient(circle, #c2c6d6 1.5px, transparent 1.5px);
+        background-size: 8px 1px;
+        background-repeat: repeat-x;
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+<nav class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-black text-primary tracking-tighter font-headline">Wanderlust</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-primary border-b-2 border-tertiary pb-1 font-medium text-sm transition-all" href="#">Trips</a>
+<a class="text-slate-600 hover:text-primary transition-colors text-sm font-medium" href="#">Explore</a>
+<a class="text-slate-600 hover:text-primary transition-colors text-sm font-medium" href="#">Saved</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-600 hover:text-primary transition-all scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-slate-600 hover:text-primary transition-all scale-95 duration-200 ease-in-out">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</nav>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-5xl mx-auto">
+<!-- Header Section -->
+<section class="mb-12">
+<h1 class="font-headline font-black text-5xl tracking-tight text-on-surface mb-2">March in California</h1>
+<p class="text-slate-500 font-medium tracking-wide uppercase text-xs">Detailed Flight Itinerary</p>
+</section>
+<!-- Flight Information Card -->
+<div class="bg-surface-container-lowest rounded-lg shadow-[0_12px_40px_rgba(25,28,30,0.06)] overflow-hidden">
+<!-- Card Header: Date & Airline -->
+<div class="px-8 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-surface-container-low/50">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm">
+<img alt="Delta Airlines Logo" class="w-8 h-8 object-contain" data-alt="Delta Airlines official corporate logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAVHjoYxS9bPyL9KB9O6qRmICbMMY7SmvFb62CAOReIVXbmjPa3sDw-DzLaGZPB89apDtpAoDXvYZyfLWmF2Qac9vVEdPFjMiU6sQF69b-piZjGAwgp7uPgz9UgNmGJYjmuEgwv7Caq5Wo_Cp3USZqjdrB_byliCjUIfmmMXpgfZGn6aD6GYhyQWq6qD5tSar_44pmf3z6a8wEn2WDm-SrDlJlVcX4apPP14kN9I92FOoAsgQrT6cWHTzIs9ub0GKI8BpF66hjDAiq"/>
+</div>
+<div>
+<div class="font-headline font-bold text-lg text-on-surface">Delta Air Lines</div>
+<div class="text-slate-500 text-sm font-medium">Flight DL 1234 • March 25, 2026</div>
+</div>
+</div>
+<div class="flex flex-col md:items-end">
+<span class="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-400 mb-1">Confirmation</span>
+<span class="font-mono text-primary font-bold tracking-wider bg-primary/5 px-3 py-1 rounded-md">ABC123</span>
+</div>
+</div>
+<!-- Card Content: Departure & Arrival -->
+<div class="p-8 md:p-12">
+<div class="grid grid-cols-1 md:grid-cols-12 items-center gap-8 relative">
+<!-- Departure -->
+<div class="md:col-span-4 text-left">
+<div class="flex flex-col gap-1">
+<span class="text-5xl font-black font-headline tracking-tighter text-on-surface">JFK</span>
+<span class="text-slate-500 font-medium">New York, NY</span>
+</div>
+<div class="mt-6">
+<div class="text-2xl font-bold font-headline text-on-surface">10:30 AM</div>
+<div class="flex items-center gap-2 mt-1 text-slate-500">
+<span class="material-symbols-outlined text-sm">meeting_room</span>
+<span class="text-sm font-medium">Terminal 2</span>
+</div>
+</div>
+</div>
+<!-- Flight Path Visualization -->
+<div class="md:col-span-4 flex flex-col items-center justify-center py-8 md:py-0">
+<div class="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-4">5h 15m Duration</div>
+<div class="w-full relative flex items-center">
+<div class="h-[1px] w-full flight-path-dotted absolute"></div>
+<div class="relative z-10 w-full flex justify-center">
+<div class="bg-surface-container-lowest p-2">
+<span class="material-symbols-outlined text-primary transform rotate-90 scale-125" style="font-variation-settings: 'FILL' 1;">flight</span>
+</div>
+</div>
+</div>
+<div class="mt-4 flex items-center gap-2 text-primary/60">
+<span class="material-symbols-outlined text-xs">info</span>
+<span class="text-[11px] font-semibold uppercase tracking-tighter">Non-stop</span>
+</div>
+</div>
+<!-- Arrival -->
+<div class="md:col-span-4 text-right">
+<div class="flex flex-col gap-1">
+<span class="text-5xl font-black font-headline tracking-tighter text-on-surface">LAX</span>
+<span class="text-slate-500 font-medium text-right">Los Angeles, CA</span>
+</div>
+<div class="mt-6">
+<div class="text-2xl font-bold font-headline text-on-surface">1:45 PM</div>
+<div class="flex items-center justify-end gap-2 mt-1 text-slate-500">
+<span class="text-sm font-medium">Gate B15</span>
+<span class="material-symbols-outlined text-sm">gate</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tonal Layered Footer -->
+<div class="px-8 py-4 bg-surface-container-low/30 flex justify-between items-center text-xs font-bold uppercase tracking-widest text-slate-400">
+<div class="flex gap-6">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base">luggage</span> 2 Checked Bags</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-base">restaurant</span> Meal Provided</span>
+</div>
+<button class="text-primary hover:text-tertiary transition-colors">Edit Flight</button>
+</div>
+</div>
+<!-- Secondary Info Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary mb-3">calendar_today</span>
+<h3 class="font-headline font-bold text-on-surface">Departure Day</h3>
+<p class="text-slate-500 text-sm mt-1">Wednesday, March 25</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary mb-3">airplane_ticket</span>
+<h3 class="font-headline font-bold text-on-surface">Class</h3>
+<p class="text-slate-500 text-sm mt-1">Main Cabin (V)</p>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-lg shadow-sm">
+<span class="material-symbols-outlined text-tertiary mb-3">airline_seat_recline_extra</span>
+<h3 class="font-headline font-bold text-on-surface">Seat Selection</h3>
+<p class="text-slate-500 text-sm mt-1">Seat 14A (Window)</p>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation Shell (Mobile Only) -->
+<footer class="md:hidden fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-3 bg-white/90 backdrop-blur-lg rounded-t-2xl z-50 shadow-[0_-1px_0_rgba(0,0,0,0.05)]">
+<a class="flex flex-col items-center justify-center text-primary relative after:content-[''] after:absolute after:-bottom-1 after:w-6 after:h-1 after:bg-tertiary after:rounded-full" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event_note</span>
+<span class="text-[11px] font-bold uppercase tracking-widest mt-1">Itinerary</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400" href="#">
+<span class="material-symbols-outlined">map</span>
+<span class="text-[11px] font-bold uppercase tracking-widest mt-1">Map</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="text-[11px] font-bold uppercase tracking-widest mt-1">Documents</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-400" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-[11px] font-bold uppercase tracking-widest mt-1">Settings</span>
+</a>
+</footer>
+</body></html>

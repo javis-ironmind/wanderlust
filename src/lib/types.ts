@@ -50,6 +50,7 @@ export interface Day {
   date: string; // ISO date string YYYY-MM-DD
   activities: Activity[];
   notes?: string;
+  location?: string; // City/location for the day (shown in day header as "Day X - Location")
 }
 
 // Flight details
@@ -93,6 +94,14 @@ export interface Hotel {
   roomType?: string;
 }
 
+// Note type for trip notes
+export interface TripNote {
+  id: string;
+  content: string;
+  createdAt: number;
+  updatedAt?: number;
+}
+
 // Trip - the main container
 export interface Trip {
   id: string;
@@ -105,7 +114,7 @@ export interface Trip {
   flights: Flight[];
   hotels: Hotel[];
   packingList?: PackingList;
-  notes?: string;
+  notes?: TripNote[]; // Array of trip notes (replaces simple notes string)
   categories?: string[]; // Trip categories: Business, Vacation, Adventure, etc.
   createdAt: string; // ISO datetime
   updatedAt: string; // ISO datetime

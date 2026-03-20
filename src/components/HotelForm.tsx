@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Hotel } from '@/lib/types';
 import { useTripStore } from '@/lib/store';
 import { X, Building2, Save, Trash2, Calendar, MapPin, Phone, Globe } from 'lucide-react';
+import LocationSearch from '@/components/LocationSearch';
 
 // Common hotel chains for autocomplete
 const HOTEL_CHAINS = [
@@ -66,6 +67,8 @@ export function HotelForm({ tripId, hotel, onClose, onSave }: HotelFormProps) {
   // Form state
   const [name, setName] = useState(hotel?.name || '');
   const [address, setAddress] = useState(hotel?.address || '');
+  const [latitude, setLatitude] = useState<number | undefined>(hotel?.latitude);
+  const [longitude, setLongitude] = useState<number | undefined>(hotel?.longitude);
   const [checkInDate, setCheckInDate] = useState(hotel?.checkInDate || '');
   const [checkInTime, setCheckInTime] = useState(hotel?.checkInTime || '15:00');
   const [checkOutDate, setCheckOutDate] = useState(hotel?.checkOutDate || '');
@@ -128,6 +131,8 @@ export function HotelForm({ tripId, hotel, onClose, onSave }: HotelFormProps) {
       id: hotel?.id || `hotel-${Date.now()}`,
       name,
       address,
+      latitude,
+      longitude,
       checkInDate,
       checkInTime,
       checkOutDate,
@@ -307,45 +312,28 @@ export function HotelForm({ tripId, hotel, onClose, onSave }: HotelFormProps) {
               </div>
             </div>
             
-            {/* Address */}
-            <div style={{ marginBottom: '1rem', position: 'relative' }}>
-              <label style={labelStyle}>Address</label>
-              <div style={{ position: 'relative' }}>
-                <MapPin 
-                  className="w-4 h-4" 
-                  style={{ 
-                    position: 'absolute', 
-                    left: '0.75rem', 
-                    top: '50%', 
-                    transform: 'translateY(-50%)',
-                    color: '#9ca3af'
-                  }} 
-                />
-                <input
-                  type="text"
-                  value={address}
-                  onChange={(e) => {
-                    setAddress(e.target.value);
-                    setShowAddressDropdown(true);
-                  }}
-                  onFocus={() => setShowAddressDropdown(true)}
-                  onBlur={() => setTimeout(() => setShowAddressDropdown(false), 200)}
-                  placeholder="e.g., 123 Main St, New York, USA"
-                  style={{ ...inputStyle, paddingLeft: '2.25rem' }}
-                />
-              </div>
-              {showAddressDropdown && filteredCities.length > 0 && (
-                <div style={dropdownStyle}>
-                  {filteredCities.slice(0, 6).map((city) => (
-                    <div
-                      key={city.name}
-                      style={dropdownItemStyle}
-                      onMouseDown={() => selectCity(city)}
-                    >
-                      <span>{city.name}</span>
-                      <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>{city.country}</span>
-                    </div>
-                  ))}
+            {/* Address with geocoding autocomplete */}
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={labelStyle}>Address (with geocoding)</label>
+              <LocationSearch
+                value={address ? { name: address.split(',')[0], address, latitude, longitude } : undefined}
+                onChange={(location) => {
+                  if (location) {
+                    setAddress(location.address);
+                    setLatitude(location.latitude);
+                    setLongitude(location.longitude);
+                  } else {
+                    setAddress('');
+                    setLatitude(undefined);
+                    setLongitude(undefined);
+                  }
+                }}
+                placeholder="Search for hotel address..."
+                disabled={false}
+              />
+              {(latitude && longitude) && (
+                <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#059669' }}>
+                  ✓ Coordinates: {latitude.toFixed(6)}, {longitude.toFixed(6)}
                 </div>
               )}
             </div>

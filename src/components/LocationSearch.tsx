@@ -13,7 +13,10 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Search, MapPin, Loader2, X, AlertCircle } from 'lucide-react';
+import { Search, MapPin, Loader2, X, AlertCircle, History } from 'lucide-react';
+
+const RECENT_SEARCHES_KEY = 'wanderlust-recent-location-searches';
+const MAX_RECENT_SEARCHES = 5;
 
 interface NominatimResult {
   place_id: number;
@@ -22,6 +25,25 @@ interface NominatimResult {
   display_name: string;
   type: string;
   class?: string;
+}
+
+// Load recent searches from localStorage
+function loadRecentSearches(): string[] {
+  try {
+    const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+// Save recent searches to localStorage
+function saveRecentSearches(searches: string[]) {
+  try {
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(searches));
+  } catch {
+    // localStorage might be full or unavailable
+  }
 }
 
 interface LocationSearchProps {
@@ -53,10 +75,16 @@ export default function LocationSearch({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedResult, setSelectedResult] = useState<NominatimResult | null>(null);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load recent searches from localStorage on mount
+  useEffect(() => {
+    setRecentSearches(loadRecentSearches());
+  }, []);
 
   // Debounced search
   useEffect(() => {
@@ -150,7 +178,13 @@ export default function LocationSearch({
     setIsOpen(false);
     setResults([]);
     onChange(location);
-  }, [onChange]);
+
+    // Save to recent searches (AC10)
+    const searchTerm = result.display_name;
+    const updated = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)].slice(0, MAX_RECENT_SEARCHES);
+    setRecentSearches(updated);
+    saveRecentSearches(updated);
+  }, [onChange, recentSearches]);
 
   const handleClear = useCallback(() => {
     setQuery('');
@@ -206,7 +240,7 @@ export default function LocationSearch({
             if (error) setError(null);
           }}
           onFocus={() => {
-            if (results.length > 0) setIsOpen(true);
+            if (results.length > 0 || recentSearches.length > 0) setIsOpen(true);
           }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
@@ -262,6 +296,32 @@ export default function LocationSearch({
                   </span>
                 )}
               </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Recent Searches - AC10 */}
+      {isOpen && results.length === 0 && recentSearches.length > 0 && !isLoading && (
+        <div 
+          ref={dropdownRef}
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+        >
+          <div className="px-3 py-2 text-xs text-gray-500 uppercase tracking-wide border-b border-gray-100">
+            Recent Searches
+          </div>
+          {recentSearches.map((search, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => {
+                setQuery(search);
+                setIsOpen(false);
+              }}
+              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-start gap-2 border-b border-gray-100 last:border-b-0"
+            >
+              <History className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
+              <span className="text-sm text-gray-700 truncate">{search.split(',')[0]}</span>
             </button>
           ))}
         </div>

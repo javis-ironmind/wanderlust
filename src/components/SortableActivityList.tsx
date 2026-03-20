@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -9,6 +9,7 @@ import {
   useSensor,
   useSensors,
   DragEndEvent,
+  DragOverEvent,
   DragStartEvent,
   DragOverlay,
   UniqueIdentifier,
@@ -41,6 +42,9 @@ export function SortableActivityList({
   onEditActivity,
   onDeleteActivity,
 }: SortableActivityListProps) {
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [overId, setOverId] = useState<UniqueIdentifier | null>(null);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -53,19 +57,34 @@ export function SortableActivityList({
   );
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    // Store the source day ID in the active data for cross-day moves
-    const { active } = event;
-    const sourceDay = days.find((d) =>
-      d.activities.some((a) => a.id === active.id)
-    );
-    if (sourceDay) {
-      // We can access this in onDragEnd via the active id
-    }
-  }, [days]);
+    setActiveId(event.active.id);
+  }, []);
+
+  const handleDragCancel = useCallback(() => {
+    setActiveId(null);
+    setOverId(null);
+  }, []);
+
+  const handleDragOver = useCallback(
+    (event: DragOverEvent) => {
+      const { active, over } = event;
+      if (!over) {
+        setOverId(null);
+        return;
+      }
+      const overId = over.id as string;
+      setOverId(overId);
+    },
+    []
+  );
 
   const handleDragEnd = useCallback(
     (event: DragEndEvent) => {
       const { active, over } = event;
+
+      // Reset drag state
+      setActiveId(null);
+      setOverId(null);
 
       if (!over) return;
 
@@ -112,12 +131,31 @@ export function SortableActivityList({
     [days, tripId, onReorder, onMoveActivity]
   );
 
+  // AC9: Cancel drag with Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && activeId) {
+        handleDragCancel();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [activeId, handleDragCancel]);
+
+  // AC3: Cross-day drop zone highlight - detect if source is from a different day
+  const sourceDay = activeId ? days.find((d) => d.activities.some((a) => a.id === activeId)) : null;
+  const isCrossDaySource = sourceDay ? sourceDay.id !== day.id : false;
+  const overActivityId = overId && day.activities.some((a) => a.id === overId) ? overId : null;
+  const showDropHighlight = isCrossDaySource && (overActivityId || overId === day.id);
+
   return (
     <DndContext
       sensors={sensors}
       collisionDetection={closestCenter}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
+      onDragCancel={handleDragCancel}
+      onDragOver={handleDragOver}
     >
       <SortableContext
         items={day.activities.map((a) => a.id)}
@@ -125,7 +163,11 @@ export function SortableActivityList({
       >
         <div
           data-day-id={day.id}
-          className="min-h-[100px] p-2 rounded-lg bg-gray-50 border-2 border-transparent transition-all duration-200"
+          className={`min-h-[100px] p-2 rounded-lg transition-all duration-200 ${
+            showDropHighlight
+              ? 'bg-blue-50 border-2 border-blue-400 shadow-md'
+              : 'bg-gray-50 border-2 border-transparent'
+          }`}
         >
           {day.activities.length === 0 ? (
             <div className="flex items-center justify-center h-20 text-sm text-gray-400">

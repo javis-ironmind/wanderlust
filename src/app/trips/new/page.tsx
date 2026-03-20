@@ -18,6 +18,7 @@ const TRIP_CATEGORIES = [
 export default function NewTripPage() {
   const router = useRouter();
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [coverImage, setCoverImage] = useState('');
@@ -46,6 +47,7 @@ export default function NewTripPage() {
         id: `day-${d.toISOString().split('T')[0]}`,
         date: d.toISOString().split('T')[0],
         activities: [],
+        location: name, // AC5: City/location for day header
       });
     }
     
@@ -64,6 +66,7 @@ export default function NewTripPage() {
     const newTrip = {
       id: `trip-${Date.now()}`,
       name,
+      description: description || undefined,
       startDate,
       endDate,
       coverImage: coverImage || null,
@@ -132,6 +135,31 @@ export default function NewTripPage() {
                   outline: 'none',
                 }}
                 placeholder="e.g., San Francisco"
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+            
+            <div>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151', fontSize: '0.875rem' }}>
+                Description <span style={{ color: '#9ca3af', fontWeight: '400' }}>(optional)</span>
+              </label>
+              <textarea
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                style={{ 
+                  width: '100%', 
+                  padding: '0.875rem 1rem', 
+                  borderRadius: '12px', 
+                  border: '2px solid #e2e8f0', 
+                  fontSize: '1rem',
+                  outline: 'none',
+                  resize: 'vertical',
+                  fontFamily: 'inherit',
+                }}
+                placeholder="Tell us about your trip..."
                 onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
                 onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
               />

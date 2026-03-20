@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Plus+Jakarta+Sans:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-primary-fixed-variant": "#7f2a12",
+              "secondary-fixed-dim": "#c4c9b1",
+              "surface-container": "#e0f0fb",
+              "tertiary-container": "#8e6f4e",
+              "surface-bright": "#f4faff",
+              "outline-variant": "#ddc0b9",
+              "on-surface": "#0e1d25",
+              "surface-tint": "#9e4127",
+              "on-tertiary-container": "#fffbff",
+              "tertiary-fixed-dim": "#e5c099",
+              "on-tertiary-fixed-variant": "#5c4224",
+              "background": "#f4faff",
+              "on-error": "#ffffff",
+              "on-secondary-fixed-variant": "#444937",
+              "surface-dim": "#ccdce7",
+              "primary-container": "#bb563b",
+              "on-tertiary-fixed": "#2b1701",
+              "error-container": "#ffdad6",
+              "inverse-surface": "#23323a",
+              "on-secondary-fixed": "#191d0e",
+              "outline": "#89726c",
+              "inverse-on-surface": "#e3f3fd",
+              "secondary-container": "#e0e5cc",
+              "tertiary-fixed": "#ffddbb",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#e7f6ff",
+              "surface": "#f4faff",
+              "secondary-fixed": "#e0e5cc",
+              "secondary": "#5c614d",
+              "on-surface-variant": "#56423d",
+              "on-secondary": "#ffffff",
+              "primary": "#9b3f25",
+              "on-background": "#0e1d25",
+              "surface-container-highest": "#d5e5ef",
+              "primary-fixed": "#ffdbd1",
+              "error": "#ba1a1a",
+              "tertiary": "#735737",
+              "primary-fixed-dim": "#ffb5a1",
+              "surface-container-lowest": "#ffffff",
+              "surface-container-high": "#daebf5",
+              "on-secondary-container": "#626753",
+              "on-tertiary": "#ffffff",
+              "on-error-container": "#93000a",
+              "on-primary-fixed": "#3b0800",
+              "inverse-primary": "#ffb5a1",
+              "on-primary-container": "#fffbff",
+              "surface-variant": "#d5e5ef"
+            },
+            fontFamily: {
+              "headline": ["Noto Serif"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-nav {
+        backdrop-filter: blur(12px);
+      }
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #f4faff;
+        color: #0e1d25;
+      }
+      h1, h2, h3, .font-serif {
+        font-family: 'Noto Serif', serif;
+      }
+      .photo-glow {
+        box-shadow: inset 0 0 20px rgba(255,255,255,0.1);
+      }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="bg-[#f4faff]/70 dark:bg-[#0e1d25]/80 backdrop-blur-md docked full-width top-0 sticky z-50 shadow-[0_8px_24px_rgba(14,29,37,0.06)]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-serif italic text-[#9b3f25] dark:text-[#bb563b]">
+                The Editorial Wanderer
+            </div>
+<div class="hidden md:flex items-center space-x-8">
+<a class="text-[#9b3f25] dark:text-[#bb563b] border-b-2 border-[#9b3f25] pb-1 font-bold" href="#">Explore</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Itinerary</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Journals</a>
+<a class="text-[#0e1d25] dark:text-[#f4faff] hover:text-[#9b3f25] transition-colors" href="#">Wishlist</a>
+</div>
+<div class="flex items-center space-x-5">
+<div class="relative hidden lg:block">
+<input class="bg-surface-container-low border-none rounded-full px-5 py-2 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search destinations..." type="text"/>
+</div>
+<button class="hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] transition-all duration-300 p-2 rounded-full">
+<span class="material-symbols-outlined text-secondary">notifications</span>
+</button>
+<button class="hover:bg-[#f4faff] dark:hover:bg-[#1a2b36] transition-all duration-300 p-2 rounded-full">
+<span class="material-symbols-outlined text-secondary">settings</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/20">
+<img alt="User profile avatar" data-alt="Portrait of a person for user profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuALBRg7L2BQQg4OBEbTIoq1zvbXJDu1Axv1IrJH5wczK-PbCLoquj48uDNiN4vjwZ9S8b2T3naksNavNTR7_-EdaW0SZHAI6VHIXSi1pbnn2NBTBuOvOaJKJ0Ve7xJU1DT1W7wvm2SuAii5u8mmcTCxpJ_EM5pB-wb6H_5Dy8dYmdYatz_z74Viu4Aroerl8LEtjmvDiOPxGFvifd1qURd4uUXNnRw8Xsc7JBFX4xcL2oOlnyrD0PAMAIB7NHAauDZV2dhwcLyDSz4"/>
+</div>
+</div>
+</div>
+</nav>
+<main class="max-w-screen-2xl mx-auto px-4 md:px-8 py-8">
+<!-- Hero Gallery Section -->
+<section class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-4 h-[600px] mb-12">
+<div class="md:col-span-2 md:row-span-2 relative rounded-xl overflow-hidden photo-glow">
+<img class="w-full h-full object-cover" data-alt="Panoramic view of Matera stone city in Italy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXR2Du4OfiPpEwe0JGQdFjo-s367-Ue2NoIQmDGkQcnjp4oOsf4JsrOfh7pAgxEO4J2suapoR9LwrNzfJJyjA5OW2wxcQMWYBWIIlPyTrl_URuuGDyNDNNrO1eIWSANubxhxhSeA9jRMK4w5s_T_WqZtv5z7iGH_VbfvW6iQzi95qoUtrkIwb0mUuQMjUJhZ_4jm-QMNyniiMTGr5Wdg4faCeDCPuSyFf_I-LUvZexfXoU3HX_uExd7ksqsYUEe-_oWX3hHjgoVCc"/>
+<div class="absolute bottom-8 left-8 text-white z-10">
+<span class="bg-primary/90 text-on-primary px-3 py-1 rounded-md text-xs tracking-widest uppercase mb-4 inline-block font-label">Basilicata, Italy</span>
+<h1 class="text-5xl md:text-7xl font-serif leading-tight">Matera</h1>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+</div>
+<div class="md:col-span-1 rounded-xl overflow-hidden photo-glow">
+<img class="w-full h-full object-cover" data-alt="Detailed view of limestone dwellings in Matera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2hDSIRNohD5PkLl8ta-7hErqeIQeq_bSZ_0vdkcETAWSHDyWutjkuwwcph5mJ2vPDnz0r2FKa2tcQ8FAgjona6Zk8NdJLLMoXT46GYjnwE759Q6327JRO45U900tHTKZ7gD5-alOjL-ipK6rVXRMlMBu4O4bPGZCg7J7tJizwH54NZfQ3T1mKYyeVYLCzIe9UBIKwXnkzNjEzeHScGSCPlqYT5aXGKYf6EbwYB_blSboKW69iUqCwbqNabqfTSi2Bk-4AXJ4JJGM"/>
+</div>
+<div class="md:col-span-1 rounded-xl overflow-hidden photo-glow">
+<img class="w-full h-full object-cover" data-alt="Narrow alleyway in ancient Italian town" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCD5H_27GXeq3lw8nov5Rj8G7allWw8b9vL6AMuGmR4Owuri-8Q97rzhRuFh5b7ie4OKN3_FxjRS833FKASnFRdpXwsZ0sx3NNGJaMF0iCyL499sRGGMjwJ4NX69DcXbiTLedFMp3tKw3Qe52lk4Y3C7q19SxuqkgHvK4ggGqG2cK3UhM6OWC5IBQ6fbElMiGRhzdKy95g2LtFTMdq3WSPwetaMgQ9nRzwbWqPrca8F-SAtq_S5LllWTyV7K0vl2C45G4HdmDRSZkw"/>
+</div>
+<div class="md:col-span-2 rounded-xl overflow-hidden photo-glow relative">
+<img class="w-full h-full object-cover" data-alt="Golden hour lighting over historic stone architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDr46gZvry3kjs66e0m6ycQCMN7pXk77A-wwPsJlxCFASRDm2AeJfaRA8gz4ue-_DfGlm8EnYbb6rkNnfy504xmAILLloF9yEtaxbjlhLszp-jA0m4N8bxvwo3S-2naQRjYcxRGxceA0tC46DSbUuyYzYkT2DWoYaJQ4ML9JZ8CxLKfyl_tL5r6vbsa49Y4Ew7AzjE5IDK6DM5pYfS_uOi20X0Jh7driR0aNMIWPLZkO2VtRH7ehbqZ_WFX3P1KkdxaIcqp0F8J1AI"/>
+<div class="absolute inset-0 bg-black/20 flex items-center justify-center">
+<button class="bg-white/20 backdrop-blur-md text-white px-6 py-2 rounded-full border border-white/30 font-label text-sm hover:bg-white/30 transition-all">View all 24 photos</button>
+</div>
+</div>
+</section>
+<!-- Integrated Actions Bar -->
+<div class="bg-surface-container-low rounded-2xl p-6 mb-16 flex flex-wrap items-center justify-between gap-6 shadow-sm">
+<div class="flex items-center space-x-8">
+<div class="flex flex-col">
+<span class="text-xs uppercase tracking-widest text-secondary font-bold mb-1">Status</span>
+<span class="font-serif italic text-primary">UNESCO World Heritage</span>
+</div>
+<div class="h-10 w-px bg-outline-variant/30"></div>
+<div class="flex flex-col">
+<span class="text-xs uppercase tracking-widest text-secondary font-bold mb-1">Vibe</span>
+<span class="font-serif italic text-primary">Paleolithic &amp; Poetic</span>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<button class="flex items-center space-x-2 px-6 py-3 rounded-full border border-primary text-primary font-label font-semibold hover:bg-primary/5 transition-colors">
+<span class="material-symbols-outlined text-sm">bookmark</span>
+<span>Save to Wishlist</span>
+</button>
+<button class="flex items-center space-x-2 px-8 py-3 rounded-full bg-gradient-to-br from-primary to-primary-container text-on-primary font-label font-semibold shadow-lg hover:shadow-primary/20 transition-all scale-100 active:scale-95">
+<span class="material-symbols-outlined text-sm">calendar_add_on</span>
+<span>Add to Itinerary</span>
+</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16">
+<!-- Main Content Area -->
+<div class="lg:col-span-8">
+<!-- About Section -->
+<div class="mb-16">
+<h2 class="text-3xl font-serif text-on-surface mb-6">A Journey Through Time</h2>
+<div class="prose prose-on-surface max-w-none space-y-6">
+<p class="text-lg leading-relaxed font-body text-on-surface/80">
+                            Matera is not just a city; it is a miracle of survival. Known as "la Città dei Sassi" (the City of Stones), it is one of the oldest continuously inhabited settlements in the world. Carved into the calcarenite rock of the Basilicata region, the Sassi districts represent a complex system of caves, cisterns, and churches that tell a story of human resilience spanning nine millennia.
+                        </p>
+<p class="text-lg leading-relaxed font-body text-on-surface/80">
+                            Once labeled the "shame of Italy" in the mid-20th century due to extreme poverty, Matera has undergone a breathtaking renaissance. Today, these ancient caves house boutique hotels, candlelit restaurants, and art galleries, blending prehistoric architecture with contemporary luxury. To walk its labyrinthine alleys is to lose oneself in a monochromatic landscape of cream and sand, where every corner reveals a new perspective on history.
+                        </p>
+</div>
+</div>
+<!-- Top Activities - Asymmetric Layout -->
+<div class="mb-16">
+<div class="flex items-end justify-between mb-8">
+<h2 class="text-3xl font-serif">Curated Experiences</h2>
+<a class="text-primary font-label font-bold text-sm border-b border-primary/30 pb-1" href="#">See All Activities</a>
+</div>
+<div class="space-y-12">
+<!-- Activity 1 -->
+<div class="flex flex-col md:flex-row items-center gap-8">
+<div class="w-full md:w-1/2 h-64 rounded-xl overflow-hidden photo-glow">
+<img class="w-full h-full object-cover" data-alt="Interior of a rock-hewn church with ancient frescoes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5rHZPRxbpn9HcZtTM2fZ3P_ac6dJmq00io1J5yRLSrtxKh1Qj7gKAODCco6nbQ3Nxwwuz2VTEevMEvfp4nVe9zNOu_tpnoBTUA5m3HVALyjC6h0HN3EkD01OI0l7rF-3KyYoRtft0vED_pB-Iq-KeTYmVui_HxsadE6s0fsXTkMG1TdLqgU8DdsnPpzOZ1ZPnWFN5qgVWAOu3_BqGB6mNEIlJIOu-RVFsd3l3wNeiyxci7ExmpCT7SSXCFdJR49mz7LWRUiQPWPg"/>
+</div>
+<div class="w-full md:w-1/2">
+<span class="text-secondary font-label text-xs tracking-widest uppercase">History</span>
+<h3 class="text-2xl font-serif mt-2 mb-3">Rupestrian Church Tour</h3>
+<p class="text-on-surface/70 leading-relaxed mb-4">Discover over 150 rock-cut churches adorned with Byzantine frescoes dating back to the 8th century. A guided walk through the Murgia Park reveals the spiritual heart of the canyon.</p>
+<span class="inline-flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-md text-xs font-medium">3 Hours</span>
+</div>
+</div>
+<!-- Activity 2 (Reversed) -->
+<div class="flex flex-col md:flex-row-reverse items-center gap-8">
+<div class="w-full md:w-1/2 h-64 rounded-xl overflow-hidden photo-glow">
+<img class="w-full h-full object-cover" data-alt="Traditional Italian aperitivo spread on a terrace" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7q_v-IBf1R4XWWLPpDrpbdyk0pgIVYp6wMov_RQpHLaZ36aTOuxnFkYQaSiIJsJhaXLNgwXQzfi-OPdyLdnRsacbp7PBIXdSRziiNNJ3CrRCRkDJh8BJLYvsyPdD_4EMfJxWRcW06p3wK7DGTMIgJLZyiGDvMmblU68oleRlfuVuANA8eI822FmcGULZL-MAL5ORw3OT10thkk5yS693b4vZQhtTPbCuUNVXfrZnPDmglUU-vz58u0BSxuAvGDCUERjBJFahQDc8"/>
+</div>
+<div class="w-full md:w-1/2">
+<span class="text-secondary font-label text-xs tracking-widest uppercase">Culinary</span>
+<h3 class="text-2xl font-serif mt-2 mb-3">The Flavors of Basilicata</h3>
+<p class="text-on-surface/70 leading-relaxed mb-4">Sample the famous Matera bread (IGP), cruschi peppers, and Caciocavallo cheese. Enjoy a private tasting in a converted cave cellar with local Aglianico del Vulture wine.</p>
+<span class="inline-flex items-center px-3 py-1 bg-secondary-container text-on-secondary-container rounded-md text-xs font-medium">2.5 Hours</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Where to Stay - Bento Grid Style -->
+<div class="mb-16">
+<h2 class="text-3xl font-serif mb-8">Refined Sanctuaries</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Luxury boutique hotel suite carved into a cave" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmF7bvdsEZiSfmmKVKrMgz85huSUI2spUg4-rN7Ixkrrw40PuJz1yTAU04XRDL5MlTEl0xY_DWWqDTqjOIRKtZxYUTOyRBscjBicp7zgBE5LjUOtxmSICUjO68Pm2IeDrKgBrkzrO8Mj2KvstV0vPRpZsTRzLZ_fDkOCOXX1Iex1_LSWuzyCZIqx-_TAJe7cFOiwB_ZOyLphBNq6MRCNbrULvrw0E0Nox5jjCyEA6JvsNMhlqGNV7OmPpfG2Wx8u2_vWWg-lYjSvw"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-serif text-xl">Sextantio Le Grotte della Civita</h4>
+<span class="text-primary font-bold">€€€</span>
+</div>
+<p class="text-sm text-on-surface/60 font-body mb-4">Authentic cave-dwelling experience with minimalist design and candlelit ambiance.</p>
+<button class="text-primary text-sm font-bold flex items-center group/btn">
+                                    Check Availability <span class="material-symbols-outlined text-xs ml-1 group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+<div class="h-56 overflow-hidden">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="Modern terrace overlooking the Sassi di Matera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPJafkNm3_hOY3YdPbix8Vu1ym8fqdoC857mJ3WlCKCa-HwWJ9RaWOiJH5-H9E-_9Iv94y7u9KjWNLBWuHu1j9BJn49o6ew9O-KhlicKysCWFLcrNs3W06pZqtw_k7Qw4gXrHgn4rdQ-ycI0I0BTucI_HJELgcjyf7iNsoNf6DCE-aUdKDhYuQBXvj-vyX8Bpf7L-ilV1-Wq7ai4G2q8NwP_xXu3Q4nc9lFAwbbKpFZiBGlLENMaUF9e1n0a0k_KzRZcW7i_SwvPA"/>
+</div>
+<div class="p-6">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-serif text-xl">Palazzo Gattini Luxury Hotel</h4>
+<span class="text-primary font-bold">€€€</span>
+</div>
+<p class="text-sm text-on-surface/60 font-body mb-4">A restored palace offering the finest views of the Duomo and the Sassi from its rooftop spa.</p>
+<button class="text-primary text-sm font-bold flex items-center group/btn">
+                                    Check Availability <span class="material-symbols-outlined text-xs ml-1 group-hover/btn:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sidebar -->
+<aside class="lg:col-span-4 space-y-8">
+<!-- Interactive Map Placeholder -->
+<div class="bg-surface-container-low rounded-2xl overflow-hidden p-1 shadow-sm">
+<div class="h-64 bg-surface-dim rounded-xl relative overflow-hidden">
+<img class="w-full h-full object-cover opacity-50 grayscale" data-alt="Artistic map rendering of southern Italy" data-location="Matera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZCVMtUasI9AGT1ZzB9ZkbxIP0YETbMb1HQw6sMGez78wjvMgdgYbJtallr8KBHDbi_gDX2oD0HXcY-kRhh2d1Yh2dnqbIqjKjDjzPcIEz0jkkem6XY3uFnmuYSC2Za7QlsMiduhxJyCDbfJCEDGbc6ijjzy3O8upt7RSnfUrHsbEHUgA6JOfkYOsVc5QBZplBYEHTXWmJRkntZD10rYdlaTM87IhmH3Vl_NJ03DBln5z18t7CLe4DjCic05rPWmNgPtnKikJpxTM"/>
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="relative">
+<div class="absolute -top-10 -left-1/2 bg-white px-3 py-1 rounded shadow-md text-xs font-bold whitespace-nowrap">Explore Sassi</div>
+<span class="material-symbols-outlined text-primary text-4xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+</div>
+</div>
+<div class="p-4">
+<h4 class="font-serif text-lg mb-1">Matera, Basilicata</h4>
+<p class="text-sm text-on-surface/60 font-body">40.6664° N, 16.6043° E</p>
+</div>
+</div>
+<!-- Weather Card -->
+<div class="bg-secondary-container/30 rounded-2xl p-6 border border-secondary-container">
+<div class="flex items-center justify-between mb-6">
+<h4 class="font-serif text-lg">Current Weather</h4>
+<span class="material-symbols-outlined text-secondary">wb_sunny</span>
+</div>
+<div class="flex items-end space-x-4 mb-6">
+<span class="text-5xl font-bold text-on-surface">24°C</span>
+<span class="text-secondary font-label pb-1">Sunny</span>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between text-sm">
+<span class="text-on-surface/60">Humidity</span>
+<span class="font-bold">42%</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-on-surface/60">Wind</span>
+<span class="font-bold">12 km/h</span>
+</div>
+</div>
+</div>
+<!-- Best Time to Visit -->
+<div class="bg-surface-container-lowest rounded-2xl p-6 shadow-sm">
+<h4 class="font-serif text-lg mb-4">When to Go</h4>
+<div class="space-y-4">
+<div class="flex items-start space-x-3">
+<span class="material-symbols-outlined text-primary mt-1">auto_awesome</span>
+<div>
+<p class="text-sm font-bold">Spring (April–June)</p>
+<p class="text-xs text-on-surface/60">Perfect temperatures and wildflowers in the Murgia park.</p>
+</div>
+</div>
+<div class="flex items-start space-x-3">
+<span class="material-symbols-outlined text-primary mt-1">filter_vintage</span>
+<div>
+<p class="text-sm font-bold">Autumn (Sept–Oct)</p>
+<p class="text-xs text-on-surface/60">Golden light and local harvest festivals.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Essential Info -->
+<div class="bg-primary/5 rounded-2xl p-6">
+<h4 class="font-serif text-lg mb-4">Good to Know</h4>
+<ul class="space-y-3 text-sm font-body">
+<li class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xs text-primary">circle</span>
+<span>Wear comfortable walking shoes.</span>
+</li>
+<li class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xs text-primary">circle</span>
+<span>Bari (BRI) is the nearest airport.</span>
+</li>
+<li class="flex items-center space-x-3">
+<span class="material-symbols-outlined text-xs text-primary">circle</span>
+<span>Book cave hotels 4-6 months in advance.</span>
+</li>
+</ul>
+</div>
+</aside>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-20 bg-[#e7f6ff] dark:bg-[#0a141a]">
+<div class="flex flex-col md:flex-row justify-between items-center px-12 py-16 w-full border-t border-[#ddc0b9]/20">
+<div class="mb-8 md:mb-0">
+<div class="font-serif text-lg text-[#9b3f25] mb-2">The Editorial Wanderer</div>
+<p class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d]">© 2024 The Editorial Wanderer. All rights reserved.</p>
+</div>
+<div class="flex flex-wrap justify-center gap-8">
+<a class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">About Us</a>
+<a class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Press</a>
+<a class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Privacy Policy</a>
+<a class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Terms of Service</a>
+<a class="font-sans text-sm tracking-wide Plus Jakarta Sans text-[#5c614d] dark:text-[#a3a98d] opacity-70 hover:opacity-100 hover:text-[#9b3f25] transition-all duration-200" href="#">Contact</a>
+</div>
+</div>
+</footer>
+</body></html>
