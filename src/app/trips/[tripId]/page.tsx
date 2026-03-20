@@ -251,6 +251,25 @@ export default function TripDetailPage() {
   const tripId = params.tripId as string;
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light'); // T022: dark mode
+
+  // T022: Load theme preference on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('wanderlust_theme');
+    if (savedTheme) {
+      setTheme(savedTheme as 'light' | 'dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, []);
+
+  // T022: Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wanderlust_theme', theme);
+  }, [theme]);
+
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newActivityName, setNewActivityName] = useState('');
@@ -1576,6 +1595,24 @@ export default function TripDetailPage() {
             💾 Save as Template
           </button>
           {trip && <CalendarExport trip={trip} />}
+        </div>
+        
+        {/* T022: Dark mode toggle */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1.25rem',
+            }}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
         </div>
         
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>

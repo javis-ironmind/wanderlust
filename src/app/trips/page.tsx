@@ -27,6 +27,26 @@ export default function TripsPage() {
   const updateTrip = useTripStore((state) => state.updateTrip);
   const deleteTrip = useTripStore((state) => state.deleteTrip);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light'); // T022: dark mode
+
+  // T022: Load theme preference on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('wanderlust_theme');
+    if (savedTheme) {
+      setTheme(savedTheme as 'light' | 'dark');
+    } else {
+      // Check system preference
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setTheme(prefersDark ? 'dark' : 'light');
+    }
+  }, []);
+
+  // T022: Apply theme to document
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('wanderlust_theme', theme);
+  }, [theme]);
+
   const [refreshing, setRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -241,6 +261,22 @@ export default function TripsPage() {
   return (
     <>
     <style>{`
+      :root {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1e293b;
+        --bg-card: #334155;
+        --text-primary: #f1f5f9;
+        --text-secondary: #94a3b8;
+        --accent: #3b82f6;
+      }
+      [data-theme="light"] {
+        --bg-primary: #f8fafc;
+        --bg-secondary: #ffffff;
+        --bg-card: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --accent: #3b82f6;
+      }
       .trip-card:hover {
         transform: translateY(-4px);
         box-shadow: 0 12px 24px -8px rgba(0,0,0,0.2) !important;
@@ -280,9 +316,26 @@ export default function TripsPage() {
         </div>
       )}
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'white', marginBottom: '0.5rem' }}>
-          My Trips ✈️
-        </h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+          <h1 style={{ fontSize: '2.5rem', fontWeight: '700', color: 'white', margin: 0 }}>
+            My Trips ✈️
+          </h1>
+          {/* T022: Dark mode toggle */}
+          <button
+            onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              cursor: 'pointer',
+              fontSize: '1.25rem',
+            }}
+            title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+          >
+            {theme === 'light' ? '🌙' : '☀️'}
+          </button>
+        </div>
 
         {/* T020: Statistics Dashboard */}
         {trips.length > 0 && (() => {
