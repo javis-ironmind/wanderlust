@@ -19,7 +19,7 @@ const CATEGORY_CONFIG: Record<string, { label: string; icon: string; color: stri
   solo: { label: 'Solo', icon: '🎒', color: '#14B8A6' },
 };
 
-type SortOption = 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
+type SortOption = 'upcoming' | 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
 
 export default function TripsPage() {
   const trips = useTripStore((state) => state.trips);
@@ -30,7 +30,7 @@ export default function TripsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [sortBy, setSortBy] = useState<SortOption>('date-newest');
+  const [sortBy, setSortBy] = useState<SortOption>('upcoming');
   const [showDuplicateModal, setShowDuplicateModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [tripToDuplicate, setTripToDuplicate] = useState<Trip | null>(null);
@@ -198,7 +198,13 @@ export default function TripsPage() {
         (trip.categories && trip.categories.includes(categoryFilter)))
     )
     .sort((a, b) => {
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      const daysUntilA = Math.ceil((new Date(a.startDate).setHours(0,0,0,0) - now.getTime()) / (1000 * 60 * 60 * 24));
+      const daysUntilB = Math.ceil((new Date(b.startDate).setHours(0,0,0,0) - now.getTime()) / (1000 * 60 * 60 * 24));
       switch (sortBy) {
+        case 'upcoming':
+          return daysUntilA - daysUntilB;
         case 'date-newest':
           return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
         case 'date-oldest':
@@ -354,6 +360,7 @@ export default function TripsPage() {
                 minWidth: '150px',
               }}
             >
+              <option value="upcoming" style={{ background: '#1e3a5f' }}>Upcoming</option>
               <option value="date-newest" style={{ background: '#1e3a5f' }}>Date (Newest)</option>
               <option value="date-oldest" style={{ background: '#1e3a5f' }}>Date (Oldest)</option>
               <option value="name-az" style={{ background: '#1e3a5f' }}>Name (A-Z)</option>
@@ -609,6 +616,48 @@ export default function TripsPage() {
                       const end = new Date(trip.endDate).getTime();
                       const duration = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
                       return ` · ${duration} day${duration !== 1 ? 's' : ''}`;
+                    })()}
+                    {(() => {
+                      const now = new Date();
+                      now.setHours(0, 0, 0, 0);
+                      const tripStart = new Date(trip.startDate);
+                      tripStart.setHours(0, 0, 0, 0);
+                      const daysUntil = Math.ceil((tripStart.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+                      let countdown = '';
+                      let badgeColor = '';
+                      if (daysUntil < 0) {
+                        return null; // Don't show badge for past trips
+                      } else if (daysUntil === 0) {
+                        countdown = 'Today!';
+                        badgeColor = '#22c55e';
+                      } else if (daysUntil === 1) {
+                        countdown = 'Tomorrow';
+                        badgeColor = '#22c55e';
+                      } else if (daysUntil <= 7) {
+                        countdown = `in ${daysUntil} days`;
+                        badgeColor = '#f59e0b';
+                      } else if (daysUntil <= 30) {
+                        const weeks = Math.ceil(daysUntil / 7);
+                        countdown = `in ${weeks} week${weeks > 1 ? 's' : ''}`;
+                        badgeColor = '#3b82f6';
+                      } else {
+                        const months = Math.ceil(daysUntil / 30);
+                        countdown = `in ${months} month${months > 1 ? 's' : ''}`;
+                        badgeColor = '#8b5cf6';
+                      }
+                      return (
+                        <span style={{ 
+                          marginLeft: '0.5rem', 
+                          padding: '2px 8px', 
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          backgroundColor: badgeColor,
+                          color: 'white'
+                        }}>
+                          {countdown}
+                        </span>
+                      );
                     })()}
                   </p>
                 </div>
