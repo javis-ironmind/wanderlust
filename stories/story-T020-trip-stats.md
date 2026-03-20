@@ -13,12 +13,26 @@ Users want to see their travel statistics - total trips, days traveled, countrie
 
 ## Acceptance Criteria
 
-- [ ] AC1: Add statistics section to trips list page (or a dedicated /stats page)
-- [ ] AC2: Display total trip count
-- [ ] AC3: Display total days traveled across all trips
-- [ ] AC4: Display countries/locations visited (extract from trips)
-- [ ] AC5: Display average trip duration
-- [ ] AC6: Display upcoming trip countdown
+- [x] AC1: Add statistics section to trips list page (or a dedicated /stats page)
+- [x] AC2: Display total trip count
+- [x] AC3: Display total days traveled across all trips
+- [x] AC4: Display countries/locations visited (extract from trips)
+- [x] AC5: Display average trip duration
+- [x] AC6: Display upcoming trip countdown
+
+---
+
+## Progress (Cycle 193)
+
+**Completed (6/6 ACs):**
+- ✅ AC1: Statistics dashboard at top of trips list
+- ✅ AC2: Total trips counter
+- ✅ AC3: Total days traveled (calculated from start/end dates)
+- ✅ AC4: Locations visited (extracted from activity locations)
+- ✅ AC5: Average trip duration
+- ✅ AC6: Days until next trip (green highlight badge)
+
+**All ACs complete!**
 
 ---
 
