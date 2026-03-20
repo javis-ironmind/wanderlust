@@ -13,12 +13,26 @@ Users want to write daily journal entries during their trips. The journal tab ex
 
 ## Acceptance Criteria
 
-- [ ] AC1: Render JournalPanel when journal tab is active
-- [ ] AC2: Display list of journal entries (by date)
-- [ ] AC3: Add new journal entry form (date + text)
-- [ ] AC4: Edit existing journal entries
-- [ ] AC5: Delete journal entries
-- [ ] AC6: Persist to localStorage
+- [x] AC1: Render JournalPanel when journal tab is active
+- [x] AC2: Display list of journal entries (by date)
+- [x] AC3: Add new journal entry form (date + text)
+- [x] AC4: Edit existing journal entries
+- [x] AC5: Delete journal entries
+- [x] AC6: Persist to localStorage
+
+---
+
+## Progress (Cycle 194)
+
+**Completed (6/6 ACs):**
+- ✅ AC1: Journal section renders when journal tab active
+- ✅ AC2: Entries displayed sorted by date (newest first)
+- ✅ AC3: Add form with date picker and textarea
+- ✅ AC4: Edit button with inline editing
+- ✅ AC5: Delete button with confirmation
+- ✅ AC6: localStorage persistence via trip.journalEntries
+
+**All ACs complete!**
 
 ---
 
