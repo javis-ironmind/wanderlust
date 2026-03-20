@@ -284,6 +284,107 @@ export default function TripsPage() {
           My Trips ✈️
         </h1>
 
+        {/* T020: Statistics Dashboard */}
+        {trips.length > 0 && (() => {
+          // Calculate stats
+          const totalTrips = trips.length;
+          const now = new Date();
+          now.setHours(0, 0, 0, 0);
+          
+          let totalDays = 0;
+          let totalFutureDays = 0;
+          const locations = new Set<string>();
+          
+          trips.forEach(trip => {
+            const start = new Date(trip.startDate);
+            const end = new Date(trip.endDate);
+            const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
+            totalDays += days;
+            
+            if (end.getTime() >= now.getTime()) {
+              const futureDays = Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+              totalFutureDays += futureDays;
+            }
+            
+            // Extract location from days/activities
+            trip.days.forEach(day => {
+              day.activities.forEach(activity => {
+                if (activity.location && typeof activity.location === 'object' && 'name' in activity.location) {
+                  locations.add((activity.location as any).name);
+                }
+              });
+            });
+          });
+          
+          const avgDuration = totalTrips > 0 ? Math.round(totalDays / totalTrips) : 0;
+          const nextTrip = trips
+            .filter(t => new Date(t.endDate).getTime() >= now.getTime())
+            .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime())[0];
+          
+          let daysUntilNext = 0;
+          if (nextTrip) {
+            daysUntilNext = Math.ceil((new Date(nextTrip.startDate).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+          }
+          
+          return (
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', 
+              gap: '1rem',
+              marginTop: '1rem',
+              marginBottom: '1.5rem'
+            }}>
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '12px', 
+                padding: '1rem',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{totalTrips}</div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Trips</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '12px', 
+                padding: '1rem',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{totalDays}</div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Days Traveled</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '12px', 
+                padding: '1rem',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{locations.size}</div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Locations</div>
+              </div>
+              <div style={{ 
+                background: 'rgba(255,255,255,0.1)', 
+                borderRadius: '12px', 
+                padding: '1rem',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{avgDuration}</div>
+                <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase' }}>Avg Days</div>
+              </div>
+              {nextTrip && daysUntilNext > 0 && (
+                <div style={{ 
+                  background: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', 
+                  borderRadius: '12px', 
+                  padding: '1rem',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '1.5rem', fontWeight: '700', color: 'white' }}>{daysUntilNext}</div>
+                  <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase' }}>Until Next</div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Search and Sort Controls */}
         {trips.length > 0 && (
           <div style={{ 
