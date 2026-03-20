@@ -26,6 +26,8 @@ export default function TripsPage() {
   const setTrips = useTripStore((state) => state.setTrips);
   const updateTrip = useTripStore((state) => state.updateTrip);
   const deleteTrip = useTripStore((state) => state.deleteTrip);
+  const archiveTrip = useTripStore((state) => state.archiveTrip);
+  const unarchiveTrip = useTripStore((state) => state.unarchiveTrip);
   const [loading, setLoading] = useState(true);
   const [theme, setTheme] = useState<'light' | 'dark'>('light'); // T022: dark mode
 
@@ -176,6 +178,19 @@ export default function TripsPage() {
     setShowDeleteModal(true);
   };
 
+  // T024: Archive handlers
+  const handleArchiveClick = (e: React.MouseEvent, trip: Trip) => {
+    e.preventDefault();
+    e.stopPropagation();
+    archiveTrip(trip.id);
+  };
+
+  const handleUnarchiveClick = (e: React.MouseEvent, trip: Trip) => {
+    e.preventDefault();
+    e.stopPropagation();
+    unarchiveTrip(trip.id);
+  };
+
   const handleEditName = (trip: Trip) => {
     setEditingTripId(trip.id);
     setEditingName(trip.name);
@@ -212,6 +227,7 @@ export default function TripsPage() {
   // Filter and sort trips - AC3: Category filter
   const filteredTrips = trips
     .filter(trip => 
+      !trip.archived && // T024: Exclude archived trips from main view
       (searchQuery.trim() === '' || 
         trip.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
       (categoryFilter === 'all' || 
@@ -237,6 +253,11 @@ export default function TripsPage() {
           return 0;
       }
     });
+
+  // T024: Separate archived trips list
+  const archivedTrips = trips
+    .filter(trip => trip.archived)
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
 
   useEffect(() => {
     loadTrips();
@@ -697,6 +718,29 @@ export default function TripsPage() {
                 >
                   📋 Duplicate
                 </button>
+                {/* T024: Archive/Unarchive Button */}
+                <button
+                  onClick={(e) => trip.archived ? handleUnarchiveClick(e, trip) : handleArchiveClick(e, trip)}
+                  style={{
+                    position: 'absolute',
+                    top: '50px',
+                    right: '10px',
+                    background: 'rgba(255,255,255,0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10,
+                  }}
+                  title={trip.archived ? "Restore to main view" : "Archive this trip"}
+                >
+                  {trip.archived ? '📤 Unarchive' : '📦 Archive'}
+                </button>
                 <div style={{ padding: '1.25rem' }}>
                   {editingTripId === trip.id ? (
                     <input
@@ -866,6 +910,101 @@ export default function TripsPage() {
           </div>
         )}
       </div>
+
+      {/* T024: Archived Trips Section */}
+      {archivedTrips.length > 0 && (
+        <div style={{ marginTop: '3rem' }}>
+          <h2 style={{ 
+            fontSize: '1.5rem', 
+            fontWeight: '700', 
+            color: 'white', 
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            📦 Archived Trips ({archivedTrips.length})
+          </h2>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gap: '1.5rem',
+          }}>
+            {archivedTrips.map((trip) => (
+              <div
+                key={trip.id}
+                style={{
+                  display: 'block',
+                  background: 'white',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  textDecoration: 'none',
+                  color: '#1e3a5f',
+                  boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)',
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  opacity: 0.8,
+                }}
+                className="trip-card"
+                onClick={() => router.push(`/trips/${trip.id}`)}
+              >
+                <div style={{
+                  height: '120px',
+                  background: trip.coverImage 
+                    ? `url(${trip.coverImage}) center/cover`
+                    : `linear-gradient(135deg, #6b7280 0%, #9ca3af 100%)`,
+                }} />
+                {/* Archived Badge */}
+                <div style={{
+                  position: 'absolute',
+                  top: '10px',
+                  left: '10px',
+                  background: 'rgba(107, 114, 128, 0.9)',
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '6px',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                }}>
+                  📦 Archived
+                </div>
+                {/* Unarchive Button */}
+                <button
+                  onClick={(e) => handleUnarchiveClick(e, trip)}
+                  style={{
+                    position: 'absolute',
+                    top: '10px',
+                    right: '10px',
+                    background: 'rgba(255,255,255,0.9)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10,
+                  }}
+                  title="Restore to main view"
+                >
+                  📤 Unarchive
+                </button>
+                <div style={{ padding: '1rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.125rem', fontWeight: '600' }}>
+                    {trip.name}
+                  </h3>
+                  <p style={{ margin: '0.5rem 0 0', color: '#64748b', fontSize: '0.875rem' }}>
+                    📅 {trip.startDate} → {trip.endDate}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Duplicate Confirmation Modal */}
       {showDuplicateModal && tripToDuplicate && (

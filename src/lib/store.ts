@@ -32,6 +32,8 @@ interface TripActions {
   updateTrip: (tripId: string, updates: Partial<Trip>) => void;
   deleteTrip: (tripId: string) => void;
   setCurrentTrip: (tripId: string | null) => void;
+  archiveTrip: (tripId: string) => void;
+  unarchiveTrip: (tripId: string) => void;
 
   // Day actions
   addDay: (tripId: string, day: Day) => void;
@@ -181,6 +183,23 @@ export const useTripStore = create<TripStore>((set, get) => ({
   },
 
   setCurrentTrip: (tripId) => set({ currentTripId: tripId }),
+
+  // T024: Archive actions
+  archiveTrip: (tripId) => set((state) => {
+    const updatedTrips = state.trips.map((trip) =>
+      trip.id === tripId ? { ...trip, archived: true } : trip
+    );
+    saveToStorage(updatedTrips);
+    return { trips: updatedTrips };
+  }),
+
+  unarchiveTrip: (tripId) => set((state) => {
+    const updatedTrips = state.trips.map((trip) =>
+      trip.id === tripId ? { ...trip, archived: false } : trip
+    );
+    saveToStorage(updatedTrips);
+    return { trips: updatedTrips };
+  }),
 
   // Day actions
   addDay: (tripId, day) => set((state) => ({
@@ -774,6 +793,8 @@ export const useTripActions = () => useTripStore(useShallow((state) => ({
   updateTrip: state.updateTrip,
   deleteTrip: state.deleteTrip,
   setCurrentTrip: state.setCurrentTrip,
+  archiveTrip: state.archiveTrip,
+  unarchiveTrip: state.unarchiveTrip,
   addDay: state.addDay,
   updateDay: state.updateDay,
   deleteDay: state.deleteDay,

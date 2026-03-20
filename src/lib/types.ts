@@ -121,6 +121,7 @@ export interface Trip {
   updatedAt: string; // ISO datetime
   budgetTotal?: number;
   copiedFrom?: string; // Track original trip if duplicated
+  archived?: boolean; // T024: Archive feature
 }
 
 // For creating a new trip
