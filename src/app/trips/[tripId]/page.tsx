@@ -235,6 +235,14 @@ type Trip = {
   categories?: string[];
   notes?: TripNote[];
   photos?: string[];
+  journalEntries?: JournalEntry[];
+};
+
+type JournalEntry = {
+  id: string;
+  date: string;
+  content: string;
+  createdAt: string;
 };
 
 export default function TripDetailPage() {
@@ -304,6 +312,9 @@ export default function TripDetailPage() {
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null); // F002 AC4: drop target index
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | 'quota-exceeded'>('saved'); // F010 AC2: auto-save indicator
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null); // T019: fullscreen photo viewer
+  const [newJournalDate, setNewJournalDate] = useState<string>(''); // T021: new journal entry date
+  const [newJournalContent, setNewJournalContent] = useState<string>(''); // T021: new journal entry content
+  const [editingJournalId, setEditingJournalId] = useState<string | null>(null); // T021: editing journal entry
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null); // F010 AC3: debounce timer
 
   // F010 AC3/AC9: Debounced save to localStorage with quota handling
@@ -1026,6 +1037,70 @@ export default function TripDetailPage() {
     }
   };
 
+  // T021: Add journal entry
+  const handleAddJournalEntry = () => {
+    if (!trip || !newJournalContent.trim() || !newJournalDate) return;
+    
+    const newEntry: JournalEntry = {
+      id: Date.now().toString(),
+      date: newJournalDate,
+      content: newJournalContent.trim(),
+      createdAt: new Date().toISOString()
+    };
+    
+    const currentEntries = trip.journalEntries || [];
+    const updatedTrip = { ...trip, journalEntries: [...currentEntries, newEntry] };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+    
+    setNewJournalDate('');
+    setNewJournalContent('');
+  };
+
+  // T021: Update journal entry
+  const handleUpdateJournalEntry = (id: string, content: string) => {
+    if (!trip) return;
+    
+    const currentEntries = trip.journalEntries || [];
+    const updatedEntries = currentEntries.map(entry => 
+      entry.id === id ? { ...entry, content } : entry
+    );
+    const updatedTrip = { ...trip, journalEntries: updatedEntries };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+    
+    setEditingJournalId(null);
+  };
+
+  // T021: Delete journal entry
+  const handleDeleteJournalEntry = (id: string) => {
+    if (!trip) return;
+    
+    const currentEntries = trip.journalEntries || [];
+    const updatedEntries = currentEntries.filter(entry => entry.id !== id);
+    const updatedTrip = { ...trip, journalEntries: updatedEntries };
+    setTrip(updatedTrip);
+    
+    const saved = localStorage.getItem('wanderlust_trips');
+    if (saved) {
+      const trips: Trip[] = JSON.parse(saved);
+      const updatedTrips = trips.map(t => t.id === tripId ? updatedTrip : t);
+      localStorage.setItem('wanderlust_trips', JSON.stringify(updatedTrips));
+    }
+  };
+
   // T015: Handle add category
   const handleAddCategory = () => {
     if (!trip) return;
@@ -1551,6 +1626,113 @@ export default function TripDetailPage() {
             onNotesChange={handleUpdateNotes} 
           />
         </div>
+
+        {/* Journal Section (T021) */}
+        {activeTab === 'journal' && (
+          <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ margin: '0 0 1rem', fontSize: '1.25rem', fontWeight: '600', color: '#1e3a5f' }}>📝 Trip Journal</h2>
+            
+            {/* Add New Entry */}
+            <div style={{ marginBottom: '1.5rem', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', color: '#64748b', marginBottom: '0.25rem' }}>Date</label>
+                <input
+                  type="date"
+                  value={newJournalDate}
+                  onChange={(e) => setNewJournalDate(e.target.value)}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                />
+              </div>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <label style={{ display: 'block', fontSize: '0.875rem', color: '#64748b', marginBottom: '0.25rem' }}>Entry</label>
+                <textarea
+                  value={newJournalContent}
+                  onChange={(e) => setNewJournalContent(e.target.value)}
+                  placeholder="Write about your day..."
+                  rows={4}
+                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0', resize: 'vertical', fontFamily: 'inherit' }}
+                />
+              </div>
+              <button
+                onClick={handleAddJournalEntry}
+                disabled={!newJournalContent.trim() || !newJournalDate}
+                style={{
+                  background: newJournalContent.trim() && newJournalDate ? '#3b82f6' : '#94a3b8',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '6px',
+                  border: 'none',
+                  cursor: newJournalContent.trim() && newJournalDate ? 'pointer' : 'not-allowed',
+                  fontWeight: '600'
+                }}
+              >
+                Add Entry
+              </button>
+            </div>
+            
+            {/* Journal Entries List */}
+            {trip.journalEntries && trip.journalEntries.length > 0 ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                {trip.journalEntries
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .map(entry => (
+                    <div key={entry.id} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <span style={{ fontWeight: '600', color: '#1e3a5f' }}>
+                          {new Date(entry.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button
+                            onClick={() => setEditingJournalId(entry.id)}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: '#3b82f6' }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteJournalEntry(entry.id)}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.875rem', color: '#dc2626' }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                      {editingJournalId === entry.id ? (
+                        <div>
+                          <textarea
+                            defaultValue={entry.content}
+                            rows={4}
+                            id={`edit-journal-${entry.id}`}
+                            style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #e2e8f0', resize: 'vertical', fontFamily: 'inherit', marginBottom: '0.5rem' }}
+                          />
+                          <button
+                            onClick={() => {
+                              const content = (document.getElementById(`edit-journal-${entry.id}`) as HTMLTextAreaElement)?.value;
+                              if (content) handleUpdateJournalEntry(entry.id, content);
+                            }}
+                            style={{ background: '#22c55e', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '4px', border: 'none', cursor: 'pointer', marginRight: '0.5rem' }}
+                          >
+                            Save
+                          </button>
+                          <button
+                            onClick={() => setEditingJournalId(null)}
+                            style={{ background: '#64748b', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '4px', border: 'none', cursor: 'pointer' }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <p style={{ margin: 0, color: '#374151', whiteSpace: 'pre-wrap' }}>{entry.content}</p>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <p style={{ color: '#64748b', textAlign: 'center', padding: '2rem' }}>
+                No journal entries yet. Start writing about your trip!
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Photos Section (T019) */}
         <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '12px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
