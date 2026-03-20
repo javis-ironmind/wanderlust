@@ -13,12 +13,26 @@ Users want to use the app in dark mode, especially for late-night planning. Curr
 
 ## Acceptance Criteria
 
-- [ ] AC1: Add theme toggle button in trips list header
-- [ ] AC2: Implement dark theme color palette
-- [ ] AC3: Persist theme preference to localStorage
-- [ ] AC4: Apply dark theme to trips list page
-- [ ] AC5: Apply dark theme to trip detail page
-- [ ] AC6: System preference detection on first load
+- [x] AC1: Add theme toggle button in trips list header
+- [x] AC2: Implement dark theme color palette
+- [x] AC3: Persist theme preference to localStorage
+- [x] AC4: Apply dark theme to trips list page
+- [x] AC5: Apply dark theme to trip detail page
+- [x] AC6: System preference detection on first load
+
+---
+
+## Progress (Cycle 195)
+
+**Completed (6/6 ACs):**
+- ✅ AC1: Theme toggle button in both trips list and trip detail pages
+- ✅ AC2: Dark theme CSS variables defined
+- ✅ AC3: localStorage persistence via 'wanderlust_theme'
+- ✅ AC4: Trips list page has toggle + CSS variables
+- ✅ AC5: Trip detail page has toggle + CSS variables
+- ✅ AC6: System preference detection via prefers-color-scheme
+
+**All ACs complete!**
 
 ---
 
