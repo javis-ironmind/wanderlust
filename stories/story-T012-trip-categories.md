@@ -13,7 +13,7 @@ As users create more trips, organizing them becomes important. Categories help u
 - [x] AC1 - Add "Category" field to trip creation form with predefined options + custom tag input
 - [x] AC2 - Display category badge/tag on each trip card in the trips list
 - [x] AC3 - Filter dropdown in trips list to filter by category (All, Business, Vacation, etc.)
-- [ ] AC4 - Category selector appears in trip detail view for editing
+- [x] AC4 - Category selector appears in trip detail view for editing
 - [x] AC5 - Multiple tags support per trip
 
 ## Technical Notes

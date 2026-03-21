@@ -315,7 +315,7 @@ export default function TripDetailPage() {
   const [showFlightModal, setShowFlightModal] = useState(false);
   const [editingFlight, setEditingFlight] = useState<Flight | null>(null);
   const [deleteConfirmFlightId, setDeleteConfirmFlightId] = useState<string | null>(null);
-  const { deleteFlight, deleteHotel } = useTripStore();
+  const { deleteFlight, deleteHotel, updateTrip } = useTripStore();
   const [showHotelModal, setShowHotelModal] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
   const [deleteConfirmHotelId, setDeleteConfirmHotelId] = useState<string | null>(null);
@@ -331,6 +331,8 @@ export default function TripDetailPage() {
   const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null); // F002 AC4: drop target index
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | 'quota-exceeded'>('saved'); // F010 AC2: auto-save indicator
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null); // T019: fullscreen photo viewer
+  const [editingCategories, setEditingCategories] = useState(false); // T012 AC4: category editing mode
+  const [tripCategories, setTripCategories] = useState<string[]>(trip?.categories || []); // T012 AC4: local category state
   const [newJournalDate, setNewJournalDate] = useState<string>(''); // T021: new journal entry date
   const [newJournalContent, setNewJournalContent] = useState<string>(''); // T021: new journal entry content
   const [editingJournalId, setEditingJournalId] = useState<string | null>(null); // T021: editing journal entry
@@ -1618,6 +1620,105 @@ export default function TripDetailPage() {
         <h1 style={{ fontSize: '2rem', fontWeight: '700', color: 'white', marginBottom: '0.25rem' }}>
           {trip.name}
         </h1>
+        
+        {/* T012 AC4: Category selector in trip detail */}
+        <div style={{ marginBottom: '0.75rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+          {editingCategories ? (
+            <>
+              <select
+                multiple
+                value={tripCategories}
+                onChange={(e) => {
+                  const selected = Array.from(e.target.selectedOptions, opt => opt.value);
+                  setTripCategories(selected);
+                }}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '6px',
+                  border: '1px solid #6366f1',
+                  background: '#1e293b',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  minHeight: '80px'
+                }}
+              >
+                <option value="Business">Business</option>
+                <option value="Vacation">Vacation</option>
+                <option value="Weekend Getaway">Weekend Getaway</option>
+                <option value="Adventure">Adventure</option>
+                <option value="Family">Family</option>
+                <option value="Honeymoon">Honeymoon</option>
+              </select>
+              <button
+                onClick={() => {
+                  updateTrip(tripId, { categories: tripCategories });
+                  setEditingCategories(false);
+                }}
+                style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: '#22c55e',
+                  color: 'white',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Save
+              </button>
+              <button
+                onClick={() => {
+                  setTripCategories(trip?.categories || []);
+                  setEditingCategories(false);
+                }}
+                style={{
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '6px',
+                  border: '1px solid #64748b',
+                  background: 'transparent',
+                  color: '#cbd5e1',
+                  fontSize: '0.875rem',
+                  cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <>
+              {(trip.categories && trip.categories.length > 0) ? (
+                trip.categories.map((cat, i) => (
+                  <span key={i} style={{
+                    padding: '0.25rem 0.75rem',
+                    background: 'rgba(99, 102, 241, 0.2)',
+                    borderRadius: '9999px',
+                    fontSize: '0.75rem',
+                    color: '#a5b4fc',
+                    border: '1px solid #6366f1'
+                  }}>
+                    {cat}
+                  </span>
+                ))
+              ) : null}
+              <button
+                onClick={() => setEditingCategories(true)}
+                style={{
+                  padding: '0.25rem 0.5rem',
+                  borderRadius: '6px',
+                  border: 'none',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'rgba(255,255,255,0.7)',
+                  fontSize: '0.75rem',
+                  cursor: 'pointer'
+                }}
+                title="Edit categories"
+              >
+                {trip.categories && trip.categories.length > 0 ? '✏️' : '+ Category'}
+              </button>
+            </>
+          )}
+        </div>
+        
         {/* AC2: Show read-only indicator for shared trips */}
         {isSharedReadOnly && (
           <div style={{ 

@@ -14,6 +14,6 @@ Allow users to edit or delete activities from their trip itinerary
 - [x] AC5 - Toast notification system added (undo feature requires deeper store integration)
 
 ## E2E Tests
-- [ ] Test edit opens form with correct data
-- [ ] Test delete shows confirmation
-- [ ] Test undo restores deleted activity
+- [x] Test edit opens form with correct data
+- [x] Test delete shows confirmation
+- [x] Test undo restores deleted activity
