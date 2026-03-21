@@ -1,6 +1,59 @@
-// Weather service using Open-Meteo API (free, no API key)
+// T025: Weather Integration using Open-Meteo API (free, no API key)
+import { Location } from './types';
+
+export interface DailyWeather {
+  date: string;
+  temperatureMax: number;
+  temperatureMin: number;
+  precipitationProbability: number;
+  weatherCode: number;
+}
 
 export interface WeatherData {
+  daily: DailyWeather[];
+  fetchedAt: string;
+}
+
+// Weather code to icon/description mapping
+export const weatherCodeMap: Record<number, { icon: string; description: string }> = {
+  0: { icon: '☀️', description: 'Clear sky' },
+  1: { icon: '🌤️', description: 'Mainly clear' },
+  2: { icon: '⛅', description: 'Partly cloudy' },
+  3: { icon: '☁️', description: 'Overcast' },
+  45: { icon: '🌫️', description: 'Foggy' },
+  48: { icon: '🌫️', description: 'Depositing rime fog' },
+  51: { icon: '🌧️', description: 'Light drizzle' },
+  53: { icon: '🌧️', description: 'Moderate drizzle' },
+  55: { icon: '🌧️', description: 'Dense drizzle' },
+  61: { icon: '🌧️', description: 'Slight rain' },
+  63: { icon: '🌧️', description: 'Moderate rain' },
+  65: { icon: '🌧️', description: 'Heavy rain' },
+  71: { icon: '❄️', description: 'Slight snow' },
+  73: { icon: '❄️', description: 'Moderate snow' },
+  75: { icon: '❄️', description: 'Heavy snow' },
+  77: { icon: '🌨️', description: 'Snow grains' },
+  80: { icon: '🌦️', description: 'Slight rain showers' },
+  81: { icon: '🌦️', description: 'Moderate rain showers' },
+  82: { icon: '🌦️', description: 'Violent rain showers' },
+  85: { icon: '🌨️', description: 'Slight snow showers' },
+  86: { icon: '🌨️', description: 'Heavy snow showers' },
+  95: { icon: '⛈️', description: 'Thunderstorm' },
+  96: { icon: '⛈️', description: 'Thunderstorm with slight hail' },
+  99: { icon: '⛈️', description: 'Thunderstorm with heavy hail' },
+};
+
+// Get weather icon for code
+export function getWeatherIcon(code: number): string {
+  return weatherCodeMap[code]?.icon || '❓';
+}
+
+// Get weather description for code
+export function getWeatherDescription(code: number): string {
+  return weatherCodeMap[code]?.description || 'Unknown';
+}
+
+// Convert WeatherData to widget format
+export interface WidgetWeather {
   date: string;
   tempMax: number;
   tempMin: number;
@@ -8,148 +61,180 @@ export interface WeatherData {
   weatherCode: number;
 }
 
-export interface WeatherCache {
-  [locationKey: string]: {
-    data: WeatherData[];
-    timestamp: number;
+export function getWeatherForDate(weatherData: WeatherData, date: string): WidgetWeather | null {
+  const dayWeather = weatherData.daily.find(d => d.date === date);
+  if (!dayWeather) return null;
+  
+  return {
+    date: dayWeather.date,
+    tempMax: dayWeather.temperatureMax,
+    tempMin: dayWeather.temperatureMin,
+    precipitationChance: dayWeather.precipitationProbability,
+    weatherCode: dayWeather.weatherCode,
   };
 }
 
-const CACHE_DURATION = 6 * 60 * 60 * 1000; // 6 hours
-
-// WMO Weather codes to descriptions and icons
-export const weatherCodeMap: Record<number, { description: string; icon: string }> = {
-  0: { description: 'Clear sky', icon: '☀️' },
-  1: { description: 'Mainly clear', icon: '🌤️' },
-  2: { description: 'Partly cloudy', icon: '⛅' },
-  3: { description: 'Overcast', icon: '☁️' },
-  45: { description: 'Foggy', icon: '🌫️' },
-  48: { description: 'Depositing rime fog', icon: '🌫️' },
-  51: { description: 'Light drizzle', icon: '🌦️' },
-  53: { description: 'Moderate drizzle', icon: '🌦️' },
-  55: { description: 'Dense drizzle', icon: '🌧️' },
-  61: { description: 'Slight rain', icon: '🌧️' },
-  63: { description: 'Moderate rain', icon: '🌧️' },
-  65: { description: 'Heavy rain', icon: '🌧️' },
-  71: { description: 'Slight snow', icon: '🌨️' },
-  73: { description: 'Moderate snow', icon: '🌨️' },
-  75: { description: 'Heavy snow', icon: '❄️' },
-  77: { description: 'Snow grains', icon: '🌨️' },
-  80: { description: 'Slight rain showers', icon: '🌦️' },
-  81: { description: 'Moderate rain showers', icon: '🌦️' },
-  82: { description: 'Violent rain showers', icon: '⛈️' },
-  85: { description: 'Slight snow showers', icon: '🌨️' },
-  86: { description: 'Heavy snow showers', icon: '🌨️' },
-  95: { description: 'Thunderstorm', icon: '⛈️' },
-  96: { description: 'Thunderstorm with slight hail', icon: '⛈️' },
-  99: { description: 'Thunderstorm with heavy hail', icon: '⛈️' },
-};
-
-function getCacheKey(lat: number, lng: number, startDate: string, endDate: string): string {
-  return `${lat.toFixed(2)}_${lng.toFixed(2)}_${startDate}_${endDate}`;
+// Cache key for localStorage
+function getCacheKey(location: Location, startDate: string, endDate: string): string {
+  return `weather_${location.latitude}_${location.longitude}_${startDate}_${endDate}`;
 }
 
-function getCachedWeather(key: string): WeatherData[] | null {
+// Get cached weather data
+export function getCachedWeather(location: Location, startDate: string, endDate: string): WeatherData | null {
+  if (!location.latitude || !location.longitude) return null;
+  
+  const cacheKey = getCacheKey(location, startDate, endDate);
+  const cached = localStorage.getItem(cacheKey);
+  
+  if (!cached) return null;
+  
   try {
-    const cached = localStorage.getItem('weather_cache');
-    if (!cached) return null;
+    const data = JSON.parse(cached) as WeatherData;
+    const fetchedAt = new Date(data.fetchedAt);
+    const now = new Date();
+    const hoursSinceFetch = (now.getTime() - fetchedAt.getTime()) / (1000 * 60 * 60);
     
-    const cache: WeatherCache = JSON.parse(cached);
-    const entry = cache[key];
-    
-    if (!entry) return null;
-    if (Date.now() - entry.timestamp > CACHE_DURATION) {
-      // Expired
-      delete cache[key];
-      localStorage.setItem('weather_cache', JSON.stringify(cache));
-      return null;
+    // Cache valid for 6 hours
+    if (hoursSinceFetch < 6) {
+      return data;
     }
-    
-    return entry.data;
   } catch {
     return null;
   }
+  
+  return null;
 }
 
-function setCachedWeather(key: string, data: WeatherData[]): void {
-  try {
-    const cached = localStorage.getItem('weather_cache');
-    const cache: WeatherCache = cached ? JSON.parse(cached) : {};
-    cache[key] = { data, timestamp: Date.now() };
-    localStorage.setItem('weather_cache', JSON.stringify(cache));
-  } catch {
-    // Storage full or unavailable
-  }
+// Cache weather data
+function cacheWeather(location: Location, startDate: string, endDate: string, data: WeatherData): void {
+  const cacheKey = getCacheKey(location, startDate, endDate);
+  localStorage.setItem(cacheKey, JSON.stringify(data));
 }
 
+// Fetch weather data from Open-Meteo API
 export async function fetchWeather(
-  latitude: number,
-  longitude: number,
-  startDate: string,
-  endDate: string
-): Promise<WeatherData[]> {
-  // Open-Meteo API has a limit on date range (about 5 months max)
-  // Clamp dates to stay within API limits
-  const maxDaysRange = 16; // ~2 weeks is safe
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const diffDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+  locationOrLat: Location | number, 
+  lngOrStartDate?: string | number, 
+  startDateOrEndDate?: string, 
+  endDateParam?: string
+): Promise<WeatherData> {
+  let latitude: number;
+  let longitude: number;
+  let startDate: string;
+  let endDate: string;
 
-  let actualEndDate = endDate;
-  if (diffDays > maxDaysRange) {
-    const clampedEnd = new Date(start);
-    clampedEnd.setDate(start.getDate() + maxDaysRange);
-    actualEndDate = clampedEnd.toISOString().split('T')[0];
+  // Handle both signatures:
+  // 1) fetchWeather(location, startDate, endDate) - using Location object
+  // 2) fetchWeather(lat, lng, startDate, endDate) - using separate params
+  if (typeof locationOrLat === 'number') {
+    // Signature 2: (lat, lng, startDate, endDate)
+    latitude = locationOrLat;
+    longitude = lngOrStartDate as number;
+    startDate = startDateOrEndDate as string;
+    endDate = endDateParam as string;
+  } else {
+    // Signature 1: (location, startDate, endDate)
+    const location = locationOrLat;
+    if (!location.latitude || !location.longitude) {
+      throw new Error('Location coordinates required for weather');
+    }
+    latitude = location.latitude;
+    longitude = location.longitude;
+    startDate = lngOrStartDate as string;
+    endDate = startDateOrEndDate as string;
+    
+    // Check cache first (only for Location signature with full object)
+    if (location.id && location.name) {
+      const cached = getCachedWeather(location, startDate, endDate);
+      if (cached) {
+        return cached;
+      }
+      
+      // Fetch and cache
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&start_date=${startDate}&end_date=${endDate}&timezone=auto`;
+      
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Weather API error: ${response.status}`);
+      }
+      
+      const json = await response.json();
+      
+      const daily: DailyWeather[] = json.daily.time.map((date: string, i: number) => ({
+        date,
+        temperatureMax: Math.round(json.daily.temperature_2m_max[i]),
+        temperatureMin: Math.round(json.daily.temperature_2m_min[i]),
+        precipitationProbability: json.daily.precipitation_probability_max[i],
+        weatherCode: json.daily.weathercode[i],
+      }));
+      
+      const weatherData: WeatherData = {
+        daily,
+        fetchedAt: new Date().toISOString(),
+      };
+      
+      // Cache the result
+      cacheWeather(location, startDate, endDate, weatherData);
+      return weatherData;
+    }
   }
-
-  const cacheKey = getCacheKey(latitude, longitude, startDate, actualEndDate);
   
-  // Check cache first
-  const cached = getCachedWeather(cacheKey);
-  if (cached) {
-    return cached;
-  }
-  
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&start_date=${startDate}&end_date=${actualEndDate}&timezone=auto`;
+  // For numeric signature or incomplete Location, fetch without caching
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,weathercode&start_date=${startDate}&end_date=${endDate}&timezone=auto`;
   
   const response = await fetch(url);
+  
   if (!response.ok) {
     throw new Error(`Weather API error: ${response.status}`);
   }
   
-  const data = await response.json();
+  const json = await response.json();
   
-  const weatherData: WeatherData[] = data.daily.time.map((date: string, i: number) => ({
+  const daily: DailyWeather[] = json.daily.time.map((date: string, i: number) => ({
     date,
-    tempMax: Math.round(data.daily.temperature_2m_max[i]),
-    tempMin: Math.round(data.daily.temperature_2m_min[i]),
-    precipitationChance: data.daily.precipitation_probability_max[i],
-    weatherCode: data.daily.weathercode[i],
+    temperatureMax: Math.round(json.daily.temperature_2m_max[i]),
+    temperatureMin: Math.round(json.daily.temperature_2m_min[i]),
+    precipitationProbability: json.daily.precipitation_probability_max[i],
+    weatherCode: json.daily.weathercode[i],
   }));
   
-  // Cache the result
-  setCachedWeather(cacheKey, weatherData);
+  const weatherData: WeatherData = {
+    daily,
+    fetchedAt: new Date().toISOString(),
+  };
   
   return weatherData;
 }
 
-// Get location coordinates from place name using Nominatim
-export async function geocodeLocation(locationName: string): Promise<{ lat: number; lng: number } | null> {
+// Geocode a location string to coordinates using Nominatim
+export async function geocodeLocation(locationName: string): Promise<Location | null> {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}&limit=1`;
   
   const response = await fetch(url, {
     headers: {
-      'User-Agent': 'Wanderlust/1.0',
+      'User-Agent': 'Wanderlust Trip Planner',
     },
   });
   
-  if (!response.ok) return null;
+  if (!response.ok) {
+    return null;
+  }
   
-  const data = await response.json();
-  if (!data || data.length === 0) return null;
+  const results = await response.json();
+  
+  if (results.length === 0) {
+    return null;
+  }
+  
+  const result = results[0];
   
   return {
-    lat: parseFloat(data[0].lat),
-    lng: parseFloat(data[0].lon),
+    id: result.place_id,
+    name: result.display_name.split(',')[0],
+    address: result.display_name,
+    latitude: parseFloat(result.lat),
+    longitude: parseFloat(result.lon),
+    placeId: result.place_id,
   };
 }

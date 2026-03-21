@@ -122,6 +122,7 @@ export interface Trip {
   budgetTotal?: number;
   copiedFrom?: string; // Track original trip if duplicated
   archived?: boolean; // T024: Archive feature
+  location?: Location; // T025: Trip destination location for weather
 }
 
 // For creating a new trip

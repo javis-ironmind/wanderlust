@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { WeatherData, weatherCodeMap, fetchWeather, geocodeLocation } from '@/lib/weather';
+import { WeatherData, weatherCodeMap, fetchWeather, geocodeLocation, getWeatherForDate, WidgetWeather } from '@/lib/weather';
 
 type WeatherWidgetProps = {
   tripId: string;
@@ -12,7 +12,7 @@ type WeatherWidgetProps = {
 };
 
 export function WeatherWidget({ tripId, startDate, endDate, location, date }: WeatherWidgetProps) {
-  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weather, setWeather] = useState<WidgetWeather | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [error, setError] = useState(false);
@@ -37,16 +37,22 @@ export function WeatherWidget({ tripId, startDate, endDate, location, date }: We
         }
 
         // Fetch weather
+        if (!coords.latitude || !coords.longitude) {
+          setError(true);
+          setLoading(false);
+          return;
+        }
+        
         const weatherData = await fetchWeather(
-          coords.lat,
-          coords.lng,
+          coords.latitude,
+          coords.longitude,
           startDate,
           endDate
         );
 
         // Find weather for this specific date
-        const dayWeather = weatherData.find(w => w.date === date);
-        setWeather(dayWeather || null);
+        const dayWeather = getWeatherForDate(weatherData, date);
+        setWeather(dayWeather);
       } catch (err) {
         console.error('Weather fetch error:', err);
         setError(true);
