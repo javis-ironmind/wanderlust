@@ -10,8 +10,8 @@ import {
 import { Navigation } from '@/components/Navigation';
 import { BottomNav } from '@/components/BottomNav';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { useTripStore } from '@/lib/store';
-import { loadFromStorage } from '@/lib/storage';
 import { Activity, Trip, Day } from '@/lib/types';
 
 const CATEGORY_ICONS: Record<string, typeof Map> = {
@@ -48,6 +48,8 @@ export default function TripDetailPage() {
   const addActivity = useTripStore((state) => state.addActivity);
   const updateActivity = useTripStore((state) => state.updateActivity);
   const deleteActivity = useTripStore((state) => state.deleteActivity);
+  const fetchTripsFromAPI = useTripStore((state) => state.fetchTripsFromAPI);
+  const isInitialized = useTripStore((state) => state.isInitialized);
 
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
@@ -60,22 +62,39 @@ export default function TripDetailPage() {
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [editActivityName, setEditActivityName] = useState('');
   const [activeNav, setActiveNav] = useState('itinerary');
+  const mountedRef = useRef(true);
 
-  // Load trip data
+  // Load trip data - API first, fallback to localStorage
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const allTrips = loadFromStorage();
-      const found = allTrips.find(t => t.id === tripId);
-      if (found) {
-        setTrip(found);
-        if (found.days?.length > 0) {
-          setSelectedDay(found.days[0].id);
-          setExpandedDays(new Set([found.days[0].id]));
-        }
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  useEffect(() => {
+    const loadTrip = async () => {
+      if (typeof window === 'undefined' || !mountedRef.current) return;
+
+      // If store is not yet initialized, fetch from API
+      if (!isInitialized) {
+        await fetchTripsFromAPI();
       }
-      setLoading(false);
-    }
-  }, [tripId, trips]);
+
+      // Find trip from store
+      if (mountedRef.current) {
+        const found = useTripStore.getState().trips.find(t => t.id === tripId);
+        if (found) {
+          setTrip(found);
+          if (found.days?.length > 0) {
+            setSelectedDay(found.days[0].id);
+            setExpandedDays(new Set([found.days[0].id]));
+          }
+        }
+        setLoading(false);
+      }
+    };
+
+    loadTrip();
+  }, [tripId, isInitialized, fetchTripsFromAPI]);
 
   const toggleDay = (dayId: string) => {
     setExpandedDays(prev => {
@@ -590,6 +609,8 @@ export default function TripDetailPage() {
       )}
 
       <BottomNav />
+
+      <OfflineIndicator />
     </div>
   );
 }

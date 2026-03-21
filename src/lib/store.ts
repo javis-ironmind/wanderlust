@@ -8,6 +8,15 @@ interface SyncState {
   syncStatus: 'local' | 'syncing' | 'synced' | 'error';
   lastSyncedAt: Date | null;
   pendingSyncQueue: string[]; // trip IDs pending sync
+  isInitialized: boolean; // Track if store has been initialized from API
+  isOnline: boolean;
+}
+
+interface OfflineQueueItem {
+  id: string;
+  action: 'create' | 'update' | 'delete';
+  data?: unknown;
+  timestamp: Date;
 }
 
 interface UndoItem {
@@ -21,13 +30,14 @@ interface UndoItem {
 interface TripState extends SyncState {
   trips: Trip[];
   currentTripId: string | null;
-  undoQueue: UndoItem[]; // For deleted activities
-  templates: TripTemplate[]; // Saved trip templates
+  undoQueue: UndoItem[];
+  templates: TripTemplate[];
+  offlineQueue: OfflineQueueItem[];
 }
 
 interface TripActions {
   // Trip actions
-  addTrip: (trip: Trip) => void;
+  addTrip: (trip: Trip) => Promise<void>;
   setTrips: (trips: Trip[]) => void;
   updateTrip: (tripId: string, updates: Partial<Trip>) => void;
   deleteTrip: (tripId: string) => void;
@@ -77,6 +87,7 @@ interface TripActions {
   queueForSync: (tripId: string) => void;
   fetchTripsFromAPI: () => Promise<void>;
   persistToLocalStorage: () => void;
+  processOfflineQueue: () => Promise<void>;
 
   // Template actions
   saveTripAsTemplate: (tripId: string, name: string, description?: string, includeDates?: boolean) => void;
@@ -88,75 +99,99 @@ interface TripActions {
 
 type TripStore = TripState & TripActions;
 
+// API call helper
+async function apiCall(endpoint: string, method: 'GET' | 'POST' | 'PUT' | 'DELETE', body?: unknown): Promise<Response> {
+  const config: RequestInit = {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+  };
+  if (body) {
+    config.body = JSON.stringify(body);
+  }
+  return fetch(endpoint, config);
+}
+
 export const useTripStore = create<TripStore>((set, get) => ({
   // Initial state
   trips: [],
   currentTripId: null,
-
-  // Undo queue for deleted activities
   undoQueue: [],
-
-  // Templates
   templates: [],
+  offlineQueue: [],
 
-  // Sync state
-  cloudSyncEnabled: false,
+  // Sync state - API-first by default
+  cloudSyncEnabled: true, // Default to enabled for API-first
   syncStatus: 'local',
   lastSyncedAt: null,
   pendingSyncQueue: [],
+  isInitialized: false,
+  isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
 
   // Trip actions
   addTrip: async (trip) => {
-    // Optimistic update
+    // 1. Optimistic update to local state
     set((state) => ({
       trips: [...state.trips, trip]
     }));
 
-    // Persist to localStorage
-    saveToStorage(useTripStore.getState().trips);
+    // 2. Save to localStorage cache
+    saveToStorage(get().trips);
 
-    // Call API if cloud sync is enabled
-    const state = useTripStore.getState();
-    if (state.cloudSyncEnabled) {
-      try {
-        const response = await fetch('/api/trips', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(trip),
-        });
+    // 3. Call API
+    try {
+      const response = await apiCall('/api/trips', 'POST', trip);
+      if (!response.ok) throw new Error('Failed to create trip');
 
-        if (!response.ok) throw new Error('Failed to create trip');
-
-        const createdTrip = await response.json();
-        // Update with server response (which has the correct ID)
-        set((state) => ({
-          trips: state.trips.map((t) => t.id === trip.id ? createdTrip : t)
-        }));
-        saveToStorage(useTripStore.getState().trips);
-      } catch (error) {
-        console.error('Failed to create trip in cloud:', error);
-      }
+      const createdTrip = await response.json();
+      // Update with server response (which has the correct ID from DB)
+      set((state) => ({
+        trips: state.trips.map((t) => t.id === trip.id ? createdTrip : t),
+        lastSyncedAt: new Date(),
+      }));
+      saveToStorage(get().trips);
+    } catch (error) {
+      console.error('Failed to create trip in cloud, queueing for later:', error);
+      // Queue for later sync if offline
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `${trip.id}-${Date.now()}`,
+          action: 'create',
+          data: trip,
+          timestamp: new Date(),
+        }],
+      }));
+      get().queueForSync(trip.id);
     }
   },
 
   setTrips: (trips) => set({ trips }),
 
   updateTrip: (tripId, updates) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
-        trip.id === tripId ? { ...trip, ...updates } : trip
+        trip.id === tripId ? { ...trip, ...updates, updatedAt: new Date().toISOString() } : trip
       )
     }));
 
-    // Persist to localStorage
-    saveToStorage(useTripStore.getState().trips);
+    // Persist to localStorage cache
+    saveToStorage(get().trips);
 
-    // Auto-sync if cloud sync is enabled
-    const state = useTripStore.getState();
-    if (state.cloudSyncEnabled) {
-      setTimeout(() => {
-        useTripStore.getState().syncTripToCloud(tripId);
-      }, 1000); // Debounce sync
+    // Call API (non-blocking)
+    const trip = get().trips.find((t) => t.id === tripId);
+    if (trip) {
+      apiCall(`/api/trips/${tripId}`, 'PUT', trip).catch((error) => {
+        console.error('Failed to update trip in cloud:', error);
+        set((state) => ({
+          offlineQueue: [...state.offlineQueue, {
+            id: `${tripId}-${Date.now()}`,
+            action: 'update',
+            data: trip,
+            timestamp: new Date(),
+          }],
+        }));
+        get().queueForSync(tripId);
+      });
     }
   },
 
@@ -168,84 +203,107 @@ export const useTripStore = create<TripStore>((set, get) => ({
       pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
     }));
 
-    // Persist to localStorage
-    saveToStorage(useTripStore.getState().trips);
+    // Persist to localStorage cache
+    saveToStorage(get().trips);
 
-    // Call API if cloud sync is enabled
-    const state = useTripStore.getState();
-    if (state.cloudSyncEnabled) {
-      try {
-        await fetch(`/api/trips/${tripId}`, { method: 'DELETE' });
-      } catch (error) {
-        console.error('Failed to delete trip from cloud:', error);
-      }
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}`, 'DELETE');
+    } catch (error) {
+      console.error('Failed to delete trip from cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `${tripId}-${Date.now()}`,
+          action: 'delete',
+          timestamp: new Date(),
+        }],
+      }));
     }
   },
 
   setCurrentTrip: (tripId) => set({ currentTripId: tripId }),
 
   // T024: Archive actions
-  archiveTrip: (tripId) => set((state) => {
-    const updatedTrips = state.trips.map((trip) =>
+  archiveTrip: (tripId) => {
+    const updatedTrips = get().trips.map((trip) =>
       trip.id === tripId ? { ...trip, archived: true } : trip
     );
+    set({ trips: updatedTrips });
     saveToStorage(updatedTrips);
-    return { trips: updatedTrips };
-  }),
 
-  unarchiveTrip: (tripId) => set((state) => {
-    const updatedTrips = state.trips.map((trip) =>
+    // Sync to cloud
+    apiCall(`/api/trips/${tripId}`, 'PUT', updatedTrips.find((t) => t.id === tripId)).catch((error) => {
+      console.error('Failed to archive trip in cloud:', error);
+    });
+  },
+
+  unarchiveTrip: (tripId) => {
+    const updatedTrips = get().trips.map((trip) =>
       trip.id === tripId ? { ...trip, archived: false } : trip
     );
+    set({ trips: updatedTrips });
     saveToStorage(updatedTrips);
-    return { trips: updatedTrips };
-  }),
+
+    // Sync to cloud
+    apiCall(`/api/trips/${tripId}`, 'PUT', updatedTrips.find((t) => t.id === tripId)).catch((error) => {
+      console.error('Failed to unarchive trip in cloud:', error);
+    });
+  },
 
   // Day actions
-  addDay: (tripId, day) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, days: [...trip.days, day] }
-        : trip
-    )
-  })),
+  addDay: (tripId, day) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, days: [...trip.days, day] }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  updateDay: (tripId, dayId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            days: trip.days.map((day) =>
-              day.id === dayId ? { ...day, ...updates } : day
-            )
-          }
-        : trip
-    )
-  })),
+  updateDay: (tripId, dayId, updates) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              days: trip.days.map((day) =>
+                day.id === dayId ? { ...day, ...updates } : day
+              )
+            }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  deleteDay: (tripId, dayId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, days: trip.days.filter((day) => day.id !== dayId) }
-        : trip
-    )
-  })),
+  deleteDay: (tripId, dayId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, days: trip.days.filter((day) => day.id !== dayId) }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  reorderDays: (tripId, dayIds) => set((state) => ({
-    trips: state.trips.map((trip) => {
-      if (trip.id !== tripId) return trip;
-      const dayMap = new Map(trip.days.map((d) => [d.id, d]));
-      const reordered = dayIds.map((id) => dayMap.get(id)!).filter(Boolean);
-      return { ...trip, days: reordered };
-    })
-  })),
+  reorderDays: (tripId, dayIds) => {
+    set((state) => ({
+      trips: state.trips.map((trip) => {
+        if (trip.id !== tripId) return trip;
+        const dayMap = new Map(trip.days.map((d) => [d.id, d]));
+        const reordered = dayIds.map((id) => dayMap.get(id)!).filter(Boolean);
+        return { ...trip, days: reordered };
+      })
+    }));
+    saveToStorage(get().trips);
+  },
 
   // Activity actions
-  addActivity: (tripId, dayId, activity) => set((state) => {
-    if (state.cloudSyncEnabled) {
-      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
-    }
-    return {
+  addActivity: (tripId, dayId, activity) => {
+    set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
           ? {
@@ -258,14 +316,12 @@ export const useTripStore = create<TripStore>((set, get) => ({
             }
           : trip
       )
-    };
-  }),
+    }));
+    saveToStorage(get().trips);
+  },
 
-  updateActivity: (tripId, dayId, activityId, updates) => set((state) => {
-    if (state.cloudSyncEnabled) {
-      setTimeout(() => useTripStore.getState().syncTripToCloud(tripId), 1000);
-    }
-    return {
+  updateActivity: (tripId, dayId, activityId, updates) => {
+    set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
           ? {
@@ -285,15 +341,16 @@ export const useTripStore = create<TripStore>((set, get) => ({
             }
           : trip
       )
-    };
-  }),
+    }));
+    saveToStorage(get().trips);
+  },
 
-  deleteActivity: (tripId, dayId, activityId) => set((state) => {
+  deleteActivity: (tripId, dayId, activityId) => {
     // Find the activity before deleting to store for undo
     let deletedActivity: Activity | null = null;
     let originalIndex = 0;
-    
-    state.trips.forEach((trip) => {
+
+    get().trips.forEach((trip) => {
       if (trip.id === tripId) {
         trip.days.forEach((day) => {
           if (day.id === dayId) {
@@ -308,7 +365,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
     });
 
     // Only add to undo queue if we found the activity
-    let newUndoQueue = state.undoQueue;
+    let newUndoQueue = get().undoQueue;
     if (deletedActivity) {
       const undoItem: UndoItem = {
         activity: deletedActivity as Activity,
@@ -317,10 +374,10 @@ export const useTripStore = create<TripStore>((set, get) => ({
         originalIndex,
         deletedAt: new Date()
       };
-      newUndoQueue = [undoItem, ...state.undoQueue].slice(0, 5);
+      newUndoQueue = [undoItem, ...get().undoQueue].slice(0, 5);
     }
-    
-    return {
+
+    set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
           ? { ...trip, days: trip.days.map((day) =>
@@ -331,31 +388,35 @@ export const useTripStore = create<TripStore>((set, get) => ({
           : trip
       ),
       undoQueue: newUndoQueue
-    };
-  }),
+    }));
+    saveToStorage(get().trips);
+  },
 
-  reorderActivities: (tripId, dayId, activityIds) => set((state) => ({
-    trips: state.trips.map((trip) => {
-      if (trip.id !== tripId) return trip;
-      return {
-        ...trip,
-        days: trip.days.map((day) => {
-          if (day.id !== dayId) return day;
-          const activityMap = new Map(day.activities.map((a) => [a.id, a]));
-          const reordered = activityIds.map((id) => activityMap.get(id)!).filter(Boolean);
-          return { ...day, activities: reordered };
-        })
-      };
-    })
-  })),
+  reorderActivities: (tripId, dayId, activityIds) => {
+    set((state) => ({
+      trips: state.trips.map((trip) => {
+        if (trip.id !== tripId) return trip;
+        return {
+          ...trip,
+          days: trip.days.map((day) => {
+            if (day.id !== dayId) return day;
+            const activityMap = new Map(day.activities.map((a) => [a.id, a]));
+            const reordered = activityIds.map((id) => activityMap.get(id)!).filter(Boolean);
+            return { ...day, activities: reordered };
+          })
+        };
+      })
+    }));
+    saveToStorage(get().trips);
+  },
 
-  moveActivityToDay: (tripId, sourceDayId, destDayId, activityId, destIndex) => set((state) => {
+  moveActivityToDay: (tripId, sourceDayId, destDayId, activityId, destIndex) => {
     // If moving to same day, just reorder
     if (sourceDayId === destDayId) {
-      return state;
+      return;
     }
 
-    return {
+    set((state) => ({
       trips: state.trips.map((trip) => {
         if (trip.id !== tripId) return trip;
 
@@ -397,159 +458,193 @@ export const useTripStore = create<TripStore>((set, get) => ({
           })
         };
       })
-    };
-  }),
+    }));
+    saveToStorage(get().trips);
+  },
 
   // Flight actions
-  addFlight: (tripId, flight) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, flights: [...trip.flights, flight] }
-        : trip
-    )
-  })),
+  addFlight: (tripId, flight) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, flights: [...trip.flights, flight] }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  updateFlight: (tripId, flightId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            flights: trip.flights.map((flight) =>
-              flight.id === flightId ? { ...flight, ...updates } : flight
-            )
-          }
-        : trip
-    )
-  })),
+  updateFlight: (tripId, flightId, updates) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              flights: trip.flights.map((flight) =>
+                flight.id === flightId ? { ...flight, ...updates } : flight
+              )
+            }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  deleteFlight: (tripId, flightId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, flights: trip.flights.filter((f) => f.id !== flightId) }
-        : trip
-    )
-  })),
+  deleteFlight: (tripId, flightId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, flights: trip.flights.filter((f) => f.id !== flightId) }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
   // Hotel actions
-  addHotel: (tripId, hotel) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, hotels: [...trip.hotels, hotel] }
-        : trip
-    )
-  })),
+  addHotel: (tripId, hotel) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, hotels: [...trip.hotels, hotel] }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  updateHotel: (tripId, hotelId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            hotels: trip.hotels.map((hotel) =>
-              hotel.id === hotelId ? { ...hotel, ...updates } : hotel
-            )
-          }
-        : trip
-    )
-  })),
+  updateHotel: (tripId, hotelId, updates) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              hotels: trip.hotels.map((hotel) =>
+                hotel.id === hotelId ? { ...hotel, ...updates } : hotel
+              )
+            }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  deleteHotel: (tripId, hotelId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? { ...trip, hotels: trip.hotels.filter((h) => h.id !== hotelId) }
-        : trip
-    )
-  })),
+  deleteHotel: (tripId, hotelId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? { ...trip, hotels: trip.hotels.filter((h) => h.id !== hotelId) }
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
   // Packing list actions
-  addPackingItem: (tripId, item) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            packingList: {
-              items: [...(trip.packingList?.items || []), item]
+  addPackingItem: (tripId, item) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              packingList: {
+                items: [...(trip.packingList?.items || []), item]
+              }
             }
-          }
-        : trip
-    )
-  })),
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  updatePackingItem: (tripId, itemId, updates) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            packingList: {
-              items: (trip.packingList?.items || []).map((item) =>
-                item.id === itemId ? { ...item, ...updates } : item
-              )
+  updatePackingItem: (tripId, itemId, updates) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              packingList: {
+                items: (trip.packingList?.items || []).map((item) =>
+                  item.id === itemId ? { ...item, ...updates } : item
+                )
+              }
             }
-          }
-        : trip
-    )
-  })),
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  deletePackingItem: (tripId, itemId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            packingList: {
-              items: (trip.packingList?.items || []).filter((item) => item.id !== itemId)
+  deletePackingItem: (tripId, itemId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              packingList: {
+                items: (trip.packingList?.items || []).filter((item) => item.id !== itemId)
+              }
             }
-          }
-        : trip
-    )
-  })),
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  togglePackingItem: (tripId, itemId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            packingList: {
-              items: (trip.packingList?.items || []).map((item) =>
-                item.id === itemId ? { ...item, packed: !item.packed } : item
-              )
+  togglePackingItem: (tripId, itemId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              packingList: {
+                items: (trip.packingList?.items || []).map((item) =>
+                  item.id === itemId ? { ...item, packed: !item.packed } : item
+                )
+              }
             }
-          }
-        : trip
-    )
-  })),
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
-  initializePackingList: (tripId) => set((state) => ({
-    trips: state.trips.map((trip) =>
-      trip.id === tripId
-        ? {
-            ...trip,
-            packingList: {
-              items: [
-                { id: crypto.randomUUID(), name: 'Passport', category: 'Documents', packed: false },
-                { id: crypto.randomUUID(), name: 'Phone charger', category: 'Electronics', packed: false },
-                { id: crypto.randomUUID(), name: 'Laptop', category: 'Electronics', packed: false },
-                { id: crypto.randomUUID(), name: 'Camera', category: 'Electronics', packed: false },
-                { id: crypto.randomUUID(), name: 'T-shirts', category: 'Clothes', packed: false },
-                { id: crypto.randomUUID(), name: 'Pants', category: 'Clothes', packed: false },
-                { id: crypto.randomUUID(), name: 'Underwear', category: 'Clothes', packed: false },
-                { id: crypto.randomUUID(), name: 'Socks', category: 'Clothes', packed: false },
-                { id: crypto.randomUUID(), name: 'Jacket', category: 'Clothes', packed: false },
-                { id: crypto.randomUUID(), name: 'Toothbrush', category: 'Toiletries', packed: false },
-                { id: crypto.randomUUID(), name: 'Toothpaste', category: 'Toiletries', packed: false },
-                { id: crypto.randomUUID(), name: 'Shampoo', category: 'Toiletries', packed: false },
-                { id: crypto.randomUUID(), name: 'Sunscreen', category: 'Toiletries', packed: false },
-                { id: crypto.randomUUID(), name: 'Wallet', category: 'Documents', packed: false },
-                { id: crypto.randomUUID(), name: 'Travel insurance', category: 'Documents', packed: false },
-                { id: crypto.randomUUID(), name: 'Medications', category: 'Toiletries', packed: false },
-                { id: crypto.randomUUID(), name: 'Sunglasses', category: 'Misc', packed: false },
-                { id: crypto.randomUUID(), name: 'Headphones', category: 'Electronics', packed: false },
-                { id: crypto.randomUUID(), name: 'Power bank', category: 'Electronics', packed: false },
-                { id: crypto.randomUUID(), name: 'Adapter/Converter', category: 'Electronics', packed: false },
-              ]
+  initializePackingList: (tripId) => {
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === tripId
+          ? {
+              ...trip,
+              packingList: {
+                items: [
+                  { id: crypto.randomUUID(), name: 'Passport', category: 'Documents', packed: false },
+                  { id: crypto.randomUUID(), name: 'Phone charger', category: 'Electronics', packed: false },
+                  { id: crypto.randomUUID(), name: 'Laptop', category: 'Electronics', packed: false },
+                  { id: crypto.randomUUID(), name: 'Camera', category: 'Electronics', packed: false },
+                  { id: crypto.randomUUID(), name: 'T-shirts', category: 'Clothes', packed: false },
+                  { id: crypto.randomUUID(), name: 'Pants', category: 'Clothes', packed: false },
+                  { id: crypto.randomUUID(), name: 'Underwear', category: 'Clothes', packed: false },
+                  { id: crypto.randomUUID(), name: 'Socks', category: 'Clothes', packed: false },
+                  { id: crypto.randomUUID(), name: 'Jacket', category: 'Clothes', packed: false },
+                  { id: crypto.randomUUID(), name: 'Toothbrush', category: 'Toiletries', packed: false },
+                  { id: crypto.randomUUID(), name: 'Toothpaste', category: 'Toiletries', packed: false },
+                  { id: crypto.randomUUID(), name: 'Shampoo', category: 'Toiletries', packed: false },
+                  { id: crypto.randomUUID(), name: 'Sunscreen', category: 'Toiletries', packed: false },
+                  { id: crypto.randomUUID(), name: 'Wallet', category: 'Documents', packed: false },
+                  { id: crypto.randomUUID(), name: 'Travel insurance', category: 'Documents', packed: false },
+                  { id: crypto.randomUUID(), name: 'Medications', category: 'Toiletries', packed: false },
+                  { id: crypto.randomUUID(), name: 'Sunglasses', category: 'Misc', packed: false },
+                  { id: crypto.randomUUID(), name: 'Headphones', category: 'Electronics', packed: false },
+                  { id: crypto.randomUUID(), name: 'Power bank', category: 'Electronics', packed: false },
+                  { id: crypto.randomUUID(), name: 'Adapter/Converter', category: 'Electronics', packed: false },
+                ]
+              }
             }
-          }
-        : trip
-    )
-  })),
+          : trip
+      )
+    }));
+    saveToStorage(get().trips);
+  },
 
   // Cloud sync actions
   setCloudSyncEnabled: (enabled) => set({ cloudSyncEnabled: enabled }),
@@ -557,73 +652,118 @@ export const useTripStore = create<TripStore>((set, get) => ({
   setSyncStatus: (status) => set({ syncStatus: status }),
 
   syncTripToCloud: async (tripId) => {
-    const state = useTripStore.getState();
-    const trip = state.trips.find((t) => t.id === tripId);
-    if (!trip || !state.cloudSyncEnabled) return;
+    const trip = get().trips.find((t) => t.id === tripId);
+    if (!trip) return;
 
     set({ syncStatus: 'syncing' });
 
     try {
-      const response = await fetch(`/api/trips/${tripId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(trip),
-      });
-
+      const response = await apiCall(`/api/trips/${tripId}`, 'PUT', trip);
       if (!response.ok) throw new Error('Sync failed');
 
       set({
         syncStatus: 'synced',
         lastSyncedAt: new Date(),
-        pendingSyncQueue: state.pendingSyncQueue.filter((id) => id !== tripId)
+        pendingSyncQueue: get().pendingSyncQueue.filter((id) => id !== tripId)
       });
     } catch (error) {
       console.error('Sync error:', error);
       set({ syncStatus: 'error' });
+      get().queueForSync(tripId);
     }
   },
 
-  queueForSync: (tripId) => set((state) => ({
-    pendingSyncQueue: state.pendingSyncQueue.includes(tripId)
-      ? state.pendingSyncQueue
-      : [...state.pendingSyncQueue, tripId]
-  })),
+  queueForSync: (tripId) => {
+    const queue = get().pendingSyncQueue;
+    if (!queue.includes(tripId)) {
+      set({ pendingSyncQueue: [...queue, tripId] });
+    }
+  },
 
-  // Fetch trips from API (used on app load)
+  // Fetch trips from API - PRIMARY load method
   fetchTripsFromAPI: async () => {
     set({ syncStatus: 'syncing' });
     try {
-      const response = await fetch('/api/trips');
+      const response = await apiCall('/api/trips', 'GET');
       if (!response.ok) throw new Error('Failed to fetch trips');
 
       const trips: Trip[] = await response.json();
-      set({ trips, syncStatus: 'synced', lastSyncedAt: new Date() });
+      set({
+        trips,
+        syncStatus: 'synced',
+        lastSyncedAt: new Date(),
+        isInitialized: true
+      });
 
       // Persist to localStorage as offline cache
       saveToStorage(trips);
     } catch (error) {
-      console.error('Failed to fetch trips from API:', error);
-      // Fallback to localStorage
+      console.error('Failed to fetch trips from API, falling back to localStorage:', error);
+
+      // Fallback to localStorage cache
       const localTrips = loadFromStorage();
-      set({ trips: localTrips, syncStatus: 'error' });
+      set({
+        trips: localTrips,
+        syncStatus: 'error',
+        isInitialized: true
+      });
+
+      if (localTrips.length === 0) {
+        // If both API and localStorage fail, show error state
+        console.error('No trips available - both API and localStorage failed');
+      }
     }
   },
 
   // Persist current trips to localStorage (offline backup)
   persistToLocalStorage: () => {
-    const { trips } = useTripStore.getState();
-    saveToStorage(trips);
+    saveToStorage(get().trips);
+  },
+
+  // Process offline queue when back online
+  processOfflineQueue: async () => {
+    const { offlineQueue } = get();
+    if (offlineQueue.length === 0) return;
+
+    set({ syncStatus: 'syncing' });
+
+    for (const item of offlineQueue) {
+      try {
+        switch (item.action) {
+          case 'create':
+            await apiCall('/api/trips', 'POST', item.data);
+            break;
+          case 'update':
+            await apiCall(`/api/trips/${item.id}`, 'PUT', item.data);
+            break;
+          case 'delete':
+            await apiCall(`/api/trips/${item.id}`, 'DELETE');
+            break;
+        }
+      } catch (error) {
+        console.error(`Failed to process offline action ${item.action} for trip ${item.id}:`, error);
+        // Keep in queue for retry
+        return;
+      }
+    }
+
+    // Clear queue on success
+    set({
+      offlineQueue: [],
+      syncStatus: 'synced',
+      lastSyncedAt: new Date()
+    });
   },
 
   // Undo actions
-  undoDeleteActivity: (activity, tripId, dayId, originalIndex) => set((state) => {
+  undoDeleteActivity: (activity, tripId, dayId, originalIndex) => {
     // Remove from undo queue
-    const newUndoQueue = state.undoQueue.filter(
+    const newUndoQueue = get().undoQueue.filter(
       (item) => !(item.activity.id === activity.id && item.tripId === tripId)
     );
-    
-    return {
-      trips: state.trips.map((trip) =>
+
+    set({
+      trips: get().trips.map((trip) =>
         trip.id === tripId
           ? {
               ...trip,
@@ -641,15 +781,16 @@ export const useTripStore = create<TripStore>((set, get) => ({
           : trip
       ),
       undoQueue: newUndoQueue
-    };
-  }),
+    });
+    saveToStorage(get().trips);
+  },
 
-  clearExpiredUndoItems: () => set((state) => {
+  clearExpiredUndoItems: () => {
     const fiveMinutesAgo = new Date(Date.now() - 300000);
-    return {
-      undoQueue: state.undoQueue.filter((item) => item.deletedAt > fiveMinutesAgo)
-    };
-  }),
+    set({
+      undoQueue: get().undoQueue.filter((item) => item.deletedAt > fiveMinutesAgo)
+    });
+  },
 
   clearUndoQueue: () => set({ undoQueue: [] }),
 
@@ -690,7 +831,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
     const newTemplates = [...templates, newTemplate];
     set({ templates: newTemplates });
-    
+
     // Persist to localStorage
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
   },
@@ -714,7 +855,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
       // Use template day structure (cycle through if template has fewer days)
       const templateDay = template.days[i % template.days.length];
-      
+
       const activities: Activity[] = (templateDay?.activities || []).map((templateActivity, idx) => ({
         id: crypto.randomUUID(),
         title: templateActivity.title,
@@ -754,19 +895,19 @@ export const useTripStore = create<TripStore>((set, get) => ({
     return newTrip;
   },
 
-  deleteTemplate: (templateId) => set((state) => {
-    const newTemplates = state.templates.filter((t) => t.id !== templateId);
+  deleteTemplate: (templateId) => {
+    const newTemplates = get().templates.filter((t) => t.id !== templateId);
+    set({ templates: newTemplates });
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
-    return { templates: newTemplates };
-  }),
+  },
 
-  updateTemplate: (templateId, updates) => set((state) => {
-    const newTemplates = state.templates.map((t) =>
+  updateTemplate: (templateId, updates) => {
+    const newTemplates = get().templates.map((t) =>
       t.id === templateId ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t
     );
+    set({ templates: newTemplates });
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
-    return { templates: newTemplates };
-  }),
+  },
 
   loadTemplates: () => {
     const stored = localStorage.getItem('wanderlust_templates');

@@ -7,9 +7,8 @@ import { Navigation } from '@/components/Navigation';
 import { BottomNav } from '@/components/BottomNav';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { CreateTripModal } from '@/components/CreateTripModal';
+import { OfflineIndicator } from '@/components/OfflineIndicator';
 import { useTripStore } from '@/lib/store';
-import { loadFromStorage, saveToStorage } from '@/lib/storage';
-import { Trip } from '@/lib/types';
 
 type SortOption = 'upcoming' | 'date-newest' | 'date-oldest' | 'name-az' | 'name-za';
 
@@ -26,10 +25,11 @@ const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
 
 export default function TripsPage() {
   const trips = useTripStore((state) => state.trips);
-  const setTrips = useTripStore((state) => state.setTrips);
   const deleteTrip = useTripStore((state) => state.deleteTrip);
   const archiveTrip = useTripStore((state) => state.archiveTrip);
   const unarchiveTrip = useTripStore((state) => state.unarchiveTrip);
+  const fetchTripsFromAPI = useTripStore((state) => state.fetchTripsFromAPI);
+  const isInitialized = useTripStore((state) => state.isInitialized);
 
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -45,15 +45,13 @@ export default function TripsPage() {
     return () => { mountedRef.current = false; };
   }, []);
 
-  const loadTrips = useCallback(() => {
+  const loadTrips = useCallback(async () => {
     if (typeof window !== 'undefined' && mountedRef.current) {
-      const savedTrips = loadFromStorage();
-      if (savedTrips.length > 0) {
-        setTrips(savedTrips);
-      }
+      // Fetch from API first, falls back to localStorage
+      await fetchTripsFromAPI();
       setLoading(false);
     }
-  }, [setTrips]);
+  }, [fetchTripsFromAPI]);
 
   useEffect(() => {
     loadTrips();
@@ -106,7 +104,9 @@ export default function TripsPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f4faff] flex items-center justify-center">
-        <p className="text-secondary">Loading...</p>
+        <div className="text-center">
+          <p className="text-secondary">Loading your trips...</p>
+        </div>
       </div>
     );
   }
@@ -302,6 +302,8 @@ export default function TripsPage() {
       />
 
       <BottomNav />
+
+      <OfflineIndicator />
     </div>
   );
 }

@@ -11,7 +11,7 @@ export function BottomNav() {
     { href: '/trips', label: 'Trips', icon: Map },
     { href: '#', label: 'Explore', icon: Compass },
     { href: '#', label: 'Saved', icon: Bookmark },
-    { href: '#', label: 'Settings', icon: Settings },
+    { href: '/settings', label: 'Settings', icon: Settings },
   ];
 
   return (

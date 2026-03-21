@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Bell, Menu, X, Compass, BookOpen, Map, User } from 'lucide-react';
+import { Search, Bell, Menu, X, Compass, BookOpen, Map, User, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 export function Navigation() {
@@ -13,7 +13,7 @@ export function Navigation() {
     { href: '/trips', label: 'Trips', icon: Map },
     { href: '#', label: 'Explore', icon: Compass },
     { href: '#', label: 'Journal', icon: BookOpen },
-    { href: '#', label: 'Profile', icon: User },
+    { href: '/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
