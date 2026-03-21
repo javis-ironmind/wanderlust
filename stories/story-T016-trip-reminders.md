@@ -23,22 +23,22 @@ Users need reminders for important trip events like:
 - [x] AC4: Store reminders in localStorage with tripId + activityId + reminderTime
 - [x] AC5: Display upcoming reminders in trip detail header (bell icon with count badge)
 - [x] AC6: Clicking bell shows dropdown of upcoming reminders with times
-- [ ] AC7: Browser notifications permission request on first reminder set
+- [x] AC7: Browser notifications permission request on first reminder set
 - [x] AC8: Send browser notification at reminder time (if permitted)
 
 ---
 
 ## Cycle 186 Progress
 
-**Completed (7/8 ACs):**
+**Completed (8/8 ACs):**
 - ✅ AC1: Added `reminder?: number` to Activity type in src/lib/types.ts
 - ✅ AC2: Created ReminderSettings.tsx with time options dropdown
 - ✅ AC3: Integrated ReminderSettings into trip detail page add activity modal
 - ✅ AC4: Created src/lib/reminders.ts with localStorage storage functions
 - ✅ AC5: Created ReminderBell.tsx component with badge count
 - ✅ AC6: Dropdown shows upcoming reminders with formatted times
+- ✅ AC7: Browser notifications permission request on first reminder set - requests permission when toggled on, shows status indicator
 - ✅ AC8: Notification sending logic in checkReminders() function
-- ⏳ AC7: Permission request on first reminder - needs testing in production
 
 ---
 

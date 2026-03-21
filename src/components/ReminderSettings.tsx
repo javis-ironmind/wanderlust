@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const REMINDER_OPTIONS = [
   { value: 15, label: '15 minutes before' },
@@ -17,12 +17,46 @@ interface ReminderSettingsProps {
 
 export function ReminderSettings({ reminder, onChange }: ReminderSettingsProps) {
   const [isEnabled, setIsEnabled] = useState(!!reminder);
+  const [permissionStatus, setPermissionStatus] = useState<NotificationPermission | 'unknown'>('unknown');
 
-  const handleToggle = (enabled: boolean) => {
+  useEffect(() => {
+    // Check current permission status on mount
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      setPermissionStatus(Notification.permission);
+    }
+  }, []);
+
+  const handleToggle = async (enabled: boolean) => {
     setIsEnabled(enabled);
+    
     if (!enabled) {
       onChange(undefined);
-    } else if (!reminder) {
+      return;
+    }
+    
+    // AC7: Request notification permission on first reminder set
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'default' || Notification.permission === 'denied') {
+        try {
+          const permission = await Notification.requestPermission();
+          setPermissionStatus(permission);
+          
+          if (permission !== 'granted') {
+            // Permission denied - don't enable reminder
+            setIsEnabled(false);
+            alert('Please enable notifications in your browser settings to receive reminders.');
+            return;
+          }
+        } catch (error) {
+          console.error('Error requesting notification permission:', error);
+          setIsEnabled(false);
+          return;
+        }
+      }
+    }
+    
+    // If we get here, permission is granted (or not available but we continue)
+    if (!reminder) {
       onChange(30); // Default to 30 minutes
     }
   };
@@ -41,6 +75,9 @@ export function ReminderSettings({ reminder, onChange }: ReminderSettingsProps) 
           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
         />
         Set Reminder
+        {permissionStatus === 'granted' && (
+          <span className="text-xs text-green-600">🔔 Notifications enabled</span>
+        )}
       </label>
       
       {isEnabled && (
