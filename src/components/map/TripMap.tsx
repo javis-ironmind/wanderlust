@@ -4,13 +4,15 @@ import { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, ZoomControl, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { CATEGORY_COLORS } from '@/lib/map-colors';
+import { CATEGORY_COLORS, DAY_COLORS } from '@/lib/map-colors';
 
 interface MapMarker {
   id: string;
   position: [number, number];
   title: string;
   category?: string;
+  dayIndex?: number;
+  color?: string; // Optional explicit color
 }
 
 interface TripMapProps {
@@ -89,8 +91,17 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], route, class
     }
   }, [markers]);
 
-  const getMarkerIcon = (category?: string) => {
-    const color = category ? CATEGORY_COLORS[category] || CATEGORY_COLORS.other : CATEGORY_COLORS.other;
+  const getMarkerIcon = (marker: MapMarker) => {
+    let color: string;
+    if (marker.color) {
+      color = marker.color;
+    } else if (marker.dayIndex !== undefined) {
+      color = DAY_COLORS[marker.dayIndex % DAY_COLORS.length];
+    } else if (marker.category) {
+      color = CATEGORY_COLORS[marker.category] || CATEGORY_COLORS.other;
+    } else {
+      color = CATEGORY_COLORS.other;
+    }
     return createMarkerIcon(color);
   };
 
@@ -134,7 +145,7 @@ export function TripMap({ center = [20, 0], zoom = 2, markers = [], route, class
         <Marker
           key={marker.id}
           position={marker.position}
-          icon={getMarkerIcon(marker.category)}
+          icon={getMarkerIcon(marker)}
         >
           <Popup>
             <div style={{ minWidth: '100px' }}>

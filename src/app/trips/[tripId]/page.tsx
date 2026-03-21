@@ -11,8 +11,11 @@ import { Navigation } from '@/components/Navigation';
 import { BottomNav } from '@/components/BottomNav';
 import { FloatingActionButton } from '@/components/FloatingActionButton';
 import { OfflineIndicator } from '@/components/OfflineIndicator';
+import LocationSearch from '@/components/LocationSearch';
+import { TripMap } from '@/components/map/TripMap';
 import { useTripStore } from '@/lib/store';
 import { Activity, Trip, Day } from '@/lib/types';
+import { DAY_COLORS } from '@/lib/map-colors';
 
 const CATEGORY_ICONS: Record<string, typeof Map> = {
   flight: Plane,
@@ -59,6 +62,7 @@ export default function TripDetailPage() {
   const [newActivityName, setNewActivityName] = useState('');
   const [newActivityCategory, setNewActivityCategory] = useState('activity');
   const [newActivityTime, setNewActivityTime] = useState('');
+  const [newActivityLocation, setNewActivityLocation] = useState<{ name: string; address: string; latitude?: number; longitude?: number } | undefined>();
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [editActivityName, setEditActivityName] = useState('');
   const [activeNav, setActiveNav] = useState('itinerary');
@@ -117,6 +121,15 @@ export default function TripDetailPage() {
       category: newActivityCategory as Activity['category'],
       startTime: newActivityTime || undefined,
       order: trip.days.find(d => d.id === selectedDay)?.activities.length || 0,
+      location: newActivityLocation?.latitude && newActivityLocation?.longitude
+        ? {
+            id: `location-${Date.now()}`,
+            name: newActivityLocation.name,
+            address: newActivityLocation.address,
+            latitude: newActivityLocation.latitude,
+            longitude: newActivityLocation.longitude,
+          }
+        : undefined,
     };
 
     addActivity(tripId, selectedDay, newActivity);
@@ -135,6 +148,7 @@ export default function TripDetailPage() {
     setNewActivityName('');
     setNewActivityCategory('activity');
     setNewActivityTime('');
+    setNewActivityLocation(undefined);
     setShowAddModal(false);
   };
 
@@ -191,7 +205,7 @@ export default function TripDetailPage() {
 
   const markers = useMemo(() => {
     if (!trip?.days) return [];
-    return trip.days.flatMap(day =>
+    return trip.days.flatMap((day, dayIndex) =>
       day.activities
         .filter(a => a.location?.latitude && a.location?.longitude)
         .map(a => ({
@@ -199,6 +213,8 @@ export default function TripDetailPage() {
           position: [a.location!.latitude!, a.location!.longitude!] as [number, number],
           title: a.title,
           category: a.category,
+          dayIndex,
+          color: DAY_COLORS[dayIndex % DAY_COLORS.length],
         }))
     );
   }, [trip]);
@@ -448,17 +464,8 @@ export default function TripDetailPage() {
 
             {/* Sticky Map Panel */}
             <div className="lg:col-span-5 relative">
-              <div className="sticky top-[105px] h-[calc(100vh-140px)] rounded-3xl overflow-hidden editorial-shadow border border-[#ddc0b9]/20 bg-[#d5e5ef]">
-                {/* Map placeholder */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="text-center">
-                    <Map className="w-16 h-16 text-[#9b3f25] mx-auto mb-4" />
-                    <p className="text-[#56423d] font-medium">Map View</p>
-                    <p className="text-[#56423d]/70 text-sm mt-1">
-                      {markers.length} location{markers.length !== 1 ? 's' : ''} to display
-                    </p>
-                  </div>
-                </div>
+              <div className="sticky top-[105px] h-[calc(100vh-140px)] rounded-3xl overflow-hidden editorial-shadow border border-[#ddc0b9]/20">
+                <TripMap markers={markers} className="w-full h-full" />
 
                 {/* Map controls */}
                 <div className="absolute bottom-6 right-6 flex flex-col gap-2">
@@ -535,6 +542,15 @@ export default function TripDetailPage() {
                   value={newActivityTime}
                   onChange={(e) => setNewActivityTime(e.target.value)}
                   className="w-full px-4 py-3 bg-[#e7f6ff] border-none rounded-lg focus:ring-2 focus:ring-[#9b3f25] focus:bg-white transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block font-medium text-[#0e1d25] mb-2">Location (optional)</label>
+                <LocationSearch
+                  value={newActivityLocation}
+                  onChange={setNewActivityLocation}
+                  placeholder="Search for a location..."
                 />
               </div>
 

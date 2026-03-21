@@ -1,7 +1,7 @@
 /**
  * LocationSearch Component
  * Autocomplete location search using Nominatim API (free geocoding)
- * 
+ *
  * Features:
  * - Debounced search (300ms)
  * - Autocomplete dropdown with results
@@ -14,18 +14,11 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Search, MapPin, Loader2, X, AlertCircle, History } from 'lucide-react';
+import { getOSMSearch } from '@/lib/place-search-osm';
+import { PlaceResult } from '@/lib/place-search';
 
 const RECENT_SEARCHES_KEY = 'wanderlust-recent-location-searches';
 const MAX_RECENT_SEARCHES = 5;
-
-interface NominatimResult {
-  place_id: number;
-  lat: string;
-  lon: string;
-  display_name: string;
-  type: string;
-  class?: string;
-}
 
 // Load recent searches from localStorage
 function loadRecentSearches(): string[] {
@@ -63,18 +56,18 @@ interface LocationSearchProps {
   disabled?: boolean;
 }
 
-export default function LocationSearch({ 
-  value, 
-  onChange, 
+export default function LocationSearch({
+  value,
+  onChange,
   placeholder = 'Search for a location...',
-  disabled = false 
+  disabled = false
 }: LocationSearchProps) {
   const [query, setQuery] = useState(value?.name || '');
-  const [results, setResults] = useState<NominatimResult[]>([]);
+  const [results, setResults] = useState<PlaceResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedResult, setSelectedResult] = useState<NominatimResult | null>(null);
+  const [selectedResult, setSelectedResult] = useState<PlaceResult | null>(null);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   
   const inputRef = useRef<HTMLInputElement>(null);
@@ -104,7 +97,7 @@ export default function LocationSearch({
 
     // Don't search if we've already selected a result that matches
     if (selectedResult && (
-      selectedResult.display_name.includes(searchQuery) ||
+      selectedResult.address.includes(searchQuery) ||
       searchQuery.length < 3
     )) {
       return;
@@ -112,27 +105,14 @@ export default function LocationSearch({
 
     debounceRef.current = setTimeout(async () => {
       if (searchQuery.length < 3) return;
-      
+
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        const response = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5&addressdetails=1`,
-          {
-            headers: {
-              'User-Agent': 'Wanderlust-Travel-Planner/1.0',
-            },
-          }
-        );
-        
-        if (!response.ok) {
-          throw new Error('Search failed');
-        }
-        
-        const data: NominatimResult[] = await response.json();
-        setResults(data);
-        setIsOpen(data.length > 0);
+        const searchResults = await getOSMSearch().search(searchQuery);
+        setResults(searchResults);
+        setIsOpen(searchResults.length > 0);
       } catch {
         setError('Failed to search. Try a different query.');
         setResults([]);
@@ -165,22 +145,22 @@ export default function LocationSearch({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleSelect = useCallback((result: NominatimResult) => {
+  const handleSelect = useCallback((result: PlaceResult) => {
     const location = {
-      name: result.display_name.split(',')[0] || result.display_name,
-      address: result.display_name,
-      latitude: parseFloat(result.lat),
-      longitude: parseFloat(result.lon),
+      name: result.name,
+      address: result.address,
+      latitude: result.latitude,
+      longitude: result.longitude,
     };
-    
-    setQuery(result.display_name.split(',')[0] || result.display_name);
+
+    setQuery(result.name);
     setSelectedResult(result);
     setIsOpen(false);
     setResults([]);
     onChange(location);
 
     // Save to recent searches (AC10)
-    const searchTerm = result.display_name;
+    const searchTerm = result.address;
     const updated = [searchTerm, ...recentSearches.filter(s => s !== searchTerm)].slice(0, MAX_RECENT_SEARCHES);
     setRecentSearches(updated);
     saveRecentSearches(updated);
@@ -277,7 +257,7 @@ export default function LocationSearch({
         >
           {results.map((result) => (
             <button
-              key={result.place_id}
+              key={result.id}
               type="button"
               onClick={() => handleSelect(result)}
               className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-start gap-2 border-b border-gray-100 last:border-b-0"
@@ -285,16 +265,11 @@ export default function LocationSearch({
               <MapPin className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1 min-w-0">
                 <div className="font-medium text-sm text-gray-900 truncate">
-                  {result.display_name.split(',')[0]}
+                  {result.name}
                 </div>
                 <div className="text-xs text-gray-500 truncate">
-                  {result.display_name.split(',').slice(1).join(',').trim()}
+                  {result.address}
                 </div>
-                {result.type && (
-                  <span className="inline-block mt-1 px-1.5 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
-                    {result.type}
-                  </span>
-                )}
               </div>
             </button>
           ))}
