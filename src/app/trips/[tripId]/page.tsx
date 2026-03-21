@@ -64,16 +64,13 @@ export default function TripDetailPage() {
   // Load trip data
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('wanderlust_trips');
-      if (saved) {
-        const allTrips: Trip[] = JSON.parse(saved);
-        const found = allTrips.find(t => t.id === tripId);
-        if (found) {
-          setTrip(found);
-          if (found.days?.length > 0) {
-            setSelectedDay(found.days[0].id);
-            setExpandedDays(new Set([found.days[0].id]));
-          }
+      const allTrips = loadFromStorage();
+      const found = allTrips.find(t => t.id === tripId);
+      if (found) {
+        setTrip(found);
+        if (found.days?.length > 0) {
+          setSelectedDay(found.days[0].id);
+          setExpandedDays(new Set([found.days[0].id]));
         }
       }
       setLoading(false);

@@ -1,5 +1,7 @@
 // Share Trip functionality using URL-based sharing with localStorage permissions
 
+import { loadFromStorage } from './storage';
+
 const SHARED_TRIPS_KEY = 'wanderlust_shared_trips';
 
 export type SharePermission = 'read' | 'write';
@@ -106,11 +108,6 @@ export function hasWriteAccess(tripId: string): boolean {
   }
   
   // Otherwise, assume owner (localStorage trip exists)
-  const saved = localStorage.getItem('wanderlust_trips');
-  if (saved) {
-    const trips = JSON.parse(saved);
-    return trips.some((t: any) => t.id === tripId);
-  }
-  
-  return false;
+  const trips = loadFromStorage();
+  return trips.some((t) => t.id === tripId);
 }
