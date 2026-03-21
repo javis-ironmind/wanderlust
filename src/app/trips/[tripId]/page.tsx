@@ -5,7 +5,8 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Calendar, Map, Hotel, Plane, Utensils, Compass, Archive, Plus, ChevronRight,
-  GripVertical, Share2, Users, Clock, DollarSign, Search, X, ArrowLeft, Edit2
+  GripVertical, Share2, Users, Clock, DollarSign, Search, X, ArrowLeft, Edit2,
+  Settings, Trash2
 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import { BottomNav } from '@/components/BottomNav';
@@ -51,6 +52,7 @@ export default function TripDetailPage() {
   const addActivity = useTripStore((state) => state.addActivity);
   const updateActivity = useTripStore((state) => state.updateActivity);
   const deleteActivity = useTripStore((state) => state.deleteActivity);
+  const deleteTrip = useTripStore((state) => state.deleteTrip);
   const fetchTripsFromAPI = useTripStore((state) => state.fetchTripsFromAPI);
   const isInitialized = useTripStore((state) => state.isInitialized);
 
@@ -64,6 +66,7 @@ export default function TripDetailPage() {
   const [newActivityTime, setNewActivityTime] = useState('');
   const [newActivityLocation, setNewActivityLocation] = useState<{ name: string; address: string; latitude?: number; longitude?: number } | undefined>();
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [editActivityName, setEditActivityName] = useState('');
   const [activeNav, setActiveNav] = useState('itinerary');
   const mountedRef = useRef(true);
@@ -168,6 +171,12 @@ export default function TripDetailPage() {
     });
   };
 
+  const handleDeleteTrip = () => {
+    if (!trip) return;
+    deleteTrip(trip.id);
+    router.push('/trips');
+  };
+
   const handleEditActivity = () => {
     if (!editingActivity || !editActivityName.trim() || !selectedDay || !trip) return;
 
@@ -262,13 +271,20 @@ export default function TripDetailPage() {
               { id: 'flights', label: 'Flights', icon: Plane },
               { id: 'lodging', label: 'Lodging', icon: Hotel },
               { id: 'archive', label: 'Archive', icon: Archive },
+              { id: 'settings', label: 'Settings', icon: Settings },
             ].map(item => {
               const Icon = item.icon;
               const isActive = activeNav === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveNav(item.id)}
+                  onClick={() => {
+                    if (item.id === 'settings') {
+                      setShowSettingsModal(true);
+                    } else {
+                      setActiveNav(item.id);
+                    }
+                  }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                     isActive
                       ? 'bg-orange-50 text-[#9b3f25] font-bold border-r-4 border-[#9b3f25]'
@@ -617,6 +633,46 @@ export default function TripDetailPage() {
                   className="flex-1 px-6 py-4 bg-gradient-to-br from-[#9b3f25] to-[#bb563b] text-white rounded-full font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-[#ccdce7]/60 backdrop-blur-sm"
+            onClick={() => setShowSettingsModal(false)}
+          />
+          <div className="relative bg-white w-full max-w-md rounded-xl shadow-[0_24px_48px_rgba(14,29,37,0.12)] p-8">
+            <button
+              onClick={() => setShowSettingsModal(false)}
+              className="absolute right-4 top-4 p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <X className="w-5 h-5 text-slate-400" />
+            </button>
+
+            <h3 className="font-serif text-2xl font-bold text-[#0e1d25] mb-6">
+              Trip Settings
+            </h3>
+
+            <div className="space-y-4">
+              <div className="p-4 bg-red-50 rounded-xl border border-red-100">
+                <div className="flex items-center gap-3 mb-2">
+                  <Trash2 className="w-5 h-5 text-red-500" />
+                  <span className="font-bold text-red-700">Delete Trip</span>
+                </div>
+                <p className="text-sm text-red-600/80 mb-3">
+                  This action cannot be undone. All activities, flights, and hotels will be permanently deleted.
+                </p>
+                <button
+                  onClick={handleDeleteTrip}
+                  className="w-full px-4 py-2 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors"
+                >
+                  Delete {trip?.name}
                 </button>
               </div>
             </div>
