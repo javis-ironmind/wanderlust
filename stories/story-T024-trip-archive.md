@@ -13,12 +13,12 @@ Users accumulate many past trips that clutter their main view. Add archive funct
 
 ## Acceptance Criteria
 
-- [ ] AC1: "Archive" option in trip actions (next to delete)
-- [ ] AC2: Archived trips move to separate "Archived" tab/section
-- [ ] AC3: Archived trips don't appear in main upcoming list
-- [ ] AC4: "Unarchive" option to restore trips to main view
-- [ ] AC5: Archive status stored in trip object (archived: boolean)
-- [ ] AC6: Archived section shows trip count badge
+- [x] AC1: "Archive" option in trip actions (next to delete)
+- [x] AC2: Archived trips move to separate "Archived" tab/section
+- [x] AC3: Archived trips don't appear in main upcoming list
+- [x] AC4: "Unarchive" option to restore trips to main view
+- [x] AC5: Archive status stored in trip object (archived: boolean)
+- [x] AC6: Archived section shows trip count badge
 
 ---
 
