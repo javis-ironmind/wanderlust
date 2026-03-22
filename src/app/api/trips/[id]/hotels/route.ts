@@ -10,9 +10,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: tripId } = await params;
 
-    // Hotels are stored as part of the trip metadata
-    // Return empty array - this would need a separate Hotels table
-    return NextResponse.json([]);
+    const hotels = await prisma.hotel.findMany({
+      where: { tripId },
+      orderBy: { checkInDate: 'asc' },
+    });
+
+    return NextResponse.json(hotels);
   } catch (error) {
     console.error('Failed to fetch hotels:', error);
     return NextResponse.json(
@@ -28,28 +31,29 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { id: tripId } = await params;
     const body = await request.json();
 
-    // Hotels are stored as part of the trip metadata
-    // This would need a separate Hotels table for full implementation
+    const hotel = await prisma.hotel.create({
+      data: {
+        tripId,
+        name: body.name,
+        address: body.address,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        checkInDate: new Date(body.checkInDate),
+        checkInTime: body.checkInTime,
+        checkOutDate: new Date(body.checkOutDate),
+        checkOutTime: body.checkOutTime,
+        confirmationNumber: body.confirmationNumber,
+        phone: body.phone,
+        email: body.email,
+        website: body.website,
+        notes: body.notes,
+        cost: body.cost,
+        currency: body.currency || 'USD',
+        roomType: body.roomType,
+      },
+    });
 
-    return NextResponse.json({
-      id: body.id || crypto.randomUUID(),
-      name: body.name,
-      address: body.address,
-      latitude: body.latitude,
-      longitude: body.longitude,
-      checkInDate: body.checkInDate,
-      checkInTime: body.checkInTime,
-      checkOutDate: body.checkOutDate,
-      checkOutTime: body.checkOutTime,
-      confirmationNumber: body.confirmationNumber,
-      phone: body.phone,
-      email: body.email,
-      website: body.website,
-      notes: body.notes,
-      cost: body.cost,
-      currency: body.currency || 'USD',
-      roomType: body.roomType,
-    }, { status: 201 });
+    return NextResponse.json(hotel, { status: 201 });
   } catch (error) {
     console.error('Failed to create hotel:', error);
     return NextResponse.json(

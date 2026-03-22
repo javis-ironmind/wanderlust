@@ -10,10 +10,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: tripId } = await params;
 
-    // For now, flights are not stored separately in Prisma
-    // They are embedded in the trip data structure
-    // Return empty array - this would need a separate Flights table
-    return NextResponse.json([]);
+    const flights = await prisma.flight.findMany({
+      where: { tripId },
+      orderBy: { departureTime: 'asc' },
+    });
+
+    return NextResponse.json(flights);
   } catch (error) {
     console.error('Failed to fetch flights:', error);
     return NextResponse.json(
@@ -29,28 +31,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { id: tripId } = await params;
     const body = await request.json();
 
-    // Flights are stored as part of the trip metadata
-    // This would need a separate Flights table for full implementation
-    // For now, return success and let the client handle it
+    const flight = await prisma.flight.create({
+      data: {
+        tripId,
+        airline: body.airline,
+        flightNumber: body.flightNumber,
+        departureAirport: body.departureAirport,
+        departureCity: body.departureCity,
+        departureTime: new Date(body.departureTime),
+        arrivalAirport: body.arrivalAirport,
+        arrivalCity: body.arrivalCity,
+        arrivalTime: new Date(body.arrivalTime),
+        confirmationNumber: body.confirmationNumber,
+        terminal: body.terminal,
+        gate: body.gate,
+        seat: body.seat,
+        notes: body.notes,
+        cost: body.cost,
+        currency: body.currency || 'USD',
+      },
+    });
 
-    return NextResponse.json({
-      id: body.id || crypto.randomUUID(),
-      airline: body.airline,
-      flightNumber: body.flightNumber,
-      departureAirport: body.departureAirport,
-      departureCity: body.departureCity,
-      departureTime: body.departureTime,
-      arrivalAirport: body.arrivalAirport,
-      arrivalCity: body.arrivalCity,
-      arrivalTime: body.arrivalTime,
-      confirmationNumber: body.confirmationNumber,
-      terminal: body.terminal,
-      gate: body.gate,
-      seat: body.seat,
-      notes: body.notes,
-      cost: body.cost,
-      currency: body.currency || 'USD',
-    }, { status: 201 });
+    return NextResponse.json(flight, { status: 201 });
   } catch (error) {
     console.error('Failed to create flight:', error);
     return NextResponse.json(

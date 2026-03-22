@@ -213,7 +213,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
       console.error('Failed to delete trip from cloud:', error);
       set((state) => ({
         offlineQueue: [...state.offlineQueue, {
-          id: `${tripId}-${Date.now()}`,
+          id: tripId, // Use tripId directly for delete actions
           action: 'delete',
           timestamp: new Date(),
         }],
@@ -463,7 +463,8 @@ export const useTripStore = create<TripStore>((set, get) => ({
   },
 
   // Flight actions
-  addFlight: (tripId, flight) => {
+  addFlight: async (tripId, flight) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -472,9 +473,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/flights`, 'POST', flight);
+    } catch (error) {
+      console.error('Failed to add flight to cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `flight-${tripId}-${Date.now()}`,
+          action: 'create',
+          data: { tripId, flight },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
-  updateFlight: (tripId, flightId, updates) => {
+  updateFlight: async (tripId, flightId, updates) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -488,9 +505,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/flights/${flightId}`, 'PUT', updates);
+    } catch (error) {
+      console.error('Failed to update flight in cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `flight-${flightId}-${Date.now()}`,
+          action: 'update',
+          data: { tripId, flightId, updates },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
-  deleteFlight: (tripId, flightId) => {
+  deleteFlight: async (tripId, flightId) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -499,10 +532,26 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/flights/${flightId}`, 'DELETE');
+    } catch (error) {
+      console.error('Failed to delete flight from cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `flight-${flightId}-${Date.now()}`,
+          action: 'delete',
+          data: { tripId, flightId },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
   // Hotel actions
-  addHotel: (tripId, hotel) => {
+  addHotel: async (tripId, hotel) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -511,9 +560,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/hotels`, 'POST', hotel);
+    } catch (error) {
+      console.error('Failed to add hotel to cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `hotel-${tripId}-${Date.now()}`,
+          action: 'create',
+          data: { tripId, hotel },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
-  updateHotel: (tripId, hotelId, updates) => {
+  updateHotel: async (tripId, hotelId, updates) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -527,9 +592,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/hotels/${hotelId}`, 'PUT', updates);
+    } catch (error) {
+      console.error('Failed to update hotel in cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `hotel-${hotelId}-${Date.now()}`,
+          action: 'update',
+          data: { tripId, hotelId, updates },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
-  deleteHotel: (tripId, hotelId) => {
+  deleteHotel: async (tripId, hotelId) => {
+    // Optimistic update
     set((state) => ({
       trips: state.trips.map((trip) =>
         trip.id === tripId
@@ -538,6 +619,21 @@ export const useTripStore = create<TripStore>((set, get) => ({
       )
     }));
     saveToStorage(get().trips);
+
+    // Call API
+    try {
+      await apiCall(`/api/trips/${tripId}/hotels/${hotelId}`, 'DELETE');
+    } catch (error) {
+      console.error('Failed to delete hotel from cloud:', error);
+      set((state) => ({
+        offlineQueue: [...state.offlineQueue, {
+          id: `hotel-${hotelId}-${Date.now()}`,
+          action: 'delete',
+          data: { tripId, hotelId },
+          timestamp: new Date(),
+        }],
+      }));
+    }
   },
 
   // Packing list actions
@@ -728,30 +824,46 @@ export const useTripStore = create<TripStore>((set, get) => ({
     set({ syncStatus: 'syncing' });
 
     for (const item of offlineQueue) {
-      try {
-        switch (item.action) {
-          case 'create':
-            await apiCall('/api/trips', 'POST', item.data);
-            break;
-          case 'update':
-            await apiCall(`/api/trips/${item.id}`, 'PUT', item.data);
-            break;
-          case 'delete':
-            await apiCall(`/api/trips/${item.id}`, 'DELETE');
-            break;
+      let retries = 0;
+      const maxRetries = 3;
+
+      while (retries < maxRetries) {
+        try {
+          switch (item.action) {
+            case 'create':
+              await apiCall('/api/trips', 'POST', item.data);
+              break;
+            case 'update':
+              // Extract trip ID from item.id format: "tripId-timestamp"
+              const tripId = item.id.split('-').slice(0, -1).join('-');
+              await apiCall(`/api/trips/${tripId}`, 'PUT', item.data);
+              break;
+            case 'delete':
+              // For delete, item.id is the trip ID to delete
+              await apiCall(`/api/trips/${item.id}`, 'DELETE');
+              break;
+          }
+          break; // Success, exit retry loop
+        } catch (error) {
+          retries++;
+          if (retries >= maxRetries) {
+            console.error(`Failed after ${maxRetries} retries for ${item.action} on trip ${item.id}`);
+            // Remove failed item from queue and continue
+            set({ offlineQueue: get().offlineQueue.filter(q => q.id !== item.id) });
+          } else {
+            // Exponential backoff: 1s, 2s, 4s
+            await new Promise(r => setTimeout(r, Math.pow(2, retries) * 1000));
+          }
         }
-      } catch (error) {
-        console.error(`Failed to process offline action ${item.action} for trip ${item.id}:`, error);
-        // Keep in queue for retry
-        return;
       }
     }
 
-    // Clear queue on success
+    // Clear processed items on success - check if any items failed (removed from queue)
+    const remaining = get().offlineQueue;
     set({
-      offlineQueue: [],
-      syncStatus: 'synced',
-      lastSyncedAt: new Date()
+      offlineQueue: remaining.length === 0 ? [] : remaining,
+      syncStatus: remaining.length === 0 ? 'synced' : 'error',
+      lastSyncedAt: remaining.length === 0 ? new Date() : undefined
     });
   },
 
@@ -795,7 +907,7 @@ export const useTripStore = create<TripStore>((set, get) => ({
   clearUndoQueue: () => set({ undoQueue: [] }),
 
   // Template actions
-  saveTripAsTemplate: (tripId, name, description, includeDates = false) => {
+  saveTripAsTemplate: async (tripId, name, description, includeDates = false) => {
     const { trips, templates } = get();
     const trip = trips.find((t) => t.id === tripId);
     if (!trip) return;
@@ -834,6 +946,13 @@ export const useTripStore = create<TripStore>((set, get) => ({
 
     // Persist to localStorage
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+
+    // Sync to cloud
+    try {
+      await apiCall('/api/templates', 'POST', newTemplate);
+    } catch (error) {
+      console.error('Failed to save template to cloud:', error);
+    }
   },
 
   createTripFromTemplate: (templateId, name, startDate, endDate) => {
@@ -895,18 +1014,32 @@ export const useTripStore = create<TripStore>((set, get) => ({
     return newTrip;
   },
 
-  deleteTemplate: (templateId) => {
+  deleteTemplate: async (templateId) => {
     const newTemplates = get().templates.filter((t) => t.id !== templateId);
     set({ templates: newTemplates });
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+
+    // Sync to cloud
+    try {
+      await apiCall(`/api/templates/${templateId}`, 'DELETE');
+    } catch (error) {
+      console.error('Failed to delete template from cloud:', error);
+    }
   },
 
-  updateTemplate: (templateId, updates) => {
+  updateTemplate: async (templateId, updates) => {
     const newTemplates = get().templates.map((t) =>
       t.id === templateId ? { ...t, ...updates, updatedAt: new Date().toISOString() } : t
     );
     set({ templates: newTemplates });
     localStorage.setItem('wanderlust_templates', JSON.stringify(newTemplates));
+
+    // Sync to cloud
+    try {
+      await apiCall(`/api/templates/${templateId}`, 'PUT', { ...get().templates.find(t => t.id === templateId), ...updates });
+    } catch (error) {
+      console.error('Failed to update template in cloud:', error);
+    }
   },
 
   loadTemplates: () => {
@@ -919,6 +1052,25 @@ export const useTripStore = create<TripStore>((set, get) => ({
         console.error('Failed to load templates:', e);
       }
     }
+
+    // Also try to fetch from API
+    apiCall('/api/templates', 'GET')
+      .then((res) => res.json())
+      .then((cloudTemplates) => {
+        if (Array.isArray(cloudTemplates) && cloudTemplates.length > 0) {
+          // Merge with local templates, preferring cloud versions
+          const localTemplates = get().templates;
+          const merged = [...localTemplates];
+          cloudTemplates.forEach((ct: TripTemplate) => {
+            if (!merged.find((t) => t.id === ct.id)) {
+              merged.push(ct);
+            }
+          });
+          set({ templates: merged });
+          localStorage.setItem('wanderlust_templates', JSON.stringify(merged));
+        }
+      })
+      .catch((e) => console.error('Failed to load templates from cloud:', e));
   },
 }));
 

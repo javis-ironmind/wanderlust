@@ -11,28 +11,28 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { flightId } = await params;
     const body = await request.json();
 
-    // Flights are stored as part of the trip metadata
-    // This would need a separate Flights table for full implementation
-    // For now, return success
-
-    return NextResponse.json({
-      id: flightId,
-      airline: body.airline,
-      flightNumber: body.flightNumber,
-      departureAirport: body.departureAirport,
-      departureCity: body.departureCity,
-      departureTime: body.departureTime,
-      arrivalAirport: body.arrivalAirport,
-      arrivalCity: body.arrivalCity,
-      arrivalTime: body.arrivalTime,
-      confirmationNumber: body.confirmationNumber,
-      terminal: body.terminal,
-      gate: body.gate,
-      seat: body.seat,
-      notes: body.notes,
-      cost: body.cost,
-      currency: body.currency || 'USD',
+    const flight = await prisma.flight.update({
+      where: { id: flightId },
+      data: {
+        airline: body.airline,
+        flightNumber: body.flightNumber,
+        departureAirport: body.departureAirport,
+        departureCity: body.departureCity,
+        departureTime: new Date(body.departureTime),
+        arrivalAirport: body.arrivalAirport,
+        arrivalCity: body.arrivalCity,
+        arrivalTime: new Date(body.arrivalTime),
+        confirmationNumber: body.confirmationNumber,
+        terminal: body.terminal,
+        gate: body.gate,
+        seat: body.seat,
+        notes: body.notes,
+        cost: body.cost,
+        currency: body.currency || 'USD',
+      },
     });
+
+    return NextResponse.json(flight);
   } catch (error) {
     console.error('Failed to update flight:', error);
     return NextResponse.json(
@@ -47,8 +47,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { flightId } = await params;
 
-    // Flights are stored as part of the trip metadata
-    // This would need a separate Flights table for full implementation
+    await prisma.flight.delete({
+      where: { id: flightId },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

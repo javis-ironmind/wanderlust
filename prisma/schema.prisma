@@ -31,12 +31,14 @@ model Trip {
   isCloudSync   Boolean  @default(false)
   lastSyncedAt  DateTime?
   syncStatus    String   @default("local") // local, syncing, synced, error
-  
+
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   days          Day[]
-  
+  flights       Flight[]
+  hotels        Hotel[]
+
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   version       Int      @default(1) // For conflict resolution
@@ -48,14 +50,63 @@ model Day {
   date        DateTime
   notes       String?
   order       Int      @default(0)
-  
+
   tripId      String
   trip        Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  
+
   activities  Activity[]
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+// Flight model - flight information for a trip
+model Flight {
+  id                   String   @id @default(cuid())
+  tripId               String
+  airline              String
+  flightNumber         String
+  departureAirport     String
+  departureCity        String
+  departureTime        DateTime
+  arrivalAirport       String
+  arrivalCity          String
+  arrivalTime          DateTime
+  confirmationNumber   String?
+  terminal             String?
+  gate                 String?
+  seat                 String?
+  notes                String?
+  cost                 Float?
+  currency             String   @default("USD")
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  trip                 Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}
+
+// Hotel model - lodging information for a trip
+model Hotel {
+  id                   String   @id @default(cuid())
+  tripId               String
+  name                 String
+  address              String
+  latitude             Float?
+  longitude            Float?
+  checkInDate          DateTime
+  checkInTime          String?
+  checkOutDate         DateTime
+  checkOutTime         String?
+  confirmationNumber   String?
+  phone                String?
+  email                String?
+  website              String?
+  notes                String?
+  cost                 Float?
+  currency             String   @default("USD")
+  roomType             String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  trip                 Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
 }
 
 // Activity model - individual activities/events
@@ -91,6 +142,17 @@ model SyncQueue {
   attempts    Int      @default(0)
   lastAttempt DateTime?
   error       String?
-  
+
   createdAt   DateTime @default(now())
+}
+
+// Template - saved trip templates for quick trip creation
+model Template {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  days        Json     // Array of template days with activities
+  includeDates Boolean @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

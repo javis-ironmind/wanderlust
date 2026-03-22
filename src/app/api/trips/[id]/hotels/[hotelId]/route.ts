@@ -11,28 +11,29 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
     const { hotelId } = await params;
     const body = await request.json();
 
-    // Hotels are stored as part of the trip metadata
-    // This would need a separate Hotels table for full implementation
-
-    return NextResponse.json({
-      id: hotelId,
-      name: body.name,
-      address: body.address,
-      latitude: body.latitude,
-      longitude: body.longitude,
-      checkInDate: body.checkInDate,
-      checkInTime: body.checkInTime,
-      checkOutDate: body.checkOutDate,
-      checkOutTime: body.checkOutTime,
-      confirmationNumber: body.confirmationNumber,
-      phone: body.phone,
-      email: body.email,
-      website: body.website,
-      notes: body.notes,
-      cost: body.cost,
-      currency: body.currency || 'USD',
-      roomType: body.roomType,
+    const hotel = await prisma.hotel.update({
+      where: { id: hotelId },
+      data: {
+        name: body.name,
+        address: body.address,
+        latitude: body.latitude,
+        longitude: body.longitude,
+        checkInDate: new Date(body.checkInDate),
+        checkInTime: body.checkInTime,
+        checkOutDate: new Date(body.checkOutDate),
+        checkOutTime: body.checkOutTime,
+        confirmationNumber: body.confirmationNumber,
+        phone: body.phone,
+        email: body.email,
+        website: body.website,
+        notes: body.notes,
+        cost: body.cost,
+        currency: body.currency || 'USD',
+        roomType: body.roomType,
+      },
     });
+
+    return NextResponse.json(hotel);
   } catch (error) {
     console.error('Failed to update hotel:', error);
     return NextResponse.json(
@@ -47,8 +48,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const { hotelId } = await params;
 
-    // Hotels are stored as part of the trip metadata
-    // This would need a separate Hotels table for full implementation
+    await prisma.hotel.delete({
+      where: { id: hotelId },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
